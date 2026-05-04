@@ -3,6 +3,7 @@ import express from 'express'
 import cors from 'cors'
 import dotenv from 'dotenv'
 import healthRouter from './routes/health'
+import { connectDB } from './db'
 
 dotenv.config()
 
@@ -19,9 +20,12 @@ app.use('/health', healthRouter)
 // Create http.Server explicitly — required for y-websocket to share this instance (TASK-08)
 const server = http.createServer(app)
 
-server.listen(PORT, () => {
-  console.log(`[server] REST API running on http://localhost:${PORT}`)
-  console.log(`[server] GET /health → { status: 'ok' }`)
+// Connect to MongoDB, then start listening
+connectDB().then(() => {
+  server.listen(PORT, () => {
+    console.log(`[server] REST API running on http://localhost:${PORT}`)
+    console.log(`[server] GET /health → { status: 'ok' }`)
+  })
 })
 
 export { server }
