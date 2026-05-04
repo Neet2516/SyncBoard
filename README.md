@@ -53,34 +53,3 @@ project-root/
 1.  **Collaborative Awareness:** Implement live cursors using Yjs awareness protocols[cite: 1].
 2.  **Deployment:** Host the frontend on Vercel/Netlify and the WebSocket backend on a service like Railway[cite: 1].
 
----
-
-## 🚀 How to Achieve This Goal in Antigravity
-
-To get the most out of your Antigravity environment and me (Gemini/Claude), follow this process:
-
-### Step 1: "Introduce" Me to the Environment
-Run the following in your Antigravity terminal:
-```bash
-gemini
-# or if using the specific tool
-/ide enable
-```
-This allows me to see your current folder structure as we build it.
-
-### Step 2: Architecture Initialization
-Paste the **Proposed Folder Structure** above into your chat and ask:
-> *"Based on this README, please generate the boilerplate for the `client/src/hooks/useYjsDoc.ts` and the main `BoardCanvas.tsx` to handle the basic React Flow + Yjs handshake."*
-
-### Step 3: Incremental Coding
-Work in the order of the **Roadmap**[cite: 1]. Start with the Yjs/WebSocket connection logic before moving to the UI. This ensures the "engine" works before you build the "dashboard."
-
-### Step 4: Verification
-After generating files, ask:
-> *"Check my `NoteNode.tsx`—is the Quill editor correctly bound to the Yjs `texts` map according to the schema in the README?"*[cite: 1]
-
----
-
-### Key Summary for Claude[cite: 1]
-**Goal:** Build "SyncBoard," a Figma-style canvas where nodes contain Quill editors, all synced via Yjs and WebSockets.
-**Requirement:** Use React Flow for the canvas and Yjs for conflict-free state management[cite: 1]. Avoid manual merge logic.
