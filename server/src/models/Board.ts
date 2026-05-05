@@ -1,4 +1,5 @@
 import mongoose, { Schema, Document } from 'mongoose'
+import { v4 as uuidv4 } from 'uuid'
 
 // ─── Board Interface ─────────────────────────────────────────────────────────
 
@@ -24,6 +25,7 @@ const BoardSchema = new Schema<IBoard>(
       required: true,
       unique: true,
       index: true,
+      default: () => uuidv4(),
     },
     name: {
       type: String,

@@ -1,4 +1,5 @@
 import * as Y from 'yjs'
+import { Awareness } from 'y-protocols/awareness'
 
 // ─── Node Data ───────────────────────────────────────────────────────────────
 
@@ -7,6 +8,8 @@ export interface NodePosition {
   y: number
 }
 
+export type NodeColor = 'white' | 'blue' | 'green' | 'yellow' | 'red'
+
 export interface NodeData {
   id: string
   type: 'noteNode'
@@ -14,6 +17,7 @@ export interface NodeData {
   width: number
   height: number
   label?: string
+  color?: NodeColor
 }
 
 // ─── Edge Data ───────────────────────────────────────────────────────────────
@@ -22,7 +26,63 @@ export interface EdgeData {
   id: string
   source: string   // nodeId of source
   target: string   // nodeId of target
+  sourceHandle?: NodeHandleId
+  targetHandle?: NodeHandleId
   label?: string
+}
+
+export type NodeHandleSide = 'top' | 'bottom' | 'left' | 'right'
+
+export type NodeHandleId = NodeHandleSide
+
+// ─── NoteNode Props (React Flow custom node) ─────────────────────────────────
+
+/**
+ * Data bag passed by React Flow to every NoteNode instance.
+ * React Flow merges this into: { id, type, selected, data, ... }
+ */
+export interface NoteNodeData {
+  nodeId: string
+  yTexts: Y.Map<Y.XmlText>
+  yNodes: Y.Map<NodeData>
+  awareness: Awareness
+  color?: NodeColor
+}
+
+/** Full props received by the NoteNode custom node component */
+export interface NoteNodeProps {
+  id: string
+  data: NoteNodeData
+  selected: boolean
+  dragging: boolean
+}
+
+// ─── API Response Types ───────────────────────────────────────────────────────
+
+export interface ApiBoard {
+  _id: string
+  boardId: string
+  name: string
+  ownerId: string
+  collaboratorIds: string[]
+  createdAt: string
+}
+
+export interface PaginatedBoards {
+  boards: ApiBoard[]
+  total: number
+  page: number
+  limit: number
+  hasMore: boolean
+}
+
+export interface LoginResponse {
+  userId: string
+  name: string
+}
+
+export interface RegisterResponse {
+  message: string
 }
 
 // ─── Board Y.Doc Shape ───────────────────────────────────────────────────────
