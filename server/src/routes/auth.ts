@@ -6,7 +6,7 @@ import { User } from '../models/User'
 const router = Router()
 
 const IS_PROD = process.env.NODE_ENV === 'production'
-const COOKIE_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000 // 7 days
+const COOKIE_MAX_AGE_MS = 24 * 60 * 60 * 1000 // 24 hours
 
 // ─── Register ────────────────────────────────────────────────────────────────
 
@@ -69,7 +69,7 @@ router.post('/login', async (req: Request, res: Response) => {
     const token = jwt.sign(
       { userId: user._id, email: user.email },
       secret,
-      { expiresIn: '7d' }
+      { expiresIn: '24h' }
     )
 
     // ── Set HttpOnly cookie instead of returning token in body ──────────────

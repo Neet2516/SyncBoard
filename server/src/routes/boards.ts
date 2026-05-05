@@ -2,49 +2,111 @@ import { Router, Response } from 'express'
 import mongoose from 'mongoose'
 import { authMiddleware, AuthRequest } from '../middleware/authMiddleware'
 import { Board } from '../models/Board'
+import { User } from '../models/User'
 
 const router = Router()
 
-// Apply authMiddleware to all routes in this router
 router.use(authMiddleware)
 
-const findBoardForUser = async (boardIdentifier: string, userId?: string) => {
+const INVITE_WINDOW_MS = 60_000
+const INVITE_LIMIT = 10
+const inviteRateLimit = new Map<string, number[]>()
+
+function findBoardLookup(boardIdentifier: string) {
+  return mongoose.Types.ObjectId.isValid(boardIdentifier)
+    ? { $or: [{ _id: boardIdentifier }, { boardId: boardIdentifier }] }
+    : { boardId: boardIdentifier }
+}
+
+function buildBoardMemberFilter(boardIdentifier: string, userId: string) {
+  const objectUserId = new mongoose.Types.ObjectId(userId)
+
+  return {
+    ...findBoardLookup(boardIdentifier),
+    $or: [{ ownerId: objectUserId }, { collaboratorIds: objectUserId }],
+  }
+}
+
+async function findBoardForUser(boardIdentifier: string, userId?: string) {
   if (!userId) {
     return null
   }
 
-  const board = mongoose.Types.ObjectId.isValid(boardIdentifier)
-    ? await Board.findOne({
-        ownerId: userId,
-        $or: [{ _id: boardIdentifier }, { boardId: boardIdentifier }],
-      })
-    : await Board.findOne({
-        ownerId: userId,
-        boardId: boardIdentifier,
-      })
-
-  return board
+  return Board.findOne(buildBoardMemberFilter(boardIdentifier, userId))
 }
 
-// ─── GET /boards ─────────────────────────────────────────────────────────────
-// FIX: Was fetching all boards with no limit (O(n) query + payload).
-// Now supports cursor-based pagination via ?page=1&limit=20.
-// Also supports ?search= for lightweight name filtering.
+function serializeBoard(board: any) {
+  const collaborators = Array.isArray(board.collaborators)
+    ? board.collaborators.map((collaborator: any) => ({
+        userId: String(collaborator._id),
+        name: collaborator.name,
+        email: collaborator.email,
+      }))
+    : undefined
+
+  return {
+    _id: String(board._id),
+    boardId: board.boardId,
+    name: board.name,
+    ownerId: String(board.ownerId),
+    collaboratorIds: (board.collaboratorIds ?? []).map((id: mongoose.Types.ObjectId | string) => String(id)),
+    createdAt: board.createdAt,
+    collaborators,
+  }
+}
+
+function cleanupInviteRateLimit(now: number) {
+  inviteRateLimit.forEach((timestamps, key) => {
+    const fresh = timestamps.filter((timestamp) => now - timestamp < INVITE_WINDOW_MS)
+
+    if (fresh.length === 0) {
+      inviteRateLimit.delete(key)
+      return
+    }
+
+    inviteRateLimit.set(key, fresh)
+  })
+}
+
+function canInvite(userId: string, boardId: string) {
+  const now = Date.now()
+  cleanupInviteRateLimit(now)
+
+  const key = `${userId}:${boardId}`
+  const history = inviteRateLimit.get(key)?.filter((timestamp) => now - timestamp < INVITE_WINDOW_MS) ?? []
+
+  if (history.length >= INVITE_LIMIT) {
+    return false
+  }
+
+  history.push(now)
+  inviteRateLimit.set(key, history)
+  return true
+}
 
 router.get('/', async (req: AuthRequest, res: Response) => {
   try {
     const userId = req.user?.userId
 
-    // Pagination params with safe defaults
-    const page  = Math.max(1, parseInt(req.query['page'] as string, 10) || 1)
+    if (!userId) {
+      return res.status(401).json({ error: 'Unauthorized' })
+    }
+
+    const page = Math.max(1, parseInt(req.query['page'] as string, 10) || 1)
     const limit = Math.min(100, Math.max(1, parseInt(req.query['limit'] as string, 10) || 20))
-    const skip  = (page - 1) * limit
+    const skip = (page - 1) * limit
     const search = (req.query['search'] as string | undefined)?.trim()
 
-    const filter: mongoose.FilterQuery<typeof Board> = { ownerId: userId }
+    const objectUserId = new mongoose.Types.ObjectId(userId)
+    const filter: Record<string, unknown> = {
+      $or: [{ ownerId: objectUserId }, { collaboratorIds: objectUserId }],
+    }
+
     if (search) {
-      // Case-insensitive prefix search on board name
-      filter['name'] = { $regex: `^${search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`, $options: 'i' }
+      filter['name'] = {
+        $regex: `^${search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`,
+        $options: 'i',
+      }
     }
 
     const [boards, total] = await Promise.all([
@@ -53,7 +115,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
     ])
 
     res.json({
-      boards,
+      boards: boards.map(serializeBoard),
       total,
       page,
       limit,
@@ -64,8 +126,6 @@ router.get('/', async (req: AuthRequest, res: Response) => {
     res.status(500).json({ error: 'Internal server error' })
   }
 })
-
-// ─── POST /boards ─────────────────────────────────────────────────────────────
 
 router.post('/', async (req: AuthRequest, res: Response) => {
   try {
@@ -87,15 +147,12 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     })
 
     await board.save()
-
-    res.status(201).json(board)
+    res.status(201).json(serializeBoard(board))
   } catch (error) {
     console.error('[boards] POST / error:', error)
     res.status(500).json({ error: 'Internal server error' })
   }
 })
-
-// ─── GET /boards/:id ─────────────────────────────────────────────────────────
 
 router.get('/:id', async (req: AuthRequest, res: Response) => {
   try {
@@ -108,28 +165,148 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
       return res.status(404).json({ error: 'Board not found' })
     }
 
-    res.json(board)
+    const hydratedBoard = await Board.findById(board._id).populate('collaboratorIds', 'name email').lean()
+
+    if (!hydratedBoard) {
+      return res.status(404).json({ error: 'Board not found' })
+    }
+
+    res.json(
+      serializeBoard({
+        ...hydratedBoard,
+        collaborators: hydratedBoard.collaboratorIds,
+      })
+    )
   } catch (error) {
     console.error(`[boards] GET /${req.params['id']} error:`, error)
     res.status(500).json({ error: 'Internal server error' })
   }
 })
 
-// ─── DELETE /boards/:id ───────────────────────────────────────────────────────
+router.post('/:id/collaborators', async (req: AuthRequest, res: Response) => {
+  try {
+    const id = Array.isArray(req.params['id']) ? req.params['id'][0] : req.params['id']
+    const userId = req.user?.userId
+    const email = typeof req.body?.email === 'string' ? req.body.email.trim().toLowerCase() : ''
+
+    if (!userId) {
+      return res.status(401).json({ error: 'Unauthorized' })
+    }
+
+    if (!email) {
+      return res.status(400).json({ error: 'Email is required' })
+    }
+
+    if (!canInvite(userId, id)) {
+      return res.status(429).json({ error: 'Too many invites. Please wait a minute and try again.' })
+    }
+
+    const board = await Board.findOne({
+      ownerId: new mongoose.Types.ObjectId(userId),
+      ...findBoardLookup(id),
+    })
+
+    if (!board) {
+      return res.status(404).json({ error: 'Board not found or you are not the owner' })
+    }
+
+    const user = await User.findOne({ email }).lean()
+    if (!user) {
+      return res.status(404).json({ error: 'No user found with that email' })
+    }
+
+    if (String(board.ownerId) === String(user._id)) {
+      return res.status(400).json({ error: 'Board owner already has access' })
+    }
+
+    await Board.updateOne({ _id: board._id }, { $addToSet: { collaboratorIds: user._id } })
+
+    const updatedBoard = await Board.findById(board._id).populate('collaboratorIds', 'name email').lean()
+
+    if (!updatedBoard) {
+      return res.status(404).json({ error: 'Board not found' })
+    }
+
+    res.json({
+      message: 'Collaborator added successfully',
+      board: serializeBoard({
+        ...updatedBoard,
+        collaborators: updatedBoard.collaboratorIds,
+      }),
+    })
+  } catch (error) {
+    console.error(`[boards] POST /${req.params['id']}/collaborators error:`, error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
+router.delete('/:id/collaborators/:collaboratorId', async (req: AuthRequest, res: Response) => {
+  try {
+    const id = Array.isArray(req.params['id']) ? req.params['id'][0] : req.params['id']
+    const collaboratorId = Array.isArray(req.params['collaboratorId'])
+      ? req.params['collaboratorId'][0]
+      : req.params['collaboratorId']
+    const userId = req.user?.userId
+
+    if (!userId) {
+      return res.status(401).json({ error: 'Unauthorized' })
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(collaboratorId)) {
+      return res.status(400).json({ error: 'Invalid collaborator id' })
+    }
+
+    const board = await Board.findOne({
+      ownerId: new mongoose.Types.ObjectId(userId),
+      ...findBoardLookup(id),
+    })
+
+    if (!board) {
+      return res.status(404).json({ error: 'Board not found or you are not the owner' })
+    }
+
+    await Board.updateOne(
+      { _id: board._id },
+      { $pull: { collaboratorIds: new mongoose.Types.ObjectId(collaboratorId) } }
+    )
+
+    const updatedBoard = await Board.findById(board._id).populate('collaboratorIds', 'name email').lean()
+
+    if (!updatedBoard) {
+      return res.status(404).json({ error: 'Board not found' })
+    }
+
+    res.json({
+      message: 'Collaborator removed successfully',
+      board: serializeBoard({
+        ...updatedBoard,
+        collaborators: updatedBoard.collaboratorIds,
+      }),
+    })
+  } catch (error) {
+    console.error(
+      `[boards] DELETE /${req.params['id']}/collaborators/${req.params['collaboratorId']} error:`,
+      error
+    )
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
 
 router.delete('/:id', async (req: AuthRequest, res: Response) => {
   try {
     const id = Array.isArray(req.params['id']) ? req.params['id'][0] : req.params['id']
     const userId = req.user?.userId
 
-    const board = await findBoardForUser(id, userId)
+    const board = await Board.findOne({
+      ownerId: new mongoose.Types.ObjectId(userId),
+      ...findBoardLookup(id),
+    })
 
     if (!board) {
-      return res.status(404).json({ error: 'Board not found' })
+      return res.status(404).json({ error: 'Board not found or you are not the owner' })
     }
 
     await Board.deleteOne({ _id: board._id })
-
     res.json({ message: 'Board deleted successfully' })
   } catch (error) {
     console.error(`[boards] DELETE /${req.params['id']} error:`, error)

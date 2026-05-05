@@ -66,6 +66,7 @@ export interface ApiBoard {
   ownerId: string
   collaboratorIds: string[]
   createdAt: string
+  collaborators?: BoardCollaborator[]
 }
 
 export interface PaginatedBoards {
@@ -83,6 +84,12 @@ export interface LoginResponse {
 
 export interface RegisterResponse {
   message: string
+}
+
+export interface BoardCollaborator {
+  userId: string
+  name: string
+  email: string
 }
 
 // ─── Board Y.Doc Shape ───────────────────────────────────────────────────────
