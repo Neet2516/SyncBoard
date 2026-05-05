@@ -18,7 +18,7 @@ const PORT = process.env.PORT || 4000
 // FIX: was `cors()` with no config — accepted any origin.
 // Now explicitly allowlisted; credentials: true required for HttpOnly cookies.
 
-const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || 'http://localhost:5173')
+const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || 'http://localhost:5173,http://localhost:3000')
   .split(',')
   .map((o) => o.trim())
 

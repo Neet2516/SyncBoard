@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { api } from '../services/api'
 import { LoginResponse } from '../types/yjsSchema'
+import { useAuth } from '../context/AuthContext'
 
 /**
  * LoginPage Component
@@ -13,6 +14,7 @@ import { LoginResponse } from '../types/yjsSchema'
  */
 export function LoginPage() {
   const navigate = useNavigate()
+  const { login } = useAuth()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
@@ -28,8 +30,14 @@ export function LoginPage() {
       const data = await api.post<LoginResponse>('/auth/login', { email, password })
 
       // Only store non-sensitive display data
-      localStorage.setItem('userId', data.userId)
       localStorage.setItem('name', data.name)
+      localStorage.setItem('userId', data.userId)
+
+      login({
+        id: data.userId,
+        name: data.name,
+        email,
+      })
 
       navigate('/boards')
     } catch (err) {

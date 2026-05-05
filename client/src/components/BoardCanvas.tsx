@@ -31,6 +31,8 @@ import { NodeData, EdgeData, NoteNodeData, type NodeHandleId } from '../types/yj
 import { CanvasProvider } from '../context/CanvasContext'
 import { EditorToolbar } from './EditorToolbar'
 
+type RFNoteNode = Node<NoteNodeData>
+
 // Define custom node types outside the component so the reference is stable
 // across renders — prevents React Flow from re-mounting all nodes on re-render
 const nodeTypes: NodeTypes = {
@@ -87,7 +89,7 @@ function isNodeHandleId(handle: string | null): handle is NodeHandleId {
 
 // ─── Helpers to build a single RF Node / Edge from Yjs data ──────────────────
 
-function yNodeToRfNode(yNode: NodeData, yTexts: Y.Map<Y.XmlText>, yNodes: Y.Map<NodeData>, awareness: Awareness, theme: 'light' | 'dark'): Node {
+function yNodeToRfNode(yNode: NodeData, yTexts: Y.Map<Y.XmlText>, yNodes: Y.Map<NodeData>, awareness: Awareness): RFNoteNode {
   const data: NoteNodeData = {
     nodeId: yNode.id,
     yTexts,
@@ -102,7 +104,7 @@ function yNodeToRfNode(yNode: NodeData, yTexts: Y.Map<Y.XmlText>, yNodes: Y.Map<
     position: yNode.position,
     width: yNode.width,
     height: yNode.height,
-    data: data as unknown as Record<string, unknown>,
+    data,
   }
 }
 
@@ -140,7 +142,7 @@ function BoardCanvasInner({ yNodes, yEdges, yTexts, awareness }: BoardCanvasProp
 
   const buildAllFromYjs = useCallback(() => {
     const rfNodes: Node[] = Array.from(yNodes.values()).map(
-      (yNode) => yNodeToRfNode(yNode, yTexts, yNodes, awareness, theme)
+      (yNode) => yNodeToRfNode(yNode, yTexts, yNodes, awareness)
     )
     const rfEdges: Edge[] = Array.from(yEdges.values()).map(
       (yEdge) => yEdgeToRfEdge(yEdge, theme)
@@ -165,19 +167,20 @@ function BoardCanvasInner({ yNodes, yEdges, yTexts, awareness }: BoardCanvasProp
           // Add or update: upsert the specific node
           const yNode = yNodes.get(key)
           if (!yNode) return
-          const rfNode = yNodeToRfNode(yNode, yTexts, yNodes, awareness, theme)
+          const rfNode = yNodeToRfNode(yNode, yTexts, yNodes, awareness)
 
           setNodes((prev) => {
             const idx = prev.findIndex((n) => n.id === key)
             if (idx === -1) return [...prev, rfNode]
             // Only replace if data actually changed (avoid thrashing)
             const existing = prev[idx]
+            const existingData = existing.data as unknown as Partial<NoteNodeData>
             if (
               existing.position.x === rfNode.position.x &&
               existing.position.y === rfNode.position.y &&
               existing.width === rfNode.width &&
               existing.height === rfNode.height &&
-              (existing.data as NoteNodeData).color === (rfNode.data as unknown as NoteNodeData).color
+              existingData.color === rfNode.data.color
             ) {
               return prev
             }

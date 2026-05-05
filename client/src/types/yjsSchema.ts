@@ -41,7 +41,7 @@ export type NodeHandleId = NodeHandleSide
  * Data bag passed by React Flow to every NoteNode instance.
  * React Flow merges this into: { id, type, selected, data, ... }
  */
-export interface NoteNodeData {
+export interface NoteNodeData extends Record<string, unknown> {
   nodeId: string
   yTexts: Y.Map<Y.XmlText>
   yNodes: Y.Map<NodeData>

@@ -7,30 +7,23 @@ import { useAuth } from '../context/AuthContext'
  * Protects routes from unauthenticated access.
  */
 export function AuthGuard() {
-  const { isAuthenticated, logout, token } = useAuth()
+  const { isAuthenticated, isLoading } = useAuth()
 
-  if (!isAuthenticated || !token) {
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-gray-50">
+        <div className="flex flex-col items-center">
+          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600 mb-4"></div>
+          <p className="text-gray-600">Checking session...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (!isAuthenticated) {
     return <Navigate to="/login" replace />
   }
 
-  try {
-    // Basic JWT decoding for expiry check
-    const payloadBase64 = token.split('.')[1]
-    const payload = JSON.parse(atob(payloadBase64))
-    
-    const isExpired = payload.exp * 1000 < Date.now()
-
-    if (isExpired) {
-      console.warn('[AuthGuard] Token expired')
-      logout()
-      return <Navigate to="/login" replace />
-    }
-
-    return <Outlet />
-  } catch (error) {
-    console.error('[AuthGuard] Invalid token format')
-    logout()
-    return <Navigate to="/login" replace />
-  }
+  return <Outlet />
 }
 
