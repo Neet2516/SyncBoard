@@ -53,24 +53,26 @@ function AwarenessManager({ awareness }: { awareness: Awareness }) {
   const lastUpdateRef = useRef<number>(0)
 
   useEffect(() => {
+    const name = localStorage.getItem('name') || 'Guest'
+    const userId = localStorage.getItem('userId') || 'anonymous'
+    const color = `hsl(${Array.from(userId).reduce((acc, char) => acc + char.charCodeAt(0), 0) * 13 % 360}, 70%, 50%)`
+
+    awareness.setLocalStateField('user', { name, color })
+
     const handlePointerMove = (e: PointerEvent) => {
       const now = Date.now()
       if (now - lastUpdateRef.current < 50) return
       lastUpdateRef.current = now
 
       const flowPos = screenToFlowPosition({ x: e.clientX, y: e.clientY })
-      const name = localStorage.getItem('name') || 'Guest'
-      const userId = localStorage.getItem('userId') || 'anonymous'
-      const color = `hsl(${Array.from(userId).reduce((acc, char) => acc + char.charCodeAt(0), 0) * 13 % 360}, 70%, 50%)`
-
-      awareness.setLocalState({
-        user: { name, color },
-        cursor: flowPos,
-      })
+      awareness.setLocalStateField('cursor', flowPos)
     }
 
     window.addEventListener('pointermove', handlePointerMove)
-    return () => window.removeEventListener('pointermove', handlePointerMove)
+    return () => {
+      awareness.setLocalStateField('cursor', null)
+      window.removeEventListener('pointermove', handlePointerMove)
+    }
   }, [awareness, screenToFlowPosition])
 
   return <CollaboratorCursors awareness={awareness} />

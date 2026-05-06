@@ -17,7 +17,7 @@ const PAGE_SIZE = 20
 export function BoardList() {
   const navigate = useNavigate()
   const { showToast } = useToast()
-  const { logout } = useAuth()
+  const { logout, user } = useAuth()
 
   const [boards, setBoards] = useState<ApiBoard[]>([])
   const [page, setPage] = useState(1)
@@ -111,6 +111,9 @@ export function BoardList() {
     logout()
     navigate('/login')
   }
+
+  const ownedBoards = boards.filter((board) => board.ownerId === user?.id)
+  const sharedBoards = boards.filter((board) => board.ownerId !== user?.id)
 
   if (loading) {
     return (
@@ -206,42 +209,21 @@ export function BoardList() {
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {boards.map((board) => (
-                <div key={board._id} className="relative group">
-                  <Link
-                    to={`/board/${board.boardId}`}
-                    className="block bg-white p-6 rounded-xl border border-gray-200 shadow-sm hover:shadow-md hover:border-blue-300 transition-all h-full"
-                  >
-                    <div className="flex flex-col h-full justify-between">
-                      <div>
-                        <h3 className="text-lg font-bold text-gray-800 mb-1 group-hover:text-blue-600 transition-colors">
-                          {board.name}
-                        </h3>
-                        <p className="text-sm text-gray-400">
-                          Created on {formatDate(board.createdAt)}
-                        </p>
-                      </div>
-                      <div className="mt-6 flex items-center text-blue-600 text-sm font-semibold opacity-0 group-hover:opacity-100 transition-opacity">
-                        Open Board
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                        </svg>
-                      </div>
-                    </div>
-                  </Link>
-                  <button
-                    onClick={(e) => handleDeleteBoard(e, board._id)}
-                    className="absolute top-4 right-4 p-2 text-gray-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-all rounded-full hover:bg-red-50 z-10"
-                    title="Delete Board"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                    </svg>
-                  </button>
-                </div>
-              ))}
-            </div>
+            <BoardSection
+              title="Owned by me"
+              description="Boards where you can invite teammates and manage access."
+              boards={ownedBoards}
+              canDelete
+              onDelete={handleDeleteBoard}
+            />
+
+            <BoardSection
+              title="Shared with me"
+              description="Boards other people shared with you."
+              boards={sharedBoards}
+              canDelete={false}
+              onDelete={handleDeleteBoard}
+            />
 
             {/* Pagination */}
             {hasMore && (
@@ -259,5 +241,83 @@ export function BoardList() {
         )}
       </main>
     </div>
+  )
+}
+
+function BoardSection({
+  title,
+  description,
+  boards,
+  canDelete,
+  onDelete,
+}: {
+  title: string
+  description: string
+  boards: ApiBoard[]
+  canDelete: boolean
+  onDelete: (event: React.MouseEvent, id: string) => void
+}) {
+  if (boards.length === 0) {
+    return null
+  }
+
+  return (
+    <section className="mb-10">
+      <div className="mb-4">
+        <h3 className="text-lg font-semibold text-gray-800">{title}</h3>
+        <p className="text-sm text-gray-500">{description}</p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {boards.map((board) => (
+          <div key={board._id} className="relative group">
+            <Link
+              to={`/board/${board.boardId}`}
+              className="block bg-white p-6 rounded-xl border border-gray-200 shadow-sm hover:shadow-md hover:border-blue-300 transition-all h-full"
+            >
+              <div className="flex flex-col h-full justify-between">
+                <div>
+                  <div className="mb-2 flex items-center justify-between gap-3">
+                    <h4 className="text-lg font-bold text-gray-800 group-hover:text-blue-600 transition-colors">
+                      {board.name}
+                    </h4>
+                    {!canDelete && (
+                      <span className="rounded-full bg-blue-50 px-2.5 py-1 text-[11px] font-semibold text-blue-700">
+                        Shared
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-sm text-gray-400">
+                    Created on {formatDate(board.createdAt)}
+                  </p>
+                  {!canDelete && (
+                    <p className="mt-2 text-xs text-gray-500">
+                      {board.collaboratorIds.length} collaborator{board.collaboratorIds.length === 1 ? '' : 's'}
+                    </p>
+                  )}
+                </div>
+                <div className="mt-6 flex items-center text-blue-600 text-sm font-semibold opacity-0 group-hover:opacity-100 transition-opacity">
+                  Open Board
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                  </svg>
+                </div>
+              </div>
+            </Link>
+            {canDelete && (
+              <button
+                onClick={(e) => onDelete(e, board._id)}
+                className="absolute top-4 right-4 p-2 text-gray-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-all rounded-full hover:bg-red-50 z-10"
+                title="Delete Board"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0 1 16.138 21H7.862a2 2 0 0 1-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v3M4 7h16" />
+                </svg>
+              </button>
+            )}
+          </div>
+        ))}
+      </div>
+    </section>
   )
 }
