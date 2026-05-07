@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { LandingPage } from './pages/LandingPage'
 import { LoginPage } from './pages/LoginPage'
 import { RegisterPage } from './pages/RegisterPage'
 import { BoardList } from './pages/BoardList'
@@ -18,7 +19,8 @@ function App() {
       <ToastProvider>
         <BrowserRouter>
           <Routes>
-            {/* Unauthenticated Routes */}
+            {/* Public Routes */}
+            <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
 
@@ -26,11 +28,10 @@ function App() {
             <Route element={<AuthGuard />}>
               <Route path="/boards" element={<BoardList />} />
               <Route path="/board/:boardId" element={<BoardView />} />
-              <Route path="/" element={<Navigate to="/boards" replace />} />
             </Route>
 
             {/* Fallback */}
-            <Route path="*" element={<Navigate to="/boards" replace />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </BrowserRouter>
       </ToastProvider>
