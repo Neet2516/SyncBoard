@@ -7,6 +7,13 @@ const router = Router()
 
 const IS_PROD = process.env.NODE_ENV === 'production'
 const COOKIE_MAX_AGE_MS = 24 * 60 * 60 * 1000 // 24 hours
+const AUTH_COOKIE_OPTIONS = {
+  httpOnly: true,
+  secure: IS_PROD,
+  sameSite: (IS_PROD ? 'none' : 'lax') as 'none' | 'lax',
+  maxAge: COOKIE_MAX_AGE_MS,
+  path: '/',
+}
 
 // ─── Register ────────────────────────────────────────────────────────────────
 
@@ -73,13 +80,7 @@ router.post('/login', async (req: Request, res: Response) => {
     )
 
     // ── Set HttpOnly cookie instead of returning token in body ──────────────
-    res.cookie('auth_token', token, {
-      httpOnly: true,                        // JS cannot read this cookie
-      secure: IS_PROD,                       // HTTPS only in production
-      sameSite: IS_PROD ? 'strict' : 'lax', // CSRF protection
-      maxAge: COOKIE_MAX_AGE_MS,
-      path: '/',
-    })
+    res.cookie('auth_token', token, AUTH_COOKIE_OPTIONS)
 
     // Only non-sensitive identity data in the response body
     res.json({
@@ -95,7 +96,12 @@ router.post('/login', async (req: Request, res: Response) => {
 // ─── Logout ───────────────────────────────────────────────────────────────────
 
 router.post('/logout', (_req: Request, res: Response) => {
-  res.clearCookie('auth_token', { path: '/' })
+  res.clearCookie('auth_token', {
+    httpOnly: true,
+    secure: IS_PROD,
+    sameSite: AUTH_COOKIE_OPTIONS.sameSite,
+    path: '/',
+  })
   res.json({ message: 'Logged out' })
 })
 
@@ -115,7 +121,12 @@ router.get('/me', async (req: Request, res: Response) => {
     if (!user) return res.status(401).json({ error: 'User not found' })
     res.json({ userId: String(user._id), name: user.name, email: user.email })
   } catch {
-    res.clearCookie('auth_token', { path: '/' })
+    res.clearCookie('auth_token', {
+      httpOnly: true,
+      secure: IS_PROD,
+      sameSite: AUTH_COOKIE_OPTIONS.sameSite,
+      path: '/',
+    })
     res.status(401).json({ error: 'Invalid or expired session' })
   }
 })

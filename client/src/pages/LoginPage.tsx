@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Link, useNavigate, Navigate } from 'react-router-dom'
 import { api } from '../services/api'
 import { LoginResponse } from '../types/yjsSchema'

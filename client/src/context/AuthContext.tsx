@@ -24,12 +24,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const restoreSession = async () => {
       try {
-        const savedUser = localStorage.getItem('user')
-
-        if (savedUser) {
-          setUser(JSON.parse(savedUser))
-        }
-
         const session = await api.get<{ userId: string; name: string; email: string }>('/auth/me')
         const restoredUser: User = {
           id: session.userId,
@@ -41,6 +35,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser(restoredUser)
       } catch {
         localStorage.removeItem('user')
+        localStorage.removeItem('name')
+        localStorage.removeItem('userId')
         setUser(null)
       } finally {
         setIsLoading(false)
@@ -57,6 +53,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = () => {
     localStorage.removeItem('user')
+    localStorage.removeItem('name')
+    localStorage.removeItem('userId')
     setUser(null)
   }
 
