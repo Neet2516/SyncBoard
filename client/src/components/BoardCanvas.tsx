@@ -363,8 +363,7 @@ function BoardCanvasInner({ yNodes, yEdges, yTexts, awareness }: BoardCanvasProp
         snapToGrid
         snapGrid={[15, 15]}
         colorMode={theme}
-        // Disable RF's internal node deletion keybinding — we handle it via Yjs transaction
-        deleteKeyCode={null}
+        deleteKeyCode={['Backspace', 'Delete']}
       >
         <Background variant={BackgroundVariant.Dots} color={theme === 'dark' ? '#334155' : '#cbd5e1'} gap={20} />
         <Controls />
