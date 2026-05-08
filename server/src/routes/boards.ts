@@ -183,6 +183,63 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
   }
 })
 
+router.post('/:id/join', async (req: AuthRequest, res: Response) => {
+  try {
+    const id = Array.isArray(req.params['id']) ? req.params['id'][0] : req.params['id']
+    const userId = req.user?.userId
+
+    if (!userId) {
+      return res.status(401).json({ error: 'Unauthorized' })
+    }
+
+    const objectUserId = new mongoose.Types.ObjectId(userId)
+    const board = await Board.findOne(findBoardLookup(id))
+
+    if (!board) {
+      return res.status(404).json({ error: 'Board not found' })
+    }
+
+    if (String(board.ownerId) === userId) {
+      const hydratedOwnerBoard = await Board.findById(board._id).populate('collaboratorIds', 'name email').lean()
+
+      if (!hydratedOwnerBoard) {
+        return res.status(404).json({ error: 'Board not found' })
+      }
+
+      return res.json({
+        message: 'You already own this board.',
+        board: serializeBoard({
+          ...hydratedOwnerBoard,
+          collaborators: hydratedOwnerBoard.collaboratorIds,
+        }),
+      })
+    }
+
+    const isCollaborator = board.collaboratorIds.some((collaboratorId) => String(collaboratorId) === userId)
+
+    if (!isCollaborator) {
+      await Board.updateOne({ _id: board._id }, { $addToSet: { collaboratorIds: objectUserId } })
+    }
+
+    const updatedBoard = await Board.findById(board._id).populate('collaboratorIds', 'name email').lean()
+
+    if (!updatedBoard) {
+      return res.status(404).json({ error: 'Board not found' })
+    }
+
+    res.json({
+      message: isCollaborator ? 'You already have access to this board.' : 'Board joined successfully.',
+      board: serializeBoard({
+        ...updatedBoard,
+        collaborators: updatedBoard.collaboratorIds,
+      }),
+    })
+  } catch (error) {
+    console.error(`[boards] POST /${req.params['id']}/join error:`, error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
 router.post('/:id/collaborators', async (req: AuthRequest, res: Response) => {
   try {
     const id = Array.isArray(req.params['id']) ? req.params['id'][0] : req.params['id']

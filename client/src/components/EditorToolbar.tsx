@@ -1,10 +1,25 @@
+import { useEffect, useMemo, useState } from 'react'
 import { useCanvas } from '../context/CanvasContext'
 
-function getSafeFormat(activeQuill: ReturnType<typeof useCanvas>['activeQuill']) {
+const FONT_SIZE_OPTIONS = [
+  { label: 'Small', value: '12px' },
+  { label: 'Normal', value: '16px' },
+  { label: 'Large', value: '20px' },
+  { label: 'Huge', value: '28px' },
+] as const
+
+type QuillFormatValue = string | boolean | number | undefined
+type QuillFormatMap = Record<string, QuillFormatValue>
+type QuillEventApi = {
+  on: (eventName: string, handler: () => void) => void
+  off: (eventName: string, handler: () => void) => void
+}
+
+function getSafeFormat(activeQuill: ReturnType<typeof useCanvas>['activeQuill']): QuillFormatMap {
   if (!activeQuill) return {}
 
   try {
-    return activeQuill.getFormat() ?? {}
+    return (activeQuill.getFormat() ?? {}) as QuillFormatMap
   } catch {
     return {}
   }
@@ -25,7 +40,33 @@ function getSafeSelection(activeQuill: ReturnType<typeof useCanvas>['activeQuill
  */
 export function EditorToolbar() {
   const { activeQuill } = useCanvas()
-  const currentFormat = getSafeFormat(activeQuill)
+  const [currentFormat, setCurrentFormat] = useState<QuillFormatMap>({})
+
+  useEffect(() => {
+    if (!activeQuill) {
+      setCurrentFormat({})
+      return
+    }
+
+    const quillEvents = activeQuill as unknown as QuillEventApi
+
+    const syncFormat = () => {
+      setCurrentFormat(getSafeFormat(activeQuill))
+    }
+
+    syncFormat()
+    quillEvents.on('selection-change', syncFormat)
+    quillEvents.on('text-change', syncFormat)
+
+    return () => {
+      quillEvents.off('selection-change', syncFormat)
+      quillEvents.off('text-change', syncFormat)
+    }
+  }, [activeQuill])
+
+  const currentFontSize = useMemo(() => {
+    return typeof currentFormat.size === 'string' ? currentFormat.size : '16px'
+  }, [currentFormat])
 
   const handleFormat = (name: string, value: string | boolean) => {
     if (!activeQuill) return
@@ -39,6 +80,17 @@ export function EditorToolbar() {
       } else {
         activeQuill.format(name, value)
       }
+    } catch {
+      return
+    }
+  }
+
+  const handleFontSizeChange = (value: string) => {
+    if (!activeQuill) return
+
+    try {
+      activeQuill.focus()
+      activeQuill.format('size', value)
     } catch {
       return
     }
@@ -68,76 +120,80 @@ export function EditorToolbar() {
 
   if (!activeQuill) {
     return (
-      <div className="flex items-center space-x-2 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm px-4 py-2 rounded-xl shadow-sm border border-gray-100 dark:border-slate-700 opacity-50 cursor-not-allowed">
-        <span className="text-sm text-gray-400 dark:text-gray-500 font-medium select-none">Select a note to format</span>
+      <div className="flex items-center space-x-2 rounded-xl border border-gray-100 bg-white/80 px-4 py-2 shadow-sm opacity-50 backdrop-blur-sm dark:border-slate-700 dark:bg-slate-800/80 cursor-not-allowed">
+        <span className="select-none text-sm font-medium text-gray-400 dark:text-gray-500">Select a note to format</span>
       </div>
     )
   }
 
   return (
-    <div className="flex items-center space-x-1 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm px-2 py-1.5 rounded-xl shadow-lg border border-gray-200 dark:border-slate-700 animate-in fade-in slide-in-from-top-2 duration-200">
-      <ToolbarButton 
-        onClick={() => handleFormat('bold', true)} 
-        active={currentFormat.bold}
-        icon={<BoldIcon />} 
+    <div className="flex items-center space-x-1 rounded-xl border border-gray-200 bg-white/90 px-2 py-1.5 shadow-lg backdrop-blur-sm animate-in fade-in slide-in-from-top-2 duration-200 dark:border-slate-700 dark:bg-slate-800/90">
+      <FontSizeSelect value={currentFontSize} onChange={handleFontSizeChange} />
+
+      <div className="mx-1 h-6 w-px bg-gray-200 dark:bg-slate-700" />
+
+      <ToolbarButton
+        onClick={() => handleFormat('bold', true)}
+        active={Boolean(currentFormat.bold)}
+        icon={<BoldIcon />}
         label="Bold"
       />
-      <ToolbarButton 
-        onClick={() => handleFormat('italic', true)} 
-        active={currentFormat.italic}
-        icon={<ItalicIcon />} 
+      <ToolbarButton
+        onClick={() => handleFormat('italic', true)}
+        active={Boolean(currentFormat.italic)}
+        icon={<ItalicIcon />}
         label="Italic"
       />
-      <ToolbarButton 
-        onClick={() => handleFormat('underline', true)} 
-        active={currentFormat.underline}
-        icon={<UnderlineIcon />} 
+      <ToolbarButton
+        onClick={() => handleFormat('underline', true)}
+        active={Boolean(currentFormat.underline)}
+        icon={<UnderlineIcon />}
         label="Underline"
       />
-      
-      <div className="w-px h-6 bg-gray-200 dark:bg-slate-700 mx-1" />
+
+      <div className="mx-1 h-6 w-px bg-gray-200 dark:bg-slate-700" />
 
       <ColorPicker
         value={typeof currentFormat.color === 'string' ? currentFormat.color : '#111827'}
         onChange={handleColorChange}
       />
 
-      <div className="w-px h-6 bg-gray-200 dark:bg-slate-700 mx-1" />
-      
-      <ToolbarButton 
-        onClick={() => handleFormat('list', 'bullet')} 
+      <div className="mx-1 h-6 w-px bg-gray-200 dark:bg-slate-700" />
+
+      <ToolbarButton
+        onClick={() => handleFormat('list', 'bullet')}
         active={currentFormat.list === 'bullet'}
-        icon={<ListIcon />} 
+        icon={<ListIcon />}
         label="Bullet List"
       />
-      <ToolbarButton 
-        onClick={() => handleFormat('list', 'ordered')} 
+      <ToolbarButton
+        onClick={() => handleFormat('list', 'ordered')}
         active={currentFormat.list === 'ordered'}
-        icon={<ListOrderedIcon />} 
+        icon={<ListOrderedIcon />}
         label="Ordered List"
       />
 
-      <div className="w-px h-6 bg-gray-200 dark:bg-slate-700 mx-1" />
+      <div className="mx-1 h-6 w-px bg-gray-200 dark:bg-slate-700" />
 
-      <ToolbarButton 
-        onClick={handleClean} 
-        icon={<EraserIcon />} 
+      <ToolbarButton
+        onClick={handleClean}
+        icon={<EraserIcon />}
         label="Clear Formatting"
       />
     </div>
   )
 }
 
-function ToolbarButton({ 
-  onClick, 
-  icon, 
-  label, 
-  active = false 
-}: { 
-  onClick: () => void; 
-  icon: React.ReactNode; 
-  label: string;
-  active?: boolean;
+function ToolbarButton({
+  onClick,
+  icon,
+  label,
+  active = false,
+}: {
+  onClick: () => void
+  icon: React.ReactNode
+  label: string
+  active?: boolean
 }) {
   return (
     <button
@@ -146,16 +202,41 @@ function ToolbarButton({
         e.stopPropagation()
         onClick()
       }}
-      className={`p-2 rounded-lg transition-all duration-200 hover:bg-gray-100 dark:hover:bg-slate-700 group relative ${
-        active ? 'bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400' : 'text-gray-600 dark:text-gray-400'
+      className={`group relative rounded-lg p-2 transition-all duration-200 hover:bg-gray-100 dark:hover:bg-slate-700 ${
+        active ? 'bg-blue-50 text-blue-600 dark:bg-blue-900/40 dark:text-blue-400' : 'text-gray-600 dark:text-gray-400'
       }`}
       title={label}
     >
       {icon}
-      <span className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 px-2 py-1 bg-gray-800 dark:bg-slate-700 text-white text-[10px] rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50 shadow-xl">
+      <span className="pointer-events-none absolute bottom-full left-1/2 z-50 mb-2 -translate-x-1/2 whitespace-nowrap rounded bg-gray-800 px-2 py-1 text-[10px] text-white opacity-0 shadow-xl transition-opacity group-hover:opacity-100 dark:bg-slate-700">
         {label}
       </span>
     </button>
+  )
+}
+
+function FontSizeSelect({
+  value,
+  onChange,
+}: {
+  value: string
+  onChange: (value: string) => void
+}) {
+  return (
+    <label className="flex items-center gap-2 px-1">
+      <span className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Size</span>
+      <select
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        className="rounded-lg border border-gray-200 bg-white px-2 py-1 text-sm text-gray-700 shadow-sm focus:border-blue-500 focus:outline-none dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200"
+      >
+        {FONT_SIZE_OPTIONS.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+    </label>
   )
 }
 
@@ -166,7 +247,7 @@ function ColorPicker({
   value: string
   onChange: (color: string) => void
 }) {
-  const palette = ['#111827', '#dc2626', '#ea580c', '#ca8a04', '#16a34a', '#2563eb', '#7c3aed', '#db2777']
+  const palette = ['#111827', '#dc2626', '#ea580c', '#ca8a04', '#16a34a', '#2563eb', '#7c3aed', '#db2777', '#0f766e', '#475569']
 
   return (
     <div className="flex items-center gap-1 px-1">
@@ -180,7 +261,7 @@ function ColorPicker({
           }}
           className={`h-5 w-5 rounded-full border transition-transform hover:scale-110 ${
             value === color
-              ? 'border-gray-900 dark:border-white ring-2 ring-blue-400/60'
+              ? 'border-gray-900 ring-2 ring-blue-400/60 dark:border-white'
               : 'border-gray-300 dark:border-slate-600'
           }`}
           style={{ backgroundColor: color }}
@@ -192,7 +273,6 @@ function ColorPicker({
   )
 }
 
-// Inline SVGs
 const BoldIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 4h8a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"/><path d="M6 12h9a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"/></svg>
 )
@@ -209,5 +289,5 @@ const ListOrderedIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="10" y1="6" x2="21" y2="6"/><line x1="10" y1="12" x2="21" y2="12"/><line x1="10" y1="18" x2="21" y2="18"/><path d="M4 6h1v4"/><path d="M4 10h2"/><path d="M6 18H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg>
 )
 const EraserIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.9-9.9c1-1 2.5-1 3.4 0l4.4 4.4c1 1 1 2.5 0 3.4L7 21Z"/><path d="m22 21-12-12"/><path d="m5 11 9 9"/></svg>
+  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.9-9.9c1-1 2.5-1 3.4 0l4.4 4.4c1 1 2.5 0 3.4L7 21Z"/><path d="m22 21-12-12"/><path d="m5 11 9 9"/></svg>
 )

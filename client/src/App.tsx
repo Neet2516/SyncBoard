@@ -4,6 +4,7 @@ import { LoginPage } from './pages/LoginPage'
 import { RegisterPage } from './pages/RegisterPage'
 import { BoardList } from './pages/BoardList'
 import { BoardView } from './pages/BoardView'
+import { JoinBoard } from './pages/JoinBoard'
 import { AuthGuard } from './components/AuthGuard'
 import { ToastProvider } from './components/ToastProvider'
 import { AuthProvider } from './context/AuthContext'
@@ -23,6 +24,7 @@ function App() {
             <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
+            <Route path="/join/:boardId" element={<JoinBoard />} />
 
             {/* Protected Routes */}
             <Route element={<AuthGuard />}>

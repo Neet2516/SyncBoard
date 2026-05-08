@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, useNavigate, Navigate } from 'react-router-dom'
+import { Link, useNavigate, Navigate, useLocation } from 'react-router-dom'
 import { api } from '../services/api'
 import { LoginResponse } from '../types/yjsSchema'
 import { useAuth } from '../context/AuthContext'
@@ -14,15 +14,19 @@ import { useAuth } from '../context/AuthContext'
  */
 export function LoginPage() {
   const navigate = useNavigate()
+  const location = useLocation()
   const { login, isAuthenticated, isLoading } = useAuth()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const locationState = location.state as { returnTo?: string; message?: string } | null
+  const returnTo = locationState?.returnTo
+  const infoMessage = locationState?.message
 
   // Redirect if already authenticated
   if (!isLoading && isAuthenticated) {
-    return <Navigate to="/boards" replace />
+    return <Navigate to={returnTo || '/boards'} replace />
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -44,7 +48,7 @@ export function LoginPage() {
         email,
       })
 
-      navigate('/boards')
+      navigate(returnTo || '/boards', { replace: true })
     } catch (err) {
       console.error('[Login] Error:', err)
       setError(err instanceof Error ? err.message : 'An error occurred. Please try again.')
@@ -63,6 +67,11 @@ export function LoginPage() {
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
           <form className="space-y-6" onSubmit={handleSubmit}>
+            {infoMessage && (
+              <div className="rounded bg-blue-50 p-2 text-sm font-medium text-blue-700">
+                {infoMessage}
+              </div>
+            )}
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email address</label>
               <div className="mt-1">

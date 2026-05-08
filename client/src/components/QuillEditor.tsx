@@ -2,6 +2,16 @@ import { useEffect, useRef } from 'react'
 import Quill from 'quill'
 import 'quill/dist/quill.snow.css'
 
+type QuillRegistry = {
+  import: (path: string) => { whitelist?: string[] }
+  register: (definition: unknown, suppressWarning?: boolean) => void
+}
+
+const quillRegistry = Quill as unknown as QuillRegistry
+const SizeStyle = quillRegistry.import('attributors/style/size')
+SizeStyle.whitelist = ['12px', '16px', '20px', '28px']
+quillRegistry.register(SizeStyle, true)
+
 interface QuillEditorProps {
   quillRef: React.MutableRefObject<Quill | null>
   className?: string

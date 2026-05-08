@@ -263,6 +263,7 @@ function ShareModal({
   const { showToast } = useToast()
   const [inviteEmail, setInviteEmail] = useState('')
   const [inviting, setInviting] = useState(false)
+  const inviteLink = `${window.location.origin}/join/${board.boardId}`
 
   const handleInvite = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -285,6 +286,16 @@ function ShareModal({
     }
   }
 
+  const handleCopyInviteLink = async () => {
+    try {
+      await navigator.clipboard.writeText(inviteLink)
+      showToast('Invite link copied to clipboard.', 'success')
+    } catch (error) {
+      console.error('[ShareModal] Copy invite link error:', error)
+      showToast('Unable to copy invite link.', 'error')
+    }
+  }
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4 backdrop-blur-sm">
       <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl">
@@ -302,22 +313,32 @@ function ShareModal({
           </button>
         </div>
 
-        <form onSubmit={handleInvite} className="mb-6 flex gap-3">
-          <input
-            type="email"
-            value={inviteEmail}
-            onChange={(event) => setInviteEmail(event.target.value)}
-            placeholder="teammate@example.com"
-            className="flex-1 rounded-xl border border-gray-300 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-          />
+        <div className="mb-6 space-y-3">
           <button
-            type="submit"
-            disabled={inviting || !inviteEmail.trim()}
-            className="rounded-xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+            type="button"
+            onClick={handleCopyInviteLink}
+            className="w-full rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm font-semibold text-blue-700 transition-colors hover:border-blue-300 hover:bg-blue-100"
           >
-            {inviting ? 'Inviting...' : 'Invite'}
+            Copy Invite Link
           </button>
-        </form>
+
+          <form onSubmit={handleInvite} className="flex gap-3">
+            <input
+              type="email"
+              value={inviteEmail}
+              onChange={(event) => setInviteEmail(event.target.value)}
+              placeholder="teammate@example.com"
+              className="flex-1 rounded-xl border border-gray-300 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+            />
+            <button
+              type="submit"
+              disabled={inviting || !inviteEmail.trim()}
+              className="rounded-xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {inviting ? 'Inviting...' : 'Invite'}
+            </button>
+          </form>
+        </div>
 
         <div>
           <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500">Editors</h3>
