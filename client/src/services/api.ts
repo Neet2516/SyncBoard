@@ -43,9 +43,8 @@ async function request<T>(endpoint: string, options: RequestOptions = {}): Promi
   }
 
   if (response.status === 401) {
-    // Token expired or invalid — redirect to login
-    window.location.href = '/login'
-    throw new Error('Session expired. Redirecting to login.')
+    // Token expired or invalid — the caller should handle this (e.g., AuthProvider)
+    throw new Error('Session expired or unauthorized')
   }
 
   if (!response.ok) {

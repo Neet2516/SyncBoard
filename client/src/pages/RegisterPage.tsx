@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, Navigate } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
 
 /**
  * RegisterPage Component
@@ -8,11 +9,17 @@ import { Link, useNavigate } from 'react-router-dom'
  */
 export function RegisterPage() {
   const navigate = useNavigate()
+  const { isAuthenticated, isLoading } = useAuth()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [name, setName] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  // Redirect if already authenticated
+  if (!isLoading && isAuthenticated) {
+    return <Navigate to="/boards" replace />
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

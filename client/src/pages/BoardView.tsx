@@ -97,7 +97,8 @@ export function BoardView() {
         console.error('[BoardView] Fetch error:', err)
         const message = err instanceof Error ? err.message : 'Failed to load board.'
 
-        // api.ts already handles 401 by redirecting to /login
+        // AuthGuard will handle redirection if the session is invalid
+        // upon page load or re-authentication.
         setError(message)
         showToast(message, 'error')
       } finally {
