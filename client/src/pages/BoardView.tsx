@@ -25,8 +25,6 @@ export function BoardView() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [shareOpen, setShareOpen] = useState(false)
-  const [inviteEmail, setInviteEmail] = useState('')
-  const [inviting, setInviting] = useState(false)
 
   const { yNodes, yEdges, yTexts, awareness, connected } = useYjsDoc(boardId || '')
   const isOwner = user?.id === board?.ownerId
@@ -46,27 +44,6 @@ export function BoardView() {
     } catch (err) {
       console.error('[BoardView] Delete error:', err)
       showToast(err instanceof Error ? err.message : 'Failed to delete board', 'error')
-    }
-  }
-
-  const handleInvite = async (event: React.FormEvent) => {
-    event.preventDefault()
-    if (!board || !inviteEmail.trim()) return
-
-    try {
-      setInviting(true)
-      const response = await api.post<{ message: string; board: ApiBoard }>(
-        `/boards/${board._id}/collaborators`,
-        { email: inviteEmail.trim() }
-      )
-      setBoard(response.board)
-      setInviteEmail('')
-      showToast(response.message, 'success')
-    } catch (err) {
-      console.error('[BoardView] Invite error:', err)
-      showToast(err instanceof Error ? err.message : 'Failed to invite collaborator', 'error')
-    } finally {
-      setInviting(false)
     }
   }
 
@@ -202,13 +179,9 @@ export function BoardView() {
       {shareOpen && board && isOwner && (
         <ShareModal
           board={board}
-          inviteEmail={inviteEmail}
-          inviting={inviting}
-          onInviteEmailChange={setInviteEmail}
-          onSubmit={handleInvite}
+          onBoardUpdated={setBoard}
           onClose={() => {
             setShareOpen(false)
-            setInviteEmail('')
           }}
           onRemoveCollaborator={handleRemoveCollaborator}
         />
@@ -278,21 +251,40 @@ function PresenceAvatars({ activeUsers }: { activeUsers: Array<{ name: string; c
 
 function ShareModal({
   board,
-  inviteEmail,
-  inviting,
-  onInviteEmailChange,
-  onSubmit,
+  onBoardUpdated,
   onClose,
   onRemoveCollaborator,
 }: {
   board: ApiBoard
-  inviteEmail: string
-  inviting: boolean
-  onInviteEmailChange: (value: string) => void
-  onSubmit: (event: React.FormEvent) => void
+  onBoardUpdated: React.Dispatch<React.SetStateAction<ApiBoard | null>>
   onClose: () => void
   onRemoveCollaborator: (collaborator: BoardCollaborator) => void
 }) {
+  const { showToast } = useToast()
+  const [inviteEmail, setInviteEmail] = useState('')
+  const [inviting, setInviting] = useState(false)
+
+  const handleInvite = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    if (!inviteEmail.trim()) return
+
+    try {
+      setInviting(true)
+      const response = await api.post<{ message: string; board: ApiBoard }>(
+        `/boards/${board._id}/collaborators`,
+        { email: inviteEmail.trim() }
+      )
+      onBoardUpdated(response.board)
+      setInviteEmail('')
+      showToast(response.message, 'success')
+    } catch (err) {
+      console.error('[ShareModal] Invite error:', err)
+      showToast(err instanceof Error ? err.message : 'Failed to invite collaborator', 'error')
+    } finally {
+      setInviting(false)
+    }
+  }
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4 backdrop-blur-sm">
       <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl">
@@ -310,11 +302,11 @@ function ShareModal({
           </button>
         </div>
 
-        <form onSubmit={onSubmit} className="mb-6 flex gap-3">
+        <form onSubmit={handleInvite} className="mb-6 flex gap-3">
           <input
             type="email"
             value={inviteEmail}
-            onChange={(event) => onInviteEmailChange(event.target.value)}
+            onChange={(event) => setInviteEmail(event.target.value)}
             placeholder="teammate@example.com"
             className="flex-1 rounded-xl border border-gray-300 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
           />
