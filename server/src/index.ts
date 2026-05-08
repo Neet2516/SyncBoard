@@ -1,6 +1,7 @@
 import http from 'http'
 import express from 'express'
 import cors from 'cors'
+import type { CorsOptions } from 'cors'
 import cookieParser from 'cookie-parser'
 import dotenv from 'dotenv'
 import healthRouter from './routes/health'
@@ -22,23 +23,28 @@ const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || 'http://localhost:5173,h
 
 console.log(`[server] Allowed Origins:`, ALLOWED_ORIGINS)
 
+const corsOptions: CorsOptions = {
+  origin: (
+    origin: string | undefined,
+    callback: (err: Error | null, allow?: boolean) => void
+  ) => {
+    // Allow requests with no origin (like mobile apps or curl)
+    if (!origin) return callback(null, true)
+
+    if (ALLOWED_ORIGINS.includes(origin) || process.env.NODE_ENV === 'development') {
+      callback(null, true)
+    } else {
+      console.error(`[cors] Blocked origin: ${origin}`)
+      callback(new Error(`CORS: Origin '${origin}' not allowed`))
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
+}
+
 app.use(
-  cors({
-    origin: (origin, callback) => {
-      // Allow requests with no origin (like mobile apps or curl)
-      if (!origin) return callback(null, true)
-      
-      if (ALLOWED_ORIGINS.includes(origin) || process.env.NODE_ENV === 'development') {
-        callback(null, true)
-      } else {
-        console.error(`[cors] Blocked origin: ${origin}`)
-        callback(new Error(`CORS: Origin '${origin}' not allowed`))
-      }
-    },
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
-  })
+  cors(corsOptions)
 )
 
 app.use(express.json())

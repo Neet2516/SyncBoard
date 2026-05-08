@@ -5,7 +5,10 @@ import { User } from '../models/User'
 
 const router = Router()
 
-const IS_PROD = process.env.NODE_ENV === 'production'
+const IS_PROD =
+  process.env.NODE_ENV === 'production' ||
+  process.env.VERCEL === '1' ||
+  process.env.RENDER === 'true'
 const COOKIE_MAX_AGE_MS = 24 * 60 * 60 * 1000 // 24 hours
 const AUTH_COOKIE_OPTIONS = {
   httpOnly: true,

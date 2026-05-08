@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate, Navigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { api } from '../services/api'
 
 /**
  * RegisterPage Component
@@ -27,24 +28,11 @@ export function RegisterPage() {
     setError(null)
 
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:4000'
-      const response = await fetch(`${apiUrl}/auth/register`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password, name }),
-      })
-
-      const data = await response.json()
-
-      if (response.ok) {
-        // Redirect to login after successful registration
-        navigate('/login', { state: { message: 'Account created! Please sign in.' } })
-      } else {
-        setError(data.error || 'Registration failed')
-      }
+      await api.post('/auth/register', { email, password, name })
+      navigate('/login', { state: { message: 'Account created! Please sign in.' } })
     } catch (err) {
       console.error('[Register] Error:', err)
-      setError('An error occurred. Please try again.')
+      setError(err instanceof Error ? err.message : 'An error occurred. Please try again.')
     } finally {
       setLoading(false)
     }

@@ -112,7 +112,7 @@ export function attachYjsWebSocket(server: http.Server): void {
       return
     }
 
-    wss.handleUpgrade(request, socket, head, (ws) => {
+    wss.handleUpgrade(request, socket, head, (ws: WebSocket) => {
       wss.emit('connection', ws, request)
     })
   })
