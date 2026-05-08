@@ -39,7 +39,7 @@ router.post('/register', async (req: Request, res: Response) => {
     await user.save()
 
     res.status(201).json({ message: 'User created' })
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('[auth] Register error:', error)
     res.status(500).json({ error: 'Internal server error' })
   }
@@ -90,7 +90,7 @@ router.post('/login', async (req: Request, res: Response) => {
       userId: String(user._id),
       name: user.name,
     })
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('[auth] Login error:', error)
     res.status(500).json({ error: 'Internal server error' })
   }
