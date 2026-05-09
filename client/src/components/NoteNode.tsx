@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState } from 'react'
+import { useRef, useEffect, useState, lazy, Suspense } from 'react'
 import {
   Handle,
   NodeResizeControl,
@@ -8,10 +8,12 @@ import {
 } from '@xyflow/react'
 import Quill from 'quill'
 
-import { QuillEditor } from './QuillEditor'
 import { useYjsQuill } from '../hooks/useYjsQuill'
 import { useCanvas } from '../context/CanvasContext'
 import { NodeData, NoteNodeProps, type NodeHandleSide, NodeColor } from '../types/yjsSchema'
+
+// Lazy load the Quill editor
+const QuillEditor = lazy(() => import('./QuillEditor').then(module => ({ default: module.QuillEditor })))
 
 // ─── Color definitions ────────────────────────────────────────────────────────
 
@@ -146,7 +148,9 @@ export function NoteNode({ id, data, selected }: NoteNodeProps) {
 
         {/* Editor area — flex-grow fills remaining height */}
         <div className="flex-grow relative overflow-hidden p-2 min-h-0">
-          <QuillEditor quillRef={quillRef} className="h-full" />
+          <Suspense fallback={<div className="h-full w-full animate-pulse bg-gray-100 dark:bg-slate-700 rounded-lg" />}>
+            <QuillEditor quillRef={quillRef} className="h-full" />
+          </Suspense>
         </div>
       </div>
 

@@ -1,13 +1,15 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, lazy, Suspense } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { Awareness } from 'y-protocols/awareness'
 import { useYjsDoc } from '../hooks/useYjsDoc'
-import { BoardCanvas } from '../components/BoardCanvas'
 import { useToast } from '../context/ToastContext'
 import { api } from '../services/api'
 import { ApiBoard, BoardCollaborator } from '../types/yjsSchema'
 import { useAuth } from '../context/AuthContext'
 import Loader from '../components/Loader'
+
+// Lazy load the heavy canvas component
+const BoardCanvas = lazy(() => import('../components/BoardCanvas').then(module => ({ default: module.BoardCanvas })))
 
 /**
  * BoardView Page
@@ -160,14 +162,16 @@ export function BoardView() {
 
       {/* Main Canvas Area */}
       <main className="flex-grow relative overflow-hidden">
-        {awareness && (
-          <BoardCanvas
-            yNodes={yNodes}
-            yEdges={yEdges}
-            yTexts={yTexts}
-            awareness={awareness}
-          />
-        )}
+        <Suspense fallback={<Loader />}>
+          {awareness && (
+            <BoardCanvas
+              yNodes={yNodes}
+              yEdges={yEdges}
+              yTexts={yTexts}
+              awareness={awareness}
+            />
+          )}
+        </Suspense>
       </main>
 
       {shareOpen && board && isOwner && (

@@ -117,14 +117,7 @@ export function BoardList() {
   const sharedBoards = boards.filter((board) => board.ownerId !== user?.id)
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center h-screen bg-gray-50">
-        <div className="flex flex-col items-center">
-          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600 mb-4"></div>
-          <p className="text-gray-600">Loading your boards...</p>
-        </div>
-      </div>
-    )
+    return <Loader />
   }
 
   return (
