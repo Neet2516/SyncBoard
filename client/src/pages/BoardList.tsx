@@ -32,6 +32,8 @@ export function BoardList() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
   const [newBoardName, setNewBoardName] = useState('')
   const [isCreatingBoard, setIsCreatingBoard] = useState(false)
+  const [boardPendingDelete, setBoardPendingDelete] = useState<ApiBoard | null>(null)
+  const [isDeletingBoard, setIsDeletingBoard] = useState(false)
 
   const fetchBoards = useCallback(async (pageNum: number, searchTerm: string, append = false) => {
     try {
@@ -110,20 +112,32 @@ export function BoardList() {
     }
   }
 
-  const handleDeleteBoard = async (e: React.MouseEvent, id: string) => {
+  const handleDeleteBoard = async (e: React.MouseEvent, board: ApiBoard) => {
     e.preventDefault()
     e.stopPropagation()
+    setBoardPendingDelete(board)
+  }
 
-    if (!window.confirm('Are you sure you want to delete this board?')) return
+  const closeDeleteModal = () => {
+    if (isDeletingBoard) return
+    setBoardPendingDelete(null)
+  }
+
+  const confirmDeleteBoard = async () => {
+    if (!boardPendingDelete) return
 
     try {
-      await api.delete(`/boards/${id}`)
+      setIsDeletingBoard(true)
+      await api.delete(`/boards/${boardPendingDelete._id}`)
       showToast('Board deleted successfully.', 'success')
-      setBoards((prev) => prev.filter((b) => b._id !== id))
+      setBoards((prev) => prev.filter((b) => b._id !== boardPendingDelete._id))
       setTotal((t) => t - 1)
+      setBoardPendingDelete(null)
     } catch (err) {
       console.error('[BoardList] Delete error:', err)
       showToast(err instanceof Error ? err.message : 'Error deleting board.', 'error')
+    } finally {
+      setIsDeletingBoard(false)
     }
   }
 
@@ -303,6 +317,38 @@ export function BoardList() {
           </div>
         </div>
       )}
+
+      {boardPendingDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 px-4">
+          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
+            <div className="mb-5">
+              <h3 className="text-xl font-semibold text-gray-900">Delete board?</h3>
+              <p className="mt-1 text-sm text-gray-500">
+                This will permanently delete <span className="font-semibold text-gray-700">{boardPendingDelete.name}</span>.
+              </p>
+            </div>
+
+            <div className="flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={closeDeleteModal}
+                disabled={isDeletingBoard}
+                className="rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-gray-600 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={confirmDeleteBoard}
+                disabled={isDeletingBoard}
+                className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {isDeletingBoard ? 'Deleting...' : 'Delete Board'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
@@ -318,7 +364,7 @@ function BoardSection({
   description: string
   boards: ApiBoard[]
   canDelete: boolean
-  onDelete: (event: React.MouseEvent, id: string) => void
+  onDelete: (event: React.MouseEvent, board: ApiBoard) => void
 }) {
   if (boards.length === 0) {
     return null
@@ -369,7 +415,7 @@ function BoardSection({
             </Link>
             {canDelete && (
               <button
-                onClick={(e) => onDelete(e, board._id)}
+                onClick={(e) => onDelete(e, board)}
                 className="absolute top-4 right-4 p-2 text-gray-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-all rounded-full hover:bg-red-50 z-10"
                 title="Delete Board"
               >
