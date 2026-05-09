@@ -29,6 +29,9 @@ export function BoardList() {
   const [loading, setLoading] = useState(true)
   const [loadingMore, setLoadingMore] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
+  const [newBoardName, setNewBoardName] = useState('')
+  const [isCreatingBoard, setIsCreatingBoard] = useState(false)
 
   const fetchBoards = useCallback(async (pageNum: number, searchTerm: string, append = false) => {
     try {
@@ -72,17 +75,38 @@ export function BoardList() {
     setSearch(searchInput.trim())
   }
 
-  const handleCreateBoard = async () => {
-    const name = window.prompt('Enter board name:')
-    if (!name || name.trim() === '') return
+  const openCreateBoardModal = () => {
+    setNewBoardName('')
+    setIsCreateModalOpen(true)
+  }
+
+  const closeCreateBoardModal = () => {
+    if (isCreatingBoard) return
+    setIsCreateModalOpen(false)
+    setNewBoardName('')
+  }
+
+  const handleCreateBoard = async (e?: React.FormEvent) => {
+    e?.preventDefault()
+
+    const name = newBoardName.trim()
+    if (!name) {
+      showToast('Please enter a board name.', 'error')
+      return
+    }
 
     try {
+      setIsCreatingBoard(true)
       const newBoard = await api.post<ApiBoard>('/boards', { name })
       showToast('Board created successfully.', 'success')
+      setIsCreateModalOpen(false)
+      setNewBoardName('')
       navigate(`/board/${newBoard.boardId}`)
     } catch (err) {
       console.error('[BoardList] Create error:', err)
       showToast(err instanceof Error ? err.message : 'Error creating board.', 'error')
+    } finally {
+      setIsCreatingBoard(false)
     }
   }
 
@@ -127,7 +151,7 @@ export function BoardList() {
         <h1 className="text-xl font-bold text-blue-600 tracking-tight">SyncBoard</h1>
         <div className="flex items-center space-x-4">
           <button
-            onClick={handleCreateBoard}
+            onClick={openCreateBoardModal}
             className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium transition-colors"
           >
             + Create Board
@@ -194,7 +218,7 @@ export function BoardList() {
             </p>
             {!search && (
               <button
-                onClick={handleCreateBoard}
+                onClick={openCreateBoardModal}
                 className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md font-medium transition-colors"
               >
                 Get Started
@@ -234,6 +258,51 @@ export function BoardList() {
           </>
         )}
       </main>
+
+      {isCreateModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 px-4">
+          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
+            <div className="mb-5">
+              <h3 className="text-xl font-semibold text-gray-900">Create a new board</h3>
+              <p className="mt-1 text-sm text-gray-500">Give your board a name to get started.</p>
+            </div>
+
+            <form onSubmit={handleCreateBoard}>
+              <label htmlFor="board-name" className="mb-2 block text-sm font-medium text-gray-700">
+                Board name
+              </label>
+              <input
+                id="board-name"
+                type="text"
+                value={newBoardName}
+                onChange={(e) => setNewBoardName(e.target.value)}
+                placeholder="Enter board name"
+                autoFocus
+                disabled={isCreatingBoard}
+                className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:cursor-not-allowed disabled:bg-gray-100"
+              />
+
+              <div className="mt-6 flex justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={closeCreateBoardModal}
+                  disabled={isCreatingBoard}
+                  className="rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-gray-600 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isCreatingBoard}
+                  className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {isCreatingBoard ? 'Creating...' : 'Create Board'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

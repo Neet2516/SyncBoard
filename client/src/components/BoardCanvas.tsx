@@ -28,7 +28,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { NoteNode } from './NoteNode'
 import { CollaboratorCursors } from './CollaboratorCursors'
 import { NodeData, EdgeData, NoteNodeData, type NodeHandleId } from '../types/yjsSchema'
-import { CanvasProvider } from '../context/CanvasContext'
+import { CanvasProvider, useCanvas } from '../context/CanvasContext'
 import { EditorToolbar } from './EditorToolbar'
 
 type RFNoteNode = Node<NoteNodeData>
@@ -127,6 +127,7 @@ function yEdgeToRfEdge(yEdge: EdgeData, theme: 'light' | 'dark'): Edge {
 function BoardCanvasInner({ yNodes, yEdges, yTexts, awareness }: BoardCanvasProps) {
   const [nodes, setNodes] = useState<Node[]>([])
   const [edges, setEdges] = useState<Edge[]>([])
+  const { setActiveQuill } = useCanvas()
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
     return (localStorage.getItem('theme') as 'light' | 'dark') || 'light'
   })
@@ -357,6 +358,7 @@ function BoardCanvasInner({ yNodes, yEdges, yTexts, awareness }: BoardCanvasProp
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
+        onPaneClick={() => setActiveQuill(null)}
         nodeTypes={memoNodeTypes}
         connectionMode={ConnectionMode.Strict}
         fitView
