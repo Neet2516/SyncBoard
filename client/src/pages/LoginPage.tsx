@@ -3,6 +3,7 @@ import { Link, useNavigate, Navigate, useLocation } from 'react-router-dom'
 import { api } from '../services/api'
 import { LoginResponse } from '../types/yjsSchema'
 import { useAuth } from '../context/AuthContext'
+import Loader from '../components/Loader'
 
 /**
  * LoginPage Component
@@ -24,8 +25,13 @@ export function LoginPage() {
   const returnTo = locationState?.returnTo
   const infoMessage = locationState?.message
 
+  // Show loader while checking authentication status
+  if (isLoading) {
+    return <Loader />
+  }
+
   // Redirect if already authenticated
-  if (!isLoading && isAuthenticated) {
+  if (isAuthenticated) {
     return <Navigate to={returnTo || '/boards'} replace />
   }
 

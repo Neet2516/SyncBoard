@@ -1,5 +1,6 @@
 import { Link, Navigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import Loader from '../components/Loader'
 
 /**
  * LandingPage Component
@@ -9,8 +10,13 @@ import { useAuth } from '../context/AuthContext'
 export function LandingPage() {
   const { isAuthenticated, isLoading } = useAuth()
 
+  // Show loader while checking authentication status
+  if (isLoading) {
+    return <Loader />
+  }
+
   // Redirect to boards if already authenticated
-  if (!isLoading && isAuthenticated) {
+  if (isAuthenticated) {
     return <Navigate to="/boards" replace />
   }
 

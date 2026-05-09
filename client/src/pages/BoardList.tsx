@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext'
 import { api } from '../services/api'
 import { formatDate } from '../utils'
 import { ApiBoard, PaginatedBoards } from '../types/yjsSchema'
+import Loader from '../components/Loader'
 
 const PAGE_SIZE = 20
 

@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 import { api } from '../services/api'
 import { useToast } from '../context/ToastContext'
 import { ApiBoard } from '../types/yjsSchema'
+import Loader from '../components/Loader'
 
 export function JoinBoard() {
   const { boardId } = useParams<{ boardId: string }>()
@@ -55,12 +56,5 @@ export function JoinBoard() {
     )
   }
 
-  return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50">
-      <div className="flex flex-col items-center">
-        <div className="mb-4 h-10 w-10 animate-spin rounded-full border-b-2 border-blue-600"></div>
-        <p className="text-gray-600">Joining board...</p>
-      </div>
-    </div>
-  )
+  return <Loader />
 }

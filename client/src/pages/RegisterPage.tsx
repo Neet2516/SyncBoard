@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate, Navigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { api } from '../services/api'
+import Loader from '../components/Loader'
 
 /**
  * RegisterPage Component
@@ -17,8 +18,13 @@ export function RegisterPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+  // Show loader while checking authentication status
+  if (isLoading) {
+    return <Loader />
+  }
+
   // Redirect if already authenticated
-  if (!isLoading && isAuthenticated) {
+  if (isAuthenticated) {
     return <Navigate to="/boards" replace />
   }
 

@@ -7,6 +7,7 @@ import { useToast } from '../context/ToastContext'
 import { api } from '../services/api'
 import { ApiBoard, BoardCollaborator } from '../types/yjsSchema'
 import { useAuth } from '../context/AuthContext'
+import Loader from '../components/Loader'
 
 /**
  * BoardView Page
@@ -86,15 +87,8 @@ export function BoardView() {
     fetchBoardMetadata()
   }, [boardId, navigate, showToast])
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-screen bg-gray-50">
-        <div className="flex flex-col items-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
-          <p className="text-gray-600 font-medium">Loading board...</p>
-        </div>
-      </div>
-    )
+  if (loading || !connected) {
+    return <Loader />
   }
 
   if (error || !board) {
