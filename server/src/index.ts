@@ -3,23 +3,19 @@ import express from 'express'
 import cors from 'cors'
 import type { CorsOptions } from 'cors'
 import cookieParser from 'cookie-parser'
-import dotenv from 'dotenv'
 import healthRouter from './routes/health'
 import authRouter from './routes/auth'
 import boardsRouter from './routes/boards'
 import { connectDB } from './db'
 import { attachYjsWebSocket } from './yjsWebSocket'
-
-dotenv.config()
+import { env } from './config/env'
 
 const app = express()
-const PORT = process.env.PORT || 4000
+const PORT = env.port
 const isVercel = process.env.VERCEL === '1'
 
 // CORS (secure, origin-allowlisted)
-const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || 'http://localhost:5173,http://localhost:3000')
-  .split(',')
-  .map((o) => o.trim())
+const ALLOWED_ORIGINS = env.allowedOrigins
 
 console.log(`[server] Allowed Origins:`, ALLOWED_ORIGINS)
 
@@ -31,7 +27,7 @@ const corsOptions: CorsOptions = {
     // Allow requests with no origin (like mobile apps or curl)
     if (!origin) return callback(null, true)
 
-    if (ALLOWED_ORIGINS.includes(origin) || process.env.NODE_ENV === 'development') {
+    if (ALLOWED_ORIGINS.includes(origin) || env.nodeEnv === 'development') {
       callback(null, true)
     } else {
       console.error(`[cors] Blocked origin: ${origin}`)

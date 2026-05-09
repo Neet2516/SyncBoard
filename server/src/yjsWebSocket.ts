@@ -1,9 +1,10 @@
 import http, { IncomingMessage } from 'http'
 import { WebSocketServer, WebSocket } from 'ws'
 import { setupWSConnection } from 'y-websocket/bin/utils'
-import jwt from 'jsonwebtoken'
 import mongoose from 'mongoose'
 import { Board } from './models/Board'
+import { env } from './config/env'
+import { authService } from './services/auth/authService'
 
 function parseCookies(cookieHeader?: string) {
   if (!cookieHeader) {
@@ -21,15 +22,15 @@ function parseCookies(cookieHeader?: string) {
   }, {})
 }
 
-function extractToken(req: IncomingMessage) {
+function extractSessionToken(req: IncomingMessage) {
   const authHeader = req.headers['authorization']
   if (authHeader?.startsWith('Bearer ')) {
     return authHeader.split(' ')[1]
   }
 
   const cookies = parseCookies(req.headers.cookie)
-  if (cookies['auth_token']) {
-    return cookies['auth_token']
+  if (cookies[env.authCookieName]) {
+    return cookies[env.authCookieName]
   }
 
   const url = new URL(req.url || '', `http://${req.headers.host}`)
@@ -43,22 +44,14 @@ function extractBoardId(req: IncomingMessage) {
 }
 
 async function verifyWsAccess(req: IncomingMessage) {
-  const secret = process.env.JWT_SECRET
-  if (!secret) {
-    return { allowed: false as const, status: 500 }
-  }
-
   const origin = req.headers.origin
-  const allowedOrigins = (process.env.ALLOWED_ORIGINS || 'http://localhost:5173,http://localhost:3000')
-    .split(',')
-    .map((value) => value.trim())
-    .filter(Boolean)
+  const allowedOrigins = env.allowedOrigins
 
   if (origin && !allowedOrigins.includes(origin)) {
     return { allowed: false as const, status: 403 }
   }
 
-  const token = extractToken(req)
+  const token = extractSessionToken(req)
   const boardId = extractBoardId(req)
 
   if (!token || !boardId) {
@@ -66,8 +59,12 @@ async function verifyWsAccess(req: IncomingMessage) {
   }
 
   try {
-    const decoded = jwt.verify(token, secret) as { userId: string; email: string }
-    const objectUserId = new mongoose.Types.ObjectId(decoded.userId)
+    const user = await authService.getAuthenticatedUser(token)
+    if (!user) {
+      return { allowed: false as const, status: 401 }
+    }
+
+    const objectUserId = new mongoose.Types.ObjectId(user.userId)
 
     const board = await Board.findOne({
       boardId,
@@ -79,8 +76,9 @@ async function verifyWsAccess(req: IncomingMessage) {
     }
 
     return { allowed: true as const, status: 200, boardId }
-  } catch {
-    return { allowed: false as const, status: 401 }
+  } catch (error) {
+    console.error('[yjs-ws] Auth error:', error)
+    return { allowed: false as const, status: 500 }
   }
 }
 

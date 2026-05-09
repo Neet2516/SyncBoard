@@ -19,6 +19,7 @@ const UserSchema = new Schema<IUser>(
       unique: true,
       lowercase: true,
       trim: true,
+      maxlength: 254,
     },
     // select: false ensures passwordHash is NEVER returned in API responses
     passwordHash: {
@@ -30,6 +31,8 @@ const UserSchema = new Schema<IUser>(
       type: String,
       required: true,
       trim: true,
+      minlength: 2,
+      maxlength: 80,
     },
   },
   {

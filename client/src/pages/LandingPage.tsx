@@ -27,7 +27,7 @@ export function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16 items-center">
             <div className="flex-shrink-0 flex items-center">
-              <span className="text-2xl font-extrabold text-blue-600 tracking-tight">SyncBoard</span>
+              <span className="text-3xl font-normal text-blue-600 tracking-tight font-syncboard">SyncBoard</span>
             </div>
             <div className="flex space-x-4">
               <Link
@@ -57,7 +57,7 @@ export function LandingPage() {
                 on a Shared Infinite Canvas
               </h1>
               <p className="max-w-2xl mx-auto text-lg sm:text-xl text-gray-600 mb-10">
-                SyncBoard brings your team together. Sketch ideas, organize thoughts with sticky notes, 
+                <span className="font-syncboard font-semibold">SyncBoard</span> brings your team together. Sketch ideas, organize thoughts with sticky notes, 
                 and build something amazing—all in a synchronized, persistent environment.
               </p>
               <div className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
@@ -119,7 +119,7 @@ export function LandingPage() {
       {/* Footer */}
       <footer className="bg-white border-t border-gray-100 py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <span className="text-gray-400 text-sm">© 2026 SyncBoard. All rights reserved.</span>
+          <span className="text-gray-400 text-sm italic font-syncboard">© 2026 SyncBoard. All rights reserved.</span>
         </div>
       </footer>
     </div>

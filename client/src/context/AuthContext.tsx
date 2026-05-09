@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 import { api } from '../services/api'
+import { SessionUserResponse } from '../types/yjsSchema'
 
 interface User {
   id: string
@@ -24,14 +25,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const restoreSession = async () => {
       try {
-        const session = await api.get<{ userId: string; name: string; email: string }>('/auth/me')
+        const session = await api.get<SessionUserResponse>('/auth/me')
         const restoredUser: User = {
-          id: session.userId,
-          name: session.name,
-          email: session.email,
+          id: session.user.userId,
+          name: session.user.name,
+          email: session.user.email,
         }
 
         localStorage.setItem('user', JSON.stringify(restoredUser))
+        localStorage.setItem('name', restoredUser.name)
+        localStorage.setItem('userId', restoredUser.id)
         setUser(restoredUser)
       } catch {
         localStorage.removeItem('user')
@@ -48,6 +51,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = (newUser: User) => {
     localStorage.setItem('user', JSON.stringify(newUser))
+    localStorage.setItem('name', newUser.name)
+    localStorage.setItem('userId', newUser.id)
     setUser(newUser)
   }
 

@@ -1,9 +1,5 @@
 import mongoose from 'mongoose'
-import dotenv from 'dotenv'
-
-dotenv.config()
-
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/syncboard'
+import { env } from './config/env'
 let connectionPromise: Promise<void> | null = null
 
 export async function connectDB(): Promise<void> {
@@ -13,9 +9,9 @@ export async function connectDB(): Promise<void> {
 
   if (!connectionPromise) {
     connectionPromise = mongoose
-      .connect(MONGO_URI)
+      .connect(env.mongoUri)
       .then(() => {
-        console.log(`[db] Connected to MongoDB -> ${MONGO_URI}`)
+        console.log(`[db] Connected to MongoDB -> ${env.mongoUri}`)
       })
       .catch((error) => {
         connectionPromise = null

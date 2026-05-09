@@ -78,12 +78,30 @@ export interface PaginatedBoards {
 }
 
 export interface LoginResponse {
-  userId: string
-  name: string
+  message: string
+  user: {
+    userId: string
+    email: string
+    name: string
+  }
 }
 
 export interface RegisterResponse {
   message: string
+  user: {
+    userId: string
+    email: string
+    name: string
+  }
+  onboardingToken: string
+}
+
+export interface SessionUserResponse {
+  user: {
+    userId: string
+    email: string
+    name: string
+  }
 }
 
 export interface BoardCollaborator {
