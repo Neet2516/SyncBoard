@@ -84,17 +84,18 @@ export function RegisterPage() {
   const showFieldError = (field: keyof RegisterFormValues) => touched[field] && errors[field]
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div className="flex min-h-screen flex-col justify-center bg-transparent py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <h1 className="text-center text-5xl font-normal text-blue-600 mb-2 tracking-tight font-syncboard">SyncBoard</h1>
-        <h2 className="mt-6 text-center text-2xl font-bold text-gray-900">Create your account</h2>
+        <p className="brand-kicker text-center">Join the canvas</p>
+        <h1 className="brand-mark mb-2 text-center text-5xl text-blue-600">SyncBoard</h1>
+        <h2 className="section-title mt-6 text-center text-3xl text-gray-900">Create your account</h2>
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+        <div className="paper-card rounded-[2rem] bg-white/90 px-4 py-8 sm:px-10">
           <form className="space-y-6" onSubmit={handleSubmit}>
             <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700">Full Name</label>
+              <label htmlFor="name" className="stat-label block text-sm font-semibold text-gray-700">Full Name</label>
               <div className="mt-1">
                 <input
                   id="name"
@@ -111,7 +112,7 @@ export function RegisterPage() {
             </div>
 
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email address</label>
+              <label htmlFor="email" className="stat-label block text-sm font-semibold text-gray-700">Email address</label>
               <div className="mt-1">
                 <input
                   id="email"
@@ -129,7 +130,7 @@ export function RegisterPage() {
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">Password</label>
+              <label htmlFor="password" className="stat-label block text-sm font-semibold text-gray-700">Password</label>
               <div className="mt-1">
                 <input
                   id="password"
@@ -144,7 +145,7 @@ export function RegisterPage() {
               </div>
               {showFieldError('password') && <p className="mt-2 text-sm text-red-600">{errors.password}</p>}
               <div className="mt-3 rounded-md bg-gray-50 p-3">
-                <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">Password requirements</p>
+                <p className="stat-label text-xs font-semibold uppercase text-gray-500">Password requirements</p>
                 <ul className="mt-2 space-y-1 text-sm text-gray-600">
                   <li className={passwordChecks.minLength ? 'text-green-600' : ''}>{passwordChecklist[0]}</li>
                   <li className={passwordChecks.uppercase ? 'text-green-600' : ''}>{passwordChecklist[1]}</li>
@@ -156,7 +157,7 @@ export function RegisterPage() {
             </div>
 
             <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">Confirm Password</label>
+              <label htmlFor="confirmPassword" className="stat-label block text-sm font-semibold text-gray-700">Confirm Password</label>
               <div className="mt-1">
                 <input
                   id="confirmPassword"
@@ -182,7 +183,7 @@ export function RegisterPage() {
               <button
                 type="submit"
                 disabled={loading || !isFormValid}
-                className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${(loading || !isFormValid) ? 'opacity-50 cursor-not-allowed' : ''}`}
+                className={`flex w-full justify-center rounded-full border border-transparent bg-blue-600 px-4 py-3 text-sm font-semibold tracking-wide text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 hover:bg-blue-700 ${(loading || !isFormValid) ? 'cursor-not-allowed opacity-50' : ''}`}
               >
                 {loading ? 'Creating account...' : 'Create account'}
               </button>
@@ -195,14 +196,14 @@ export function RegisterPage() {
                 <div className="w-full border-t border-gray-300"></div>
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">Already have an account?</span>
+                <span className="bg-white/90 px-2 text-gray-500">Already have an account?</span>
               </div>
             </div>
 
             <div className="mt-6">
               <Link
                 to="/login"
-                className="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                className="flex w-full justify-center rounded-full border border-gray-300 bg-white px-4 py-3 text-sm font-semibold tracking-wide text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 hover:bg-gray-50"
               >
                 Sign in instead
               </Link>

@@ -159,14 +159,14 @@ export function BoardList() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-transparent">
       {/* Header */}
-      <nav className="bg-white border-b border-gray-200 h-16 flex items-center justify-between px-8 shadow-sm">
-        <h1 className="text-2xl font-normal text-blue-600 tracking-tight font-syncboard">SyncBoard</h1>
+      <nav className="flex h-16 items-center justify-between border-b border-white/60 bg-white/70 px-8 shadow-sm backdrop-blur-xl">
+        <h1 className="brand-mark text-2xl text-blue-600">SyncBoard</h1>
         <div className="flex items-center space-x-4">
           <button
             onClick={openCreateBoardModal}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium transition-colors"
+            className="rounded-full bg-blue-600 px-5 py-2 text-sm font-semibold tracking-wide text-white transition-colors hover:bg-blue-700"
           >
             + Create Board
           </button>
@@ -180,12 +180,13 @@ export function BoardList() {
       </nav>
 
       {/* Main Content */}
-      <main className="max-w-6xl mx-auto px-8 py-10">
+      <main className="mx-auto max-w-6xl px-8 py-10">
         {/* Title + Search */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 gap-4">
           <div>
-            <h2 className="text-2xl font-bold text-gray-800">My Boards</h2>
-            <span className="text-sm text-gray-500">
+            <p className="brand-kicker mb-2">Workspace</p>
+            <h2 className="section-title text-3xl text-gray-800">My Boards</h2>
+            <span className="stat-label text-sm text-gray-500">
               {total} {total === 1 ? 'board' : 'boards'}{search ? ` matching "${search}"` : ''}
             </span>
           </div>
@@ -196,11 +197,11 @@ export function BoardList() {
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
               placeholder="Search boards…"
-              className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-48"
+              className="w-48 rounded-full border border-gray-300 bg-white/90 px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             <button
               type="submit"
-              className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+              className="rounded-full bg-gray-100 px-4 py-2 text-sm font-semibold tracking-wide text-gray-700 transition-colors hover:bg-gray-200"
             >
               Search
             </button>
@@ -208,7 +209,7 @@ export function BoardList() {
               <button
                 type="button"
                 onClick={() => { setSearch(''); setSearchInput('') }}
-                className="text-gray-400 hover:text-gray-700 text-sm px-2"
+                className="px-2 text-sm font-semibold text-gray-400 hover:text-gray-700"
               >
                 ✕ Clear
               </button>
@@ -217,23 +218,23 @@ export function BoardList() {
         </div>
 
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-6">
+          <div className="mb-6 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-red-700">
             {error}
           </div>
         )}
 
         {boards.length === 0 ? (
-          <div className="bg-white rounded-xl border-2 border-dashed border-gray-200 p-12 text-center">
-            <h3 className="text-lg font-semibold text-gray-700 mb-2">
+          <div className="paper-card rounded-[2rem] border-2 border-dashed border-gray-200 p-12 text-center">
+            <h3 className="panel-title mb-2 text-lg text-gray-700">
               {search ? 'No boards match your search' : 'No boards yet'}
             </h3>
-            <p className="text-gray-500 mb-6">
+            <p className="section-copy mb-6 text-base">
               {search ? 'Try a different search term.' : 'Create your first board to start collaborating.'}
             </p>
             {!search && (
               <button
                 onClick={openCreateBoardModal}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md font-medium transition-colors"
+                className="rounded-full bg-blue-600 px-6 py-3 text-sm font-semibold tracking-wide text-white transition-colors hover:bg-blue-700"
               >
                 Get Started
               </button>
@@ -263,7 +264,7 @@ export function BoardList() {
                 <button
                   onClick={handleLoadMore}
                   disabled={loadingMore}
-                  className="px-6 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50"
+                  className="rounded-full border border-gray-300 bg-white px-6 py-3 text-sm font-semibold tracking-wide text-gray-700 transition-colors hover:bg-gray-50 disabled:opacity-50"
                 >
                   {loadingMore ? 'Loading…' : `Load More (${total - boards.length} remaining)`}
                 </button>
@@ -275,14 +276,14 @@ export function BoardList() {
 
       {isCreateModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 px-4">
-          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
+          <div className="paper-card w-full max-w-md rounded-[2rem] bg-white/95 p-6">
             <div className="mb-5">
-              <h3 className="text-xl font-semibold text-gray-900">Create a new board</h3>
+              <h3 className="panel-title text-xl text-gray-900">Create a new board</h3>
               <p className="mt-1 text-sm text-gray-500">Give your board a name to get started.</p>
             </div>
 
             <form onSubmit={handleCreateBoard}>
-              <label htmlFor="board-name" className="mb-2 block text-sm font-medium text-gray-700">
+              <label htmlFor="board-name" className="stat-label mb-2 block text-sm font-semibold text-gray-700">
                 Board name
               </label>
               <input
@@ -293,7 +294,7 @@ export function BoardList() {
                 placeholder="Enter board name"
                 autoFocus
                 disabled={isCreatingBoard}
-                className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:cursor-not-allowed disabled:bg-gray-100"
+                className="w-full rounded-2xl border border-gray-300 px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:cursor-not-allowed disabled:bg-gray-100"
               />
 
               <div className="mt-6 flex justify-end gap-3">
@@ -301,14 +302,14 @@ export function BoardList() {
                   type="button"
                   onClick={closeCreateBoardModal}
                   disabled={isCreatingBoard}
-                  className="rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-gray-600 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
+                  className="rounded-full border border-gray-200 px-4 py-2 text-sm font-semibold tracking-wide text-gray-600 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isCreatingBoard}
-                  className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+                  className="rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold tracking-wide text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {isCreatingBoard ? 'Creating...' : 'Create Board'}
                 </button>
@@ -320,9 +321,9 @@ export function BoardList() {
 
       {boardPendingDelete && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 px-4">
-          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
+          <div className="paper-card w-full max-w-md rounded-[2rem] bg-white/95 p-6">
             <div className="mb-5">
-              <h3 className="text-xl font-semibold text-gray-900">Delete board?</h3>
+              <h3 className="panel-title text-xl text-gray-900">Delete board?</h3>
               <p className="mt-1 text-sm text-gray-500">
                 This will permanently delete <span className="font-semibold text-gray-700">{boardPendingDelete.name}</span>.
               </p>
@@ -333,7 +334,7 @@ export function BoardList() {
                 type="button"
                 onClick={closeDeleteModal}
                 disabled={isDeletingBoard}
-                className="rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-gray-600 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
+                className="rounded-full border border-gray-200 px-4 py-2 text-sm font-semibold tracking-wide text-gray-600 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 Cancel
               </button>
@@ -341,7 +342,7 @@ export function BoardList() {
                 type="button"
                 onClick={confirmDeleteBoard}
                 disabled={isDeletingBoard}
-                className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60"
+                className="rounded-full bg-red-600 px-4 py-2 text-sm font-semibold tracking-wide text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {isDeletingBoard ? 'Deleting...' : 'Delete Board'}
               </button>
@@ -373,8 +374,8 @@ function BoardSection({
   return (
     <section className="mb-10">
       <div className="mb-4">
-        <h3 className="text-lg font-semibold text-gray-800">{title}</h3>
-        <p className="text-sm text-gray-500">{description}</p>
+        <h3 className="panel-title text-lg text-gray-800">{title}</h3>
+        <p className="section-copy text-sm">{description}</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -382,30 +383,30 @@ function BoardSection({
           <div key={board._id} className="relative group">
             <Link
               to={`/board/${board.boardId}`}
-              className="block bg-white p-6 rounded-xl border border-gray-200 shadow-sm hover:shadow-md hover:border-blue-300 transition-all h-full"
+              className="paper-card block h-full rounded-[1.75rem] border border-gray-200 p-6 transition-all hover:border-blue-300 hover:shadow-md"
             >
               <div className="flex flex-col h-full justify-between">
                 <div>
                   <div className="mb-2 flex items-center justify-between gap-3">
-                    <h4 className="text-lg font-bold text-gray-800 group-hover:text-blue-600 transition-colors">
+                    <h4 className="panel-title text-lg text-gray-800 transition-colors group-hover:text-blue-600">
                       {board.name}
                     </h4>
                     {!canDelete && (
-                      <span className="rounded-full bg-blue-50 px-2.5 py-1 text-[11px] font-semibold text-blue-700">
+                      <span className="stat-label rounded-full bg-blue-50 px-3 py-1 text-[11px] font-semibold text-blue-700">
                         Shared
                       </span>
                     )}
                   </div>
-                  <p className="text-sm text-gray-400">
+                  <p className="stat-label text-sm text-gray-400">
                     Created on {formatDate(board.createdAt)}
                   </p>
                   {!canDelete && (
-                    <p className="mt-2 text-xs text-gray-500">
+                    <p className="stat-label mt-2 text-xs text-gray-500">
                       {board.collaboratorIds.length} collaborator{board.collaboratorIds.length === 1 ? '' : 's'}
                     </p>
                   )}
                 </div>
-                <div className="mt-6 flex items-center text-blue-600 text-sm font-semibold opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="mt-6 flex items-center text-sm font-semibold tracking-wide text-blue-600 opacity-0 transition-opacity group-hover:opacity-100">
                   Open Board
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />

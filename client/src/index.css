@@ -11,6 +11,17 @@
   font-display: swap;
 }
 
+:root {
+  --font-display: 'HollyBerryPop', 'Trebuchet MS', 'Segoe UI', sans-serif;
+  --font-body: 'Trebuchet MS', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+  --font-accent: Georgia, 'Times New Roman', serif;
+  --ink-strong: #0f172a;
+  --ink-soft: #475569;
+  --brand-blue: #2563eb;
+  --brand-glow: #dbeafe;
+  --paper: #f8fafc;
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -20,4 +31,86 @@
 html, body, #root {
   height: 100%;
   width: 100%;
+}
+
+html {
+  background:
+    radial-gradient(circle at top left, rgba(37, 99, 235, 0.16), transparent 28%),
+    radial-gradient(circle at top right, rgba(14, 165, 233, 0.12), transparent 24%),
+    linear-gradient(180deg, #ffffff 0%, var(--paper) 100%);
+}
+
+body {
+  font-family: var(--font-body);
+  color: var(--ink-strong);
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  letter-spacing: 0.01em;
+}
+
+input,
+button,
+textarea,
+select {
+  font: inherit;
+}
+
+.brand-mark {
+  font-family: var(--font-display);
+  letter-spacing: 0.03em;
+  line-height: 0.95;
+  text-transform: uppercase;
+  text-shadow: 0 10px 24px rgba(37, 99, 235, 0.18);
+}
+
+.brand-kicker {
+  font-family: var(--font-accent);
+  font-size: 0.8rem;
+  font-style: italic;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--brand-blue);
+}
+
+.hero-display {
+  font-family: var(--font-body);
+  font-weight: 800;
+  letter-spacing: -0.05em;
+  line-height: 0.94;
+  color: var(--ink-strong);
+}
+
+.section-title {
+  font-family: var(--font-body);
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  line-height: 1;
+}
+
+.section-copy {
+  font-family: var(--font-accent);
+  font-size: 1.06rem;
+  line-height: 1.75;
+  color: var(--ink-soft);
+}
+
+.panel-title {
+  font-family: var(--font-body);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.stat-label {
+  font-family: var(--font-accent);
+  font-style: italic;
+  letter-spacing: 0.04em;
+}
+
+.paper-card {
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  box-shadow: 0 20px 60px rgba(15, 23, 42, 0.08);
 }
