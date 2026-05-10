@@ -178,9 +178,8 @@ export function NoteNode({ id, data, selected }: NoteNodeProps) {
             ))}
           </div>
 
-          <div className="flex cursor-grab items-center gap-2 rounded-full bg-white/22 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500 shadow-sm backdrop-blur-sm active:cursor-grabbing">
+          <div className="flex cursor-grab items-center rounded-full bg-white/18 px-3 py-1.5 shadow-sm backdrop-blur-sm active:cursor-grabbing">
             <GripHorizontalIcon className="text-slate-400" />
-            Note
           </div>
 
           <button
