@@ -117,8 +117,8 @@ export function BoardView() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
           </Link>
-          <div>
-            <p className="brand-kicker mb-1">Creative room</p>
+          <div className="flex min-w-0 items-baseline gap-3">
+            <p className="brand-kicker whitespace-nowrap">Creative room</p>
             <h1 className="section-title max-w-md truncate text-2xl text-gray-800">
               {board.name}
             </h1>

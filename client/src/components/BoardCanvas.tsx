@@ -364,23 +364,6 @@ function BoardCanvasInner({ yNodes, yEdges, yTexts, awareness }: BoardCanvasProp
           showInteractive={false}
         />
 
-        <Panel position="top-left" className="ml-4 mt-4">
-          <div className={`rounded-[28px] border px-5 py-4 shadow-2xl backdrop-blur-xl ${
-            theme === 'dark'
-              ? 'border-white/25 bg-white/12 text-white'
-              : 'border-amber-200/70 bg-white/38 text-slate-900'
-          }`}>
-            <div className={`text-[11px] font-semibold uppercase tracking-[0.28em] ${
-              theme === 'dark' ? 'text-white/65' : 'text-slate-600'
-            }`}>Studio board</div>
-            <div className={`mt-2 max-w-[240px] text-sm leading-6 ${
-              theme === 'dark' ? 'text-white/80' : 'text-slate-800'
-            }`}>
-              Pin notes, sketch connections, and keep your ideas floating on a tactile shared wall.
-            </div>
-          </div>
-        </Panel>
-
         <Panel position="top-center" className="mt-4">
           <div className={`rounded-[28px] border p-2 shadow-2xl backdrop-blur-xl ${
             theme === 'dark'
