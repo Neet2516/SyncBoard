@@ -47,19 +47,33 @@ export function QuillEditor({ quillRef, className = '' }: QuillEditorProps) {
     <div className={`quill-editor-wrapper h-full flex flex-col ${className}`}>
       <div 
         ref={containerRef} 
-        className="ql-container h-full nodrag !border-none text-base dark:text-slate-200" 
+        className="ql-container h-full nodrag !border-none text-base text-slate-700 dark:text-slate-100" 
         style={{ border: 'none' }}
       />
       <style>{`
         .ql-editor.ql-blank::before {
-          color: rgba(156, 163, 175, 0.5);
+          color: rgba(100, 116, 139, 0.62);
           font-style: normal;
+          left: 16px;
+          right: 16px;
         }
         .dark .ql-editor.ql-blank::before {
-          color: rgba(148, 163, 184, 0.4);
+          color: rgba(226, 232, 240, 0.52);
         }
         .ql-editor {
-          padding: 8px;
+          min-height: 100%;
+          padding: 14px 16px 16px;
+          font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+          font-size: 16px;
+          line-height: 1.65;
+          color: #334155;
+        }
+        .ql-editor p,
+        .ql-editor li {
+          letter-spacing: 0.01em;
+        }
+        .dark .ql-editor {
+          color: #f8fafc;
         }
       `}</style>
     </div>

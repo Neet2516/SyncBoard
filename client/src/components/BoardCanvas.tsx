@@ -33,8 +33,6 @@ import { EditorToolbar } from './EditorToolbar'
 
 type RFNoteNode = Node<NoteNodeData>
 
-// Define custom node types outside the component so the reference is stable
-// across renders — prevents React Flow from re-mounting all nodes on re-render
 const nodeTypes: NodeTypes = {
   noteNode: NoteNode,
 }
@@ -45,8 +43,6 @@ interface BoardCanvasProps {
   yTexts: Y.Map<Y.XmlText>
   awareness: Awareness
 }
-
-// ─── AwarenessManager ─────────────────────────────────────────────────────────
 
 function AwarenessManager({ awareness }: { awareness: Awareness }) {
   const { screenToFlowPosition } = useReactFlow()
@@ -78,8 +74,6 @@ function AwarenessManager({ awareness }: { awareness: Awareness }) {
   return <CollaboratorCursors awareness={awareness} />
 }
 
-// ─── Type guard ───────────────────────────────────────────────────────────────
-
 function isNodeHandleId(handle: string | null): handle is NodeHandleId {
   return (
     handle === 'top' ||
@@ -88,8 +82,6 @@ function isNodeHandleId(handle: string | null): handle is NodeHandleId {
     handle === 'right'
   )
 }
-
-// ─── Helpers to build a single RF Node / Edge from Yjs data ──────────────────
 
 function yNodeToRfNode(yNode: NodeData, yTexts: Y.Map<Y.XmlText>, yNodes: Y.Map<NodeData>, awareness: Awareness): RFNoteNode {
   const data: NoteNodeData = {
@@ -118,18 +110,21 @@ function yEdgeToRfEdge(yEdge: EdgeData, theme: 'light' | 'dark'): Edge {
     sourceHandle: yEdge.sourceHandle,
     targetHandle: yEdge.targetHandle,
     animated: true,
-    style: { stroke: theme === 'dark' ? '#94a3b8' : '#64748b', strokeWidth: 2 },
+    style: {
+      stroke: theme === 'dark' ? 'rgba(255,255,255,0.42)' : 'rgba(71,85,105,0.42)',
+      strokeWidth: 2.5,
+      strokeDasharray: '6 10',
+      strokeLinecap: 'round',
+    },
   }
 }
-
-// ─── BoardCanvas (Inner — must be inside ReactFlowProvider) ──────────────────
 
 function BoardCanvasInner({ yNodes, yEdges, yTexts, awareness }: BoardCanvasProps) {
   const [nodes, setNodes] = useState<Node[]>([])
   const [edges, setEdges] = useState<Edge[]>([])
   const { setActiveQuill } = useCanvas()
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
-    return (localStorage.getItem('theme') as 'light' | 'dark') || 'light'
+    return (localStorage.getItem('theme') as 'light' | 'dark') || 'dark'
   })
 
   useEffect(() => {
@@ -138,10 +133,6 @@ function BoardCanvasInner({ yNodes, yEdges, yTexts, awareness }: BoardCanvasProp
   }, [theme])
 
   const toggleTheme = () => setTheme(prev => prev === 'light' ? 'dark' : 'light')
-
-  // ─── Full initial hydration from Yjs ────────────────────────────────────────
-  // Called ONCE on mount and on theme change (edges need to recolor).
-  // Observer below handles incremental updates.
 
   const buildAllFromYjs = useCallback(() => {
     const rfNodes: Node[] = Array.from(yNodes.values()).map(
@@ -154,20 +145,14 @@ function BoardCanvasInner({ yNodes, yEdges, yTexts, awareness }: BoardCanvasProp
     setEdges(rfEdges)
   }, [yNodes, yEdges, yTexts, awareness, theme])
 
-  // ─── Incremental Yjs observer: only diff changed entries ────────────────────
-  // This replaces the O(n) full rebuild on every keystroke.
-
   useEffect(() => {
-    // Hydrate on mount
     buildAllFromYjs()
 
     const onNodesObserve = (event: Y.YMapEvent<NodeData>) => {
       event.changes.keys.forEach((change, key) => {
         if (change.action === 'delete') {
-          // Yjs delete: remove from RF state
           setNodes((prev) => prev.filter((n) => n.id !== key))
         } else {
-          // Add or update: upsert the specific node
           const yNode = yNodes.get(key)
           if (!yNode) return
           const rfNode = yNodeToRfNode(yNode, yTexts, yNodes, awareness)
@@ -175,7 +160,6 @@ function BoardCanvasInner({ yNodes, yEdges, yTexts, awareness }: BoardCanvasProp
           setNodes((prev) => {
             const idx = prev.findIndex((n) => n.id === key)
             if (idx === -1) return [...prev, rfNode]
-            // Only replace if data actually changed (avoid thrashing)
             const existing = prev[idx]
             const existingData = existing.data as unknown as Partial<NoteNodeData>
             if (
@@ -221,30 +205,24 @@ function BoardCanvasInner({ yNodes, yEdges, yTexts, awareness }: BoardCanvasProp
       yNodes.unobserve(onNodesObserve)
       yEdges.unobserve(onEdgesObserve)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [yNodes, yEdges, yTexts, awareness]) // intentionally exclude theme — handled by buildAllFromYjs below
+  }, [yNodes, yEdges, yTexts, awareness, theme, buildAllFromYjs])
 
-  // Re-color edges when theme flips (they store the color inline)
   useEffect(() => {
     setEdges((prev) =>
       prev.map((e) => ({
         ...e,
-        style: { stroke: theme === 'dark' ? '#94a3b8' : '#64748b', strokeWidth: 2 },
+        style: {
+          stroke: theme === 'dark' ? 'rgba(255,255,255,0.42)' : 'rgba(71,85,105,0.42)',
+          strokeWidth: 2.5,
+          strokeDasharray: '6 10',
+          strokeLinecap: 'round',
+        },
       }))
     )
   }, [theme])
 
-  // ─── React Flow → Yjs handlers (unidirectional: UI gesture → Yjs) ───────────
-  //
-  // DESIGN PRINCIPLE: React Flow local state is the DISPLAY layer.
-  // All mutations go to Yjs first. The Yjs observer above then syncs back.
-  // Exception: drag/resize position updates are applied locally for smooth
-  // UX, then written to Yjs. The observer will receive the echo but the
-  // positional equality check above prevents a re-render loop.
-
   const onNodesChange: OnNodesChange = useCallback(
     (changes: NodeChange[]) => {
-      // Apply non-deletion changes to local RF state immediately for smooth UX
       const nonRemovalChanges = changes.filter((c) => c.type !== 'remove')
       if (nonRemovalChanges.length > 0) {
         setNodes((nds) => applyNodeChanges(nonRemovalChanges, nds))
@@ -266,26 +244,17 @@ function BoardCanvasInner({ yNodes, yEdges, yTexts, awareness }: BoardCanvasProp
             })
           }
         } else if (change.type === 'remove') {
-          // ─── DELETION RACE FIX ────────────────────────────────────────────
-          // We use a Y.Doc transaction to batch all three deletions atomically.
-          // This ensures Yjs fires a single 'update' event, so the QuillBinding
-          // does not attempt to access the Y.XmlText after it is already gone.
-          // Previously, separate deletes caused React to unmount the Quill
-          // editor while Yjs was still processing the Y.XmlText destruction.
           const doc = yNodes.doc
           if (!doc) return
 
           doc.transact(() => {
-            // First destroy the text so QuillBinding teardown gets a valid ref
             yTexts.delete(change.id)
-            // Then remove connected edges
             Array.from(yEdges.keys()).forEach((edgeId) => {
               const edge = yEdges.get(edgeId)
               if (edge && (edge.source === change.id || edge.target === change.id)) {
                 yEdges.delete(edgeId)
               }
             })
-            // Finally remove the node metadata
             yNodes.delete(change.id)
           })
         }
@@ -330,18 +299,17 @@ function BoardCanvasInner({ yNodes, yEdges, yTexts, awareness }: BoardCanvasProp
     const doc = yNodes.doc
     if (!doc) return
 
-    // Atomically create text + node so the observer never sees a node without text
     doc.transact(() => {
       yTexts.set(id, new Y.XmlText())
       const newNode: NodeData = {
         id,
         type: 'noteNode',
         position: {
-          x: 100 + Math.random() * 300,
-          y: 100 + Math.random() * 300,
+          x: 180 + Math.random() * 420,
+          y: 140 + Math.random() * 320,
         },
-        width: 260,
-        height: 200,
+        width: 280,
+        height: 210,
         color: 'white',
       }
       yNodes.set(id, newNode)
@@ -351,7 +319,22 @@ function BoardCanvasInner({ yNodes, yEdges, yTexts, awareness }: BoardCanvasProp
   const memoNodeTypes = useMemo(() => nodeTypes, [])
 
   return (
-    <div className={`w-full h-full transition-colors duration-300 ${theme === 'dark' ? 'bg-slate-900' : 'bg-slate-50'}`}>
+    <div
+      className={`board-surface relative h-full w-full overflow-hidden transition-colors duration-300 ${
+        theme === 'dark' ? 'bg-[#251915]' : 'bg-[#e7d2ad]'
+      }`}
+    >
+      <div
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background:
+            theme === 'dark'
+              ? 'linear-gradient(180deg, rgba(19,12,10,0.45), rgba(49,33,27,0.72)), radial-gradient(circle at 20% 15%, rgba(255,255,255,0.08), transparent 28%), radial-gradient(circle at 82% 22%, rgba(255,255,255,0.07), transparent 24%), linear-gradient(135deg, rgba(255,255,255,0.02) 25%, transparent 25%) -18px 0/36px 36px, linear-gradient(225deg, rgba(0,0,0,0.08) 25%, transparent 25%) -18px 0/36px 36px, linear-gradient(315deg, rgba(255,255,255,0.02) 25%, transparent 25%) 0px 0/36px 36px, linear-gradient(45deg, rgba(0,0,0,0.08) 25%, transparent 25%) 0px 0/36px 36px'
+              : 'linear-gradient(180deg, rgba(255,250,241,0.28), rgba(195,158,109,0.18)), radial-gradient(circle at 20% 15%, rgba(255,255,255,0.55), transparent 30%), radial-gradient(circle at 78% 18%, rgba(255,255,255,0.35), transparent 24%), linear-gradient(135deg, rgba(255,255,255,0.08) 25%, transparent 25%) -18px 0/36px 36px, linear-gradient(225deg, rgba(92,45,17,0.08) 25%, transparent 25%) -18px 0/36px 36px, linear-gradient(315deg, rgba(255,255,255,0.08) 25%, transparent 25%) 0px 0/36px 36px, linear-gradient(45deg, rgba(92,45,17,0.08) 25%, transparent 25%) 0px 0/36px 36px',
+        }}
+      />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.12),transparent_58%)]" />
+
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -366,25 +349,47 @@ function BoardCanvasInner({ yNodes, yEdges, yTexts, awareness }: BoardCanvasProp
         snapGrid={[15, 15]}
         colorMode={theme}
         deleteKeyCode={['Backspace', 'Delete']}
+        defaultEdgeOptions={{
+          type: 'smoothstep',
+        }}
       >
-        <Background variant={BackgroundVariant.Dots} color={theme === 'dark' ? '#334155' : '#cbd5e1'} gap={20} />
-        <Controls />
+        <Background
+          variant={BackgroundVariant.Dots}
+          color={theme === 'dark' ? 'rgba(255,255,255,0.12)' : 'rgba(92,45,17,0.18)'}
+          gap={22}
+          size={1.5}
+        />
+        <Controls
+          className="!overflow-hidden !rounded-2xl !border !border-white/20 !bg-white/10 !shadow-2xl !backdrop-blur-md"
+          showInteractive={false}
+        />
 
-        <Panel position="top-center" className="mt-4">
-          <EditorToolbar />
+        <Panel position="top-left" className="ml-4 mt-4">
+          <div className="rounded-[28px] border border-white/25 bg-white/12 px-5 py-4 text-white shadow-2xl backdrop-blur-xl">
+            <div className="text-[11px] font-semibold uppercase tracking-[0.28em] text-white/65">Studio board</div>
+            <div className="mt-2 max-w-[240px] text-sm leading-6 text-white/80">
+              Pin notes, sketch connections, and keep your ideas floating on a tactile shared wall.
+            </div>
+          </div>
         </Panel>
 
-        <Panel position="top-right" className="mt-4 mr-4 flex flex-col space-y-2">
+        <Panel position="top-center" className="mt-4">
+          <div className="rounded-[28px] border border-white/20 bg-white/12 p-2 shadow-2xl backdrop-blur-xl">
+            <EditorToolbar />
+          </div>
+        </Panel>
+
+        <Panel position="top-right" className="mr-4 mt-4 flex flex-col space-y-3">
           <button
             onClick={addNote}
-            className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl shadow-lg hover:shadow-xl font-semibold transition-all duration-200 transform hover:-translate-y-0.5 active:translate-y-0"
+            className="flex items-center space-x-2 rounded-2xl border border-white/20 bg-blue-600/90 px-6 py-3 text-white shadow-2xl backdrop-blur-md transition-all duration-200 hover:-translate-y-0.5 hover:bg-blue-500"
           >
             <PlusIcon />
-            <span>Add Note</span>
+            <span className="text-sm font-semibold tracking-wide">Add Note</span>
           </button>
           <button
             onClick={toggleTheme}
-            className="flex items-center justify-center p-2.5 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl shadow hover:shadow-md transition-all text-gray-700 dark:text-gray-300"
+            className="flex items-center justify-center rounded-2xl border border-white/20 bg-white/14 p-3 text-white shadow-xl backdrop-blur-md transition-all hover:bg-white/20"
             title={theme === 'light' ? 'Switch to Dark Mode' : 'Switch to Light Mode'}
           >
             {theme === 'light' ? <MoonIcon /> : <SunIcon />}
@@ -397,8 +402,6 @@ function BoardCanvasInner({ yNodes, yEdges, yTexts, awareness }: BoardCanvasProp
   )
 }
 
-// ─── BoardCanvas (Public export — provides ReactFlowProvider + CanvasProvider) ─
-
 export function BoardCanvas(props: BoardCanvasProps) {
   return (
     <CanvasProvider>
@@ -408,8 +411,6 @@ export function BoardCanvas(props: BoardCanvasProps) {
     </CanvasProvider>
   )
 }
-
-// ─── Icons ────────────────────────────────────────────────────────────────────
 
 const PlusIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
