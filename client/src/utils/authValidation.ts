@@ -13,14 +13,6 @@ export interface LoginFormValues {
 export type RegisterFormErrors = Partial<Record<keyof RegisterFormValues, string>>
 export type LoginFormErrors = Partial<Record<keyof LoginFormValues, string>>
 
-export const passwordChecklist = [
-  'Minimum 8 characters',
-  'At least 1 uppercase letter',
-  'At least 1 lowercase letter',
-  'At least 1 number',
-  'At least 1 special character',
-] as const
-
 function validateEmail(email: string) {
   if (!email.trim()) return 'Email is required'
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -35,16 +27,6 @@ function validatePassword(password: string) {
   if (!/\d/.test(password)) return 'Password must include at least 1 number'
   if (!/[^A-Za-z\d]/.test(password)) return 'Password must include at least 1 special character'
   return ''
-}
-
-export function getPasswordChecks(password: string) {
-  return {
-    minLength: password.length >= 8,
-    uppercase: /[A-Z]/.test(password),
-    lowercase: /[a-z]/.test(password),
-    number: /\d/.test(password),
-    special: /[^A-Za-z\d]/.test(password),
-  }
 }
 
 export function validateRegisterForm(values: RegisterFormValues): RegisterFormErrors {

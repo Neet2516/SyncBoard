@@ -6,8 +6,6 @@ import Loader from '../components/Loader'
 import { RegisterResponse } from '../types/yjsSchema'
 import {
   RegisterFormValues,
-  getPasswordChecks,
-  passwordChecklist,
   validateRegisterForm,
 } from '../utils/authValidation'
 
@@ -34,7 +32,6 @@ export function RegisterPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const errors = useMemo(() => validateRegisterForm(form), [form])
-  const passwordChecks = useMemo(() => getPasswordChecks(form.password), [form.password])
   const isFormValid = Object.keys(errors).length === 0
 
   // Show loader while checking authentication status
@@ -144,16 +141,6 @@ export function RegisterPage() {
                 />
               </div>
               {showFieldError('password') && <p className="mt-2 text-sm text-red-600">{errors.password}</p>}
-              <div className="mt-3 rounded-md bg-gray-50 p-3">
-                <p className="stat-label text-xs font-semibold uppercase text-gray-500">Password requirements</p>
-                <ul className="mt-2 space-y-1 text-sm text-gray-600">
-                  <li className={passwordChecks.minLength ? 'text-green-600' : ''}>{passwordChecklist[0]}</li>
-                  <li className={passwordChecks.uppercase ? 'text-green-600' : ''}>{passwordChecklist[1]}</li>
-                  <li className={passwordChecks.lowercase ? 'text-green-600' : ''}>{passwordChecklist[2]}</li>
-                  <li className={passwordChecks.number ? 'text-green-600' : ''}>{passwordChecklist[3]}</li>
-                  <li className={passwordChecks.special ? 'text-green-600' : ''}>{passwordChecklist[4]}</li>
-                </ul>
-              </div>
             </div>
 
             <div>
