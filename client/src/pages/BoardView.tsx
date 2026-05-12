@@ -27,25 +27,37 @@ export function BoardView() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [shareOpen, setShareOpen] = useState(false)
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false)
+  const [isDeletingBoard, setIsDeletingBoard] = useState(false)
 
   const { yNodes, yEdges, yTexts, awareness, connected } = useYjsDoc(boardId || '')
   const isOwner = user?.id === board?.ownerId
   const activeUsers = useActiveUsers(awareness)
   const collaboratorCount = useMemo(() => board?.collaborators?.length ?? board?.collaboratorIds.length ?? 0, [board])
 
+  const openDeleteModal = () => {
+    if (!board) return
+    setDeleteModalOpen(true)
+  }
+
+  const closeDeleteModal = () => {
+    if (isDeletingBoard) return
+    setDeleteModalOpen(false)
+  }
+
   const handleDelete = async () => {
     if (!board) return
-    if (!window.confirm(`Are you sure you want to delete "${board.name}"? This action cannot be undone.`)) {
-      return
-    }
 
     try {
+      setIsDeletingBoard(true)
       await api.delete(`/boards/${board._id}`)
       showToast('Board deleted successfully', 'success')
       navigate('/boards')
     } catch (err) {
       console.error('[BoardView] Delete error:', err)
       showToast(err instanceof Error ? err.message : 'Failed to delete board', 'error')
+    } finally {
+      setIsDeletingBoard(false)
     }
   }
 
@@ -155,7 +167,7 @@ export function BoardView() {
           </div>
           {isOwner && (
             <button
-              onClick={handleDelete}
+              onClick={openDeleteModal}
               className="rounded-2xl p-3 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-600"
               title="Delete Board"
             >
@@ -190,6 +202,38 @@ export function BoardView() {
           }}
           onRemoveCollaborator={handleRemoveCollaborator}
         />
+      )}
+
+      {deleteModalOpen && board && isOwner && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 px-4">
+          <div className="paper-card w-full max-w-md rounded-[2rem] bg-white/95 p-6">
+            <div className="mb-5">
+              <h3 className="panel-title text-xl text-gray-900">Delete board?</h3>
+              <p className="mt-1 text-sm text-gray-500">
+                This will permanently delete <span className="font-semibold text-gray-700">{board.name}</span>.
+              </p>
+            </div>
+
+            <div className="flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={closeDeleteModal}
+                disabled={isDeletingBoard}
+                className="rounded-full border border-gray-200 px-4 py-2 text-sm font-semibold tracking-wide text-gray-600 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleDelete}
+                disabled={isDeletingBoard}
+                className="rounded-full bg-red-600 px-4 py-2 text-sm font-semibold tracking-wide text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {isDeletingBoard ? 'Deleting...' : 'Delete Board'}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   )
