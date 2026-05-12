@@ -134,6 +134,11 @@ export function BoardView() {
         </div>
 
         <div className="flex items-center space-x-4">
+          {user && (
+            <div className="rounded-full bg-white/70 px-4 py-2 text-sm font-semibold text-gray-600 shadow-sm">
+              {user.name}
+            </div>
+          )}
           <div className="rounded-full bg-white/70 px-4 py-2 text-sm font-semibold text-gray-500 shadow-sm">
             {collaboratorCount} collaborator{collaboratorCount === 1 ? '' : 's'}
           </div>

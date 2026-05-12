@@ -164,6 +164,11 @@ export function BoardList() {
       <nav className="flex h-16 items-center justify-between border-b border-white/60 bg-white/70 px-8 shadow-sm backdrop-blur-xl">
         <h1 className="brand-mark text-2xl text-blue-600">SyncBoard</h1>
         <div className="flex items-center space-x-4">
+          {user && (
+            <div className="rounded-full bg-white/80 px-4 py-2 text-sm font-semibold text-gray-600 shadow-sm">
+              {user.name}
+            </div>
+          )}
           <button
             onClick={openCreateBoardModal}
             className="rounded-full bg-blue-600 px-5 py-2 text-sm font-semibold tracking-wide text-white transition-colors hover:bg-blue-700"
