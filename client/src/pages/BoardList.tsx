@@ -12,8 +12,8 @@ const PAGE_SIZE = 20
 /**
  * BoardList Page (Dashboard)
  *
- * FIX: Consumes paginated GET /boards response (boards, total, hasMore).
- * Supports load-more and optional search filtering.
+ * Provides a user dashboard for managing and accessing boards.
+ * Supports pagination and search filtering.
  */
 export function BoardList() {
   const navigate = useNavigate()

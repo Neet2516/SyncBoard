@@ -14,9 +14,8 @@ const BoardCanvas = lazy(() => import('../components/BoardCanvas').then(module =
 /**
  * BoardView Page
  *
- * FIX: Removed inline fetch with localStorage token.
- * Now uses the shared api client (credentials:'include') consistently.
- * Also removed the hardcoded 'http://localhost:4000' fallback.
+ * Provides a dedicated view for a single board, integrating the canvas
+ * with real-time synchronization and collaboration features.
  */
 export function BoardView() {
   const { boardId } = useParams<{ boardId: string }>()

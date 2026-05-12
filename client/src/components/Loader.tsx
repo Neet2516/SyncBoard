@@ -4,8 +4,7 @@ import './Loader.css'
 /**
  * Loader Component
  * 
- * A high-quality interactive loader with custom animations.
- * Adapted from Uiverse.io by Nawsome.
+ * Displays a full-page loading state with custom animations.
  */
 const Loader: React.FC = () => {
   return (

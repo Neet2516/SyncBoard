@@ -6,18 +6,8 @@ import { createBoardDoc, NodeData, EdgeData } from '../types/yjsSchema'
 /**
  * useYjsDoc hook
  *
- * FIX: WebSocket URL now points to the same port as the REST API (single server).
- * Previously ws://localhost:4001 (separate server).
- * Now reads from VITE_WS_URL (which defaults to the same host as VITE_API_URL).
- *
- * FIX: Passes the auth token as a query param on the WebSocket URL so the
- * server can verify identity on the upgrade handshake. HttpOnly cookies are
- * not sent on WebSocket upgrades by the browser, so we read userId from
- * localStorage (non-sensitive) and pass the token separately.
- *
- * NOTE: The token in the query string is only in transit during the HTTP
- * upgrade handshake (immediately promoted to an encrypted WebSocket frame).
- * This is the industry-standard approach for WS auth with HttpOnly cookies.
+ * Initializes and manages a Yjs document synchronized over WebSockets.
+ * Handles connection lifecycle, shared types, and awareness.
  */
 export function useYjsDoc(boardId: string) {
   const [connected, setConnected] = useState(false)
@@ -39,9 +29,6 @@ export function useYjsDoc(boardId: string) {
   useEffect(() => {
     if (!boardId || !docRef.current) return
 
-    // FIX: Single server — WS on same host/port as REST.
-    // In dev: VITE_WS_URL = ws://localhost:4000
-    // In prod: VITE_WS_URL = wss://your-domain.com
     const wsBase = import.meta.env.VITE_WS_URL || 'ws://localhost:4000'
     const fullWsUrl = `${wsBase}/yjs/${boardId}`
 
@@ -53,9 +40,8 @@ export function useYjsDoc(boardId: string) {
       docRef.current,
       {
         connect: true,
-        // Pass auth token as query param for the WS upgrade handshake.
-        // The server verifies this in yjsWebSocket.ts before accepting.
-        // Non-sensitive userId is in localStorage for awareness only.
+        // Pass userId for awareness only. Authentication is handled by session cookies
+        // if supported, or other mechanisms during the handshake.
         params: {
           userId: localStorage.getItem('userId') || 'anonymous',
         },

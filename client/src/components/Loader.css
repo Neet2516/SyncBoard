@@ -36,7 +36,7 @@
 }
 
 .pl__dot {
-  animation-name: shadow724;
+  animation-name: loader-shadow;
   box-shadow: 0.1em 0.1em 0 0.1em rgba(0, 0, 0, 0.2), 0.3em 0 0.3em rgba(0, 0, 0, 0.1);
   top: calc(50% - 0.75em);
   left: calc(50% - 0.75em);
@@ -59,7 +59,7 @@
 }
 
 .pl__dot:before {
-  animation-name: pushInOut1724;
+  animation-name: loader-push-1;
   background-color: var(--loader-bg);
   border-radius: inherit;
   box-shadow: 0.05em 0 0.1em rgba(255, 255, 255, 0.2) inset;
@@ -68,7 +68,7 @@
 }
 
 .pl__dot:after {
-  animation-name: pushInOut2724;
+  animation-name: loader-push-2;
   background-color: var(--loader-primary1);
   border-radius: 0.75em;
   box-shadow: 0.1em 0.3em 0.2em rgba(255, 255, 255, 0.4) inset, 0 -0.4em 0.2em #2e3138 inset, 0 -1em 0.25em rgba(0, 0, 0, 0.3) inset;
@@ -124,8 +124,7 @@
   font-weight: bold;
 }
 
-/* Animations */
-@keyframes shadow724 {
+@keyframes loader-shadow {
   from {
     animation-timing-function: ease-in;
     box-shadow: 0.1em 0.1em 0 0.1em rgba(0, 0, 0, 0.2), 0.3em 0 0.3em rgba(0, 0, 0, 0.1);
@@ -141,7 +140,7 @@
   }
 }
 
-@keyframes pushInOut1724 {
+@keyframes loader-push-1 {
   from {
     animation-timing-function: ease-in;
     background-color: var(--loader-bg);
@@ -160,7 +159,7 @@
   }
 }
 
-@keyframes pushInOut2724 {
+@keyframes loader-push-2 {
   from {
     animation-timing-function: ease-in;
     background-color: var(--loader-bg);

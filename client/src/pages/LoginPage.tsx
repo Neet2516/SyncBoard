@@ -9,10 +9,8 @@ import { LoginFormValues, validateLoginForm } from '../utils/authValidation'
 /**
  * LoginPage Component
  *
- * SECURITY FIX: No longer stores the JWT in localStorage.
- * The server sets an HttpOnly cookie on successful login.
- * We only store non-sensitive user identity (userId, name) in localStorage
- * for display purposes (username in cursors, avatar initials, etc.).
+ * Provides a user interface for authenticating existing users.
+ * Handles form validation and session initialization.
  */
 export function LoginPage() {
   const navigate = useNavigate()

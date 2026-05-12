@@ -23,7 +23,8 @@ export function LandingPage() {
       <nav className="border-b border-white/60 bg-white/70 backdrop-blur-xl">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 items-center justify-between">
-            <div className="flex flex-shrink-0 items-center">
+            <div className="flex flex-shrink-0 items-center space-x-3">
+              <img src="/favicon.svg" alt="SyncBoard Logo" className="h-8 w-8" />
               <span className="brand-mark text-3xl text-blue-600">SyncBoard</span>
             </div>
             <div className="flex space-x-4">
@@ -48,7 +49,6 @@ export function LandingPage() {
         <div className="relative overflow-hidden">
           <div className="mx-auto max-w-7xl px-4 py-24 sm:px-6 lg:px-8 lg:py-32">
             <div className="text-center">
-              <p className="brand-kicker mb-5">Live ideas. Shared momentum.</p>
               <h1 className="hero-display mb-8 text-5xl sm:text-7xl">
                 Collaborate in <span className="text-blue-600">Real-Time</span>
                 <br />

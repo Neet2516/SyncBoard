@@ -1,8 +1,6 @@
 import mongoose, { Schema, Document } from 'mongoose'
 import { v4 as uuidv4 } from 'uuid'
 
-// ─── Board Interface ─────────────────────────────────────────────────────────
-
 export interface IBoard extends Document {
   /**
    * boardId is a UUID v4 — used as the Yjs room name and in the client URL.
@@ -15,8 +13,6 @@ export interface IBoard extends Document {
   collaboratorIds: mongoose.Types.ObjectId[]
   createdAt: Date
 }
-
-// ─── Board Schema ────────────────────────────────────────────────────────────
 
 const BoardSchema = new Schema<IBoard>(
   {

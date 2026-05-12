@@ -1,15 +1,11 @@
 import mongoose, { Schema, Document } from 'mongoose'
 
-// ─── User Interface ──────────────────────────────────────────────────────────
-
 export interface IUser extends Document {
   email: string
   passwordHash: string
   name: string
   createdAt: Date
 }
-
-// ─── User Schema ─────────────────────────────────────────────────────────────
 
 const UserSchema = new Schema<IUser>(
   {

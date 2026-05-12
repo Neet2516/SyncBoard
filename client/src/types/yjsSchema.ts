@@ -1,8 +1,6 @@
 import * as Y from 'yjs'
 import { Awareness } from 'y-protocols/awareness'
 
-// ─── Node Data ───────────────────────────────────────────────────────────────
-
 export interface NodePosition {
   x: number
   y: number
@@ -20,8 +18,6 @@ export interface NodeData {
   color?: NodeColor
 }
 
-// ─── Edge Data ───────────────────────────────────────────────────────────────
-
 export interface EdgeData {
   id: string
   source: string   // nodeId of source
@@ -34,8 +30,6 @@ export interface EdgeData {
 export type NodeHandleSide = 'top' | 'bottom' | 'left' | 'right'
 
 export type NodeHandleId = NodeHandleSide
-
-// ─── NoteNode Props (React Flow custom node) ─────────────────────────────────
 
 /**
  * Data bag passed by React Flow to every NoteNode instance.
@@ -56,8 +50,6 @@ export interface NoteNodeProps {
   selected: boolean
   dragging: boolean
 }
-
-// ─── API Response Types ───────────────────────────────────────────────────────
 
 export interface ApiBoard {
   _id: string
@@ -110,8 +102,6 @@ export interface BoardCollaborator {
   email: string
 }
 
-// ─── Board Y.Doc Shape ───────────────────────────────────────────────────────
-
 /**
  * Describes the three top-level Yjs shared data structures on a BoardDoc.
  *
@@ -128,8 +118,6 @@ export interface BoardYDoc {
   /** Keyed by nodeId — stores Quill rich-text content per node */
   yTexts: Y.Map<Y.XmlText>
 }
-
-// ─── Factory Function ────────────────────────────────────────────────────────
 
 /**
  * Creates a new Y.Doc and extracts the three canonical shared maps.

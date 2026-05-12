@@ -16,7 +16,7 @@ const JoinBoard = lazy(() => import('./pages/JoinBoard').then(module => ({ defau
 /**
  * Main App Component
  * 
- * Configures the application routing and authentication guards.
+ * Sets up application providers, routing, and global layout.
  */
 function App() {
   return (

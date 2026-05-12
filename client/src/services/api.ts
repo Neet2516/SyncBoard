@@ -5,12 +5,8 @@ interface RequestOptions extends RequestInit {
 }
 
 /**
- * Core fetch wrapper
- *
- * SECURITY FIX: No longer reads token from localStorage.
- * Auth is handled by the HttpOnly cookie, which the browser automatically
- * sends with every same-origin (or CORS-credentialed) request.
- * Setting credentials: 'include' is the only change needed on the client side.
+ * Core fetch wrapper for API communication.
+ * Automatically handles JSON serialization, headers, and credential management.
  */
 async function request<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
   const { params, ...init } = options
