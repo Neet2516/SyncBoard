@@ -76,7 +76,7 @@ const DEVELOPER_PROFILE = {
 /**
  * LandingPage Component
  *
- * The public-facing entry point of SyncBoard.
+ * The public-facing entry point of SyncBoard with landing page animation
  */
 export function LandingPage() {
   const { isAuthenticated, isLoading } = useAuth()
