@@ -28,6 +28,9 @@ export const env = {
   bcryptSaltRounds: readNumber(process.env.BCRYPT_SALT_ROUNDS, 12),
   tempAuthStateTtlSeconds: readNumber(process.env.TEMP_AUTH_STATE_TTL_SECONDS, 60 * 10),
   userCacheTtlSeconds: readNumber(process.env.AUTH_USER_CACHE_TTL_SECONDS, 60 * 5),
+  cloudinaryCloudName: process.env.CLOUDINARY_CLOUD_NAME,
+  cloudinaryApiKey: process.env.CLOUDINARY_API_KEY,
+  cloudinaryApiSecret: process.env.CLOUDINARY_API_SECRET,
 }
 
 export const isProduction = env.nodeEnv === 'production' || process.env.VERCEL === '1' || process.env.RENDER === 'true'

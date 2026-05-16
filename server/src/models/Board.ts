@@ -11,6 +11,7 @@ export interface IBoard extends Document {
   name: string
   ownerId: mongoose.Types.ObjectId
   collaboratorIds: mongoose.Types.ObjectId[]
+  snapshotUrl?: string
   createdAt: Date
 }
 
@@ -39,6 +40,9 @@ const BoardSchema = new Schema<IBoard>(
         ref: 'User',
       },
     ],
+    snapshotUrl: {
+      type: String,
+    },
   },
   {
     timestamps: { createdAt: true, updatedAt: false },

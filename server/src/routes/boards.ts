@@ -3,14 +3,12 @@ import mongoose from 'mongoose'
 import { authMiddleware, AuthRequest } from '../middleware/authMiddleware'
 import { Board } from '../models/Board'
 import { User } from '../models/User'
+import cloudinary from '../utils/cloudinary'
+import { authStoreService } from '../services/auth/authStoreService'
 
 const router = Router()
 
 router.use(authMiddleware)
-
-const INVITE_WINDOW_MS = 60_000
-const INVITE_LIMIT = 10
-const inviteRateLimit = new Map<string, number[]>()
 
 function findBoardLookup(boardIdentifier: string) {
   return mongoose.Types.ObjectId.isValid(boardIdentifier)
@@ -50,38 +48,10 @@ function serializeBoard(board: any) {
     name: board.name,
     ownerId: String(board.ownerId),
     collaboratorIds: (board.collaboratorIds ?? []).map((id: mongoose.Types.ObjectId | string) => String(id)),
+    snapshotUrl: board.snapshotUrl,
     createdAt: board.createdAt,
     collaborators,
   }
-}
-
-function cleanupInviteRateLimit(now: number) {
-  inviteRateLimit.forEach((timestamps, key) => {
-    const fresh = timestamps.filter((timestamp) => now - timestamp < INVITE_WINDOW_MS)
-
-    if (fresh.length === 0) {
-      inviteRateLimit.delete(key)
-      return
-    }
-
-    inviteRateLimit.set(key, fresh)
-  })
-}
-
-function canInvite(userId: string, boardId: string) {
-  const now = Date.now()
-  cleanupInviteRateLimit(now)
-
-  const key = `${userId}:${boardId}`
-  const history = inviteRateLimit.get(key)?.filter((timestamp) => now - timestamp < INVITE_WINDOW_MS) ?? []
-
-  if (history.length >= INVITE_LIMIT) {
-    return false
-  }
-
-  history.push(now)
-  inviteRateLimit.set(key, history)
-  return true
 }
 
 router.get('/', async (req: AuthRequest, res: Response) => {
@@ -254,7 +224,10 @@ router.post('/:id/collaborators', async (req: AuthRequest, res: Response) => {
       return res.status(400).json({ error: 'Email is required' })
     }
 
-    if (!canInvite(userId, id)) {
+    const rateLimitKey = `invite:${userId}:${id}`
+    const rateLimit = await authStoreService.consumeRateLimit(rateLimitKey, 10, 60) // 10 invites per minute per board/user
+
+    if (!rateLimit.allowed) {
       return res.status(429).json({ error: 'Too many invites. Please wait a minute and try again.' })
     }
 
@@ -367,6 +340,46 @@ router.delete('/:id', async (req: AuthRequest, res: Response) => {
     res.json({ message: 'Board deleted successfully' })
   } catch (error) {
     console.error(`[boards] DELETE /${req.params['id']} error:`, error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
+router.post('/:id/snapshot', async (req: AuthRequest, res: Response) => {
+  try {
+    const id = Array.isArray(req.params['id']) ? req.params['id'][0] : req.params['id']
+    const userId = req.user?.userId
+    const { image } = req.body // base64 image string
+
+    if (!userId) {
+      return res.status(401).json({ error: 'Unauthorized' })
+    }
+
+    if (!image) {
+      return res.status(400).json({ error: 'Image data is required' })
+    }
+
+    const board = await findBoardForUser(id, userId)
+    if (!board) {
+      return res.status(404).json({ error: 'Board not found or access denied' })
+    }
+
+    // Upload to Cloudinary
+    const uploadResponse = await cloudinary.uploader.upload(image, {
+      folder: 'syncboard-snapshots',
+      resource_type: 'image',
+    })
+
+    await Board.updateOne(
+      { _id: board._id },
+      { $set: { snapshotUrl: uploadResponse.secure_url } }
+    )
+
+    res.json({
+      message: 'Snapshot uploaded successfully',
+      snapshotUrl: uploadResponse.secure_url,
+    })
+  } catch (error) {
+    console.error(`[boards] POST /${req.params['id']}/snapshot error:`, error)
     res.status(500).json({ error: 'Internal server error' })
   }
 })
