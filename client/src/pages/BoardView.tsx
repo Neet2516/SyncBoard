@@ -188,6 +188,7 @@ export function BoardView() {
               yEdges={yEdges}
               yTexts={yTexts}
               awareness={awareness}
+              boardId={boardId || ''}
             />
           )}
         </Suspense>

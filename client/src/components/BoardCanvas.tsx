@@ -24,12 +24,16 @@ import '@xyflow/react/dist/style.css'
 import * as Y from 'yjs'
 import { Awareness } from 'y-protocols/awareness'
 import { v4 as uuidv4 } from 'uuid'
+import html2canvas from 'html2canvas'
+import { jsPDF } from 'jspdf'
 
 import { NoteNode } from './NoteNode'
 import { CollaboratorCursors } from './CollaboratorCursors'
 import { NodeData, EdgeData, NoteNodeData, type NodeHandleId } from '../types/yjsSchema'
 import { CanvasProvider, useCanvas } from '../context/CanvasContext'
 import { EditorToolbar } from './EditorToolbar'
+import { useToast } from '../context/ToastContext'
+import { api } from '../services/api'
 
 type RFNoteNode = Node<NoteNodeData>
 
@@ -42,6 +46,7 @@ interface BoardCanvasProps {
   yEdges: Y.Map<EdgeData>
   yTexts: Y.Map<Y.XmlText>
   awareness: Awareness
+  boardId: string
 }
 
 function AwarenessManager({ awareness }: { awareness: Awareness }) {
@@ -119,13 +124,138 @@ function yEdgeToRfEdge(yEdge: EdgeData, theme: 'light' | 'dark'): Edge {
   }
 }
 
-function BoardCanvasInner({ yNodes, yEdges, yTexts, awareness }: BoardCanvasProps) {
+function getCanvasBounds(nodes: Node[]) {
+  if (nodes.length === 0) return null
+
+  const bounds = nodes.reduce(
+    (acc, node) => {
+      const width = typeof node.width === 'number' ? node.width : 280
+      const height = typeof node.height === 'number' ? node.height : 210
+
+      acc.minX = Math.min(acc.minX, node.position.x)
+      acc.minY = Math.min(acc.minY, node.position.y)
+      acc.maxX = Math.max(acc.maxX, node.position.x + width)
+      acc.maxY = Math.max(acc.maxY, node.position.y + height)
+
+      return acc
+    },
+    {
+      minX: Number.POSITIVE_INFINITY,
+      minY: Number.POSITIVE_INFINITY,
+      maxX: Number.NEGATIVE_INFINITY,
+      maxY: Number.NEGATIVE_INFINITY,
+    }
+  )
+
+  return {
+    x: bounds.minX,
+    y: bounds.minY,
+    width: bounds.maxX - bounds.minX,
+    height: bounds.maxY - bounds.minY,
+  }
+}
+
+function cropCanvas(source: HTMLCanvasElement, x: number, y: number, width: number, height: number) {
+  const safeWidth = Math.max(1, Math.round(width))
+  const safeHeight = Math.max(1, Math.round(height))
+  const safeX = Math.max(0, Math.round(x))
+  const safeY = Math.max(0, Math.round(y))
+  const maxWidth = Math.min(source.width - safeX, safeWidth)
+  const maxHeight = Math.min(source.height - safeY, safeHeight)
+
+  const cropped = document.createElement('canvas')
+  cropped.width = Math.max(1, maxWidth)
+  cropped.height = Math.max(1, maxHeight)
+
+  const context = cropped.getContext('2d')
+  if (!context) {
+    throw new Error('Unable to prepare PDF canvas')
+  }
+
+  context.drawImage(source, safeX, safeY, maxWidth, maxHeight, 0, 0, maxWidth, maxHeight)
+  return cropped
+}
+
+function BoardCanvasInner({ yNodes, yEdges, yTexts, awareness, boardId }: BoardCanvasProps) {
   const [nodes, setNodes] = useState<Node[]>([])
   const [edges, setEdges] = useState<Edge[]>([])
   const { setActiveQuill } = useCanvas()
+  const { showToast } = useToast()
+  const { fitView } = useReactFlow()
+  const [isExporting, setIsExporting] = useState(false)
+
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
     return (localStorage.getItem('theme') as 'light' | 'dark') || 'dark'
   })
+
+  const exportToPDF = useCallback(async () => {
+    if (isExporting) return
+    setIsExporting(true)
+
+    try {
+      showToast('Preparing PDF...', 'info')
+      const exportBounds = getCanvasBounds(nodes)
+      if (!exportBounds) {
+        throw new Error('There are no notes to export yet')
+      }
+
+      await fitView({ padding: 0.2, duration: 250 })
+      await new Promise((resolve) => setTimeout(resolve, 400))
+
+      const boardSurface = document.querySelector('.board-surface') as HTMLElement | null
+      const viewport = document.querySelector('.react-flow__viewport') as HTMLElement | null
+      if (!boardSurface || !viewport) throw new Error('Canvas viewport not found')
+
+      const fullCanvas = await html2canvas(boardSurface, {
+        backgroundColor: null,
+        useCORS: true,
+        scale: 2,
+        ignoreElements: (el) =>
+          el.classList.contains('react-flow__controls') ||
+          el.classList.contains('react-flow__panel') ||
+          el.classList.contains('react-flow__attribution') ||
+          el.classList.contains('react-flow__resize-control') ||
+          el.classList.contains('react-flow__handle'),
+      })
+
+      const transform = getComputedStyle(viewport).transform
+      const matrix = transform && transform !== 'none' ? new DOMMatrixReadOnly(transform) : null
+      const scale = matrix?.a ?? 1
+      const translateX = matrix?.e ?? 0
+      const translateY = matrix?.f ?? 0
+      const captureScale = fullCanvas.width / boardSurface.clientWidth
+      const padding = 96
+
+      const croppedCanvas = cropCanvas(
+        fullCanvas,
+        (translateX + (exportBounds.x - padding) * scale) * captureScale,
+        (translateY + (exportBounds.y - padding) * scale) * captureScale,
+        (exportBounds.width + padding * 2) * scale * captureScale,
+        (exportBounds.height + padding * 2) * scale * captureScale
+      )
+
+      const imgData = croppedCanvas.toDataURL('image/png')
+      const pdf = new jsPDF({
+        orientation: croppedCanvas.width > croppedCanvas.height ? 'landscape' : 'portrait',
+        unit: 'px',
+        format: [croppedCanvas.width, croppedCanvas.height],
+      })
+
+      pdf.addImage(imgData, 'PNG', 0, 0, croppedCanvas.width, croppedCanvas.height)
+      pdf.save(`syncboard-${boardId}.pdf`)
+      showToast('PDF downloaded!', 'success')
+
+      // Background upload to Cloudinary
+      api.post(`/boards/${boardId}/snapshot`, { image: imgData }).catch((err) => {
+        console.error('[Cloudinary] Upload failed:', err)
+      })
+    } catch (error) {
+      console.error('[Export] PDF failed:', error)
+      showToast('Export failed', 'error')
+    } finally {
+      setIsExporting(false)
+    }
+  }, [fitView, boardId, showToast, isExporting, nodes])
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', theme === 'dark')
@@ -383,6 +513,16 @@ function BoardCanvasInner({ yNodes, yEdges, yTexts, awareness }: BoardCanvasProp
             <span className="text-sm font-semibold tracking-wide">Add Note</span>
           </button>
           <button
+            onClick={exportToPDF}
+            disabled={isExporting}
+            className="flex items-center space-x-2 rounded-2xl border border-white/20 bg-emerald-600/90 px-6 py-3 text-white shadow-2xl backdrop-blur-md transition-all duration-200 hover:-translate-y-0.5 hover:bg-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isExporting ? <LoaderIcon /> : <DownloadIcon />}
+            <span className="text-sm font-semibold tracking-wide">
+              {isExporting ? 'Exporting...' : 'Download PDF'}
+            </span>
+          </button>
+          <button
             onClick={toggleTheme}
             className="flex items-center justify-center rounded-2xl border border-white/20 bg-white/14 p-3 text-white shadow-xl backdrop-blur-md transition-all hover:bg-white/20"
             title={theme === 'light' ? 'Switch to Dark Mode' : 'Switch to Light Mode'}
@@ -415,4 +555,10 @@ const SunIcon = () => (
 )
 const MoonIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+)
+const DownloadIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+)
+const LoaderIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="animate-spin"><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/></svg>
 )
