@@ -349,9 +349,7 @@ select {
   }
 
   .sticky-note {
-    width: min(190px, 44vw);
-    min-width: 150px;
-    padding: 1rem 1rem 0.92rem;
+    display: none;
   }
 
   .landing-cursor {
@@ -362,14 +360,5 @@ select {
 @media (max-width: 640px) {
   .landing-canvas__grid {
     background-size: 40px 40px;
-  }
-
-  .sticky-note {
-    opacity: 0.84;
-  }
-
-  .sticky-note:nth-of-type(3),
-  .sticky-note:nth-of-type(4) {
-    display: none;
   }
 }

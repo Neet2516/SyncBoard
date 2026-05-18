@@ -161,33 +161,35 @@ export function BoardList() {
   return (
     <div className="min-h-screen bg-transparent">
       {/* Header */}
-      <nav className="flex h-16 items-center justify-between border-b border-white/60 bg-white/70 px-8 shadow-sm backdrop-blur-xl">
+      <nav className="border-b border-white/60 bg-white/70 px-4 py-3 shadow-sm backdrop-blur-xl md:px-8">
+        <div className="mx-auto flex max-w-6xl flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <h1 className="brand-mark text-2xl text-blue-600">SyncBoard</h1>
-        <div className="flex items-center space-x-4">
+        <div className="flex flex-wrap items-center gap-3 md:justify-end">
           {user && (
-            <div className="rounded-full bg-white/80 px-4 py-2 text-sm font-semibold text-gray-600 shadow-sm">
+            <div className="rounded-full bg-white/80 px-4 py-3 text-sm font-semibold text-gray-600 shadow-sm">
               {user.name}
             </div>
           )}
           <button
             onClick={openCreateBoardModal}
-            className="rounded-full bg-blue-600 px-5 py-2 text-sm font-semibold tracking-wide text-white transition-colors hover:bg-blue-700"
+            className="min-h-12 rounded-full bg-blue-600 px-5 py-3 text-sm font-semibold tracking-wide text-white transition-colors hover:bg-blue-700"
           >
             + Create Board
           </button>
           <button
             onClick={handleLogout}
-            className="text-gray-500 hover:text-gray-800 font-medium transition-colors"
+            className="min-h-12 rounded-full px-3 py-3 font-medium text-gray-500 transition-colors hover:text-gray-800"
           >
             Logout
           </button>
         </div>
+        </div>
       </nav>
 
       {/* Main Content */}
-      <main className="mx-auto max-w-6xl px-8 py-10">
+      <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6 md:px-8 md:py-10">
         {/* Title + Search */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 gap-4">
+        <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
             <p className="brand-kicker mb-2">Workspace</p>
             <h2 className="section-title text-3xl text-gray-800">My Boards</h2>
@@ -196,17 +198,17 @@ export function BoardList() {
             </span>
           </div>
 
-          <form onSubmit={handleSearch} className="flex gap-2">
+          <form onSubmit={handleSearch} className="flex w-full flex-col gap-3 sm:flex-row md:w-auto">
             <input
               type="text"
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
               placeholder="Search boards…"
-              className="w-48 rounded-full border border-gray-300 bg-white/90 px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="min-h-12 w-full rounded-full border border-gray-300 bg-white/90 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 sm:w-64"
             />
             <button
               type="submit"
-              className="rounded-full bg-gray-100 px-4 py-2 text-sm font-semibold tracking-wide text-gray-700 transition-colors hover:bg-gray-200"
+              className="min-h-12 rounded-full bg-gray-100 px-4 py-3 text-sm font-semibold tracking-wide text-gray-700 transition-colors hover:bg-gray-200"
             >
               Search
             </button>
@@ -214,7 +216,7 @@ export function BoardList() {
               <button
                 type="button"
                 onClick={() => { setSearch(''); setSearchInput('') }}
-                className="px-2 text-sm font-semibold text-gray-400 hover:text-gray-700"
+                className="min-h-12 rounded-full px-4 py-3 text-sm font-semibold text-gray-400 hover:text-gray-700"
               >
                 ✕ Clear
               </button>
@@ -383,7 +385,7 @@ function BoardSection({
         <p className="section-copy text-sm">{description}</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {boards.map((board) => (
           <div key={board._id} className="relative group">
             <Link
@@ -393,7 +395,7 @@ function BoardSection({
               <div className="flex flex-col h-full justify-between">
                 <div>
                   <div className="mb-2 flex items-center justify-between gap-3">
-                    <h4 className="panel-title text-lg text-gray-800 transition-colors group-hover:text-blue-600">
+                    <h4 className="panel-title truncate text-lg text-gray-800 transition-colors group-hover:text-blue-600">
                       {board.name}
                     </h4>
                     {!canDelete && (
@@ -422,7 +424,7 @@ function BoardSection({
             {canDelete && (
               <button
                 onClick={(e) => onDelete(e, board)}
-                className="absolute top-4 right-4 p-2 text-gray-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-all rounded-full hover:bg-red-50 z-10"
+                className="absolute right-4 top-4 z-10 rounded-full p-3 text-gray-400 opacity-100 transition-all hover:bg-red-50 hover:text-red-600 sm:opacity-0 sm:group-hover:opacity-100"
                 title="Delete Board"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">

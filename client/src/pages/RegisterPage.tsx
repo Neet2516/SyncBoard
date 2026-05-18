@@ -81,7 +81,7 @@ export function RegisterPage() {
   const showFieldError = (field: keyof RegisterFormValues) => touched[field] && errors[field]
 
   return (
-    <div className="flex min-h-screen flex-col justify-center bg-transparent py-12 sm:px-6 lg:px-8">
+    <div className="flex min-h-screen flex-col justify-center bg-transparent px-4 py-10 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <p className="brand-kicker text-center">Join the canvas</p>
         <h1 className="brand-mark mb-2 text-center text-5xl text-blue-600">SyncBoard</h1>
@@ -89,7 +89,7 @@ export function RegisterPage() {
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="paper-card rounded-[2rem] bg-white/90 px-4 py-8 sm:px-10">
+        <div className="paper-card rounded-[2rem] bg-white/90 px-5 py-8 sm:px-8 md:px-10">
           <form className="space-y-6" onSubmit={handleSubmit}>
             <div>
               <label htmlFor="name" className="stat-label block text-sm font-semibold text-gray-700">Full Name</label>
@@ -102,7 +102,7 @@ export function RegisterPage() {
                   value={form.fullName}
                   onChange={(e) => setForm((current) => ({ ...current, fullName: e.target.value }))}
                   onBlur={() => setTouched((current) => ({ ...current, fullName: true }))}
-                  className={`appearance-none block w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm ${showFieldError('fullName') ? 'border-red-300' : 'border-gray-300'}`}
+                  className={`block min-h-12 w-full appearance-none rounded-md border px-4 py-3 shadow-sm placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm ${showFieldError('fullName') ? 'border-red-300' : 'border-gray-300'}`}
                 />
               </div>
               {showFieldError('fullName') && <p className="mt-2 text-sm text-red-600">{errors.fullName}</p>}
@@ -120,7 +120,7 @@ export function RegisterPage() {
                   value={form.email}
                   onChange={(e) => setForm((current) => ({ ...current, email: e.target.value }))}
                   onBlur={() => setTouched((current) => ({ ...current, email: true }))}
-                  className={`appearance-none block w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm ${showFieldError('email') ? 'border-red-300' : 'border-gray-300'}`}
+                  className={`block min-h-12 w-full appearance-none rounded-md border px-4 py-3 shadow-sm placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm ${showFieldError('email') ? 'border-red-300' : 'border-gray-300'}`}
                 />
               </div>
               {showFieldError('email') && <p className="mt-2 text-sm text-red-600">{errors.email}</p>}
@@ -137,7 +137,7 @@ export function RegisterPage() {
                   value={form.password}
                   onChange={(e) => setForm((current) => ({ ...current, password: e.target.value }))}
                   onBlur={() => setTouched((current) => ({ ...current, password: true }))}
-                  className={`appearance-none block w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm ${showFieldError('password') ? 'border-red-300' : 'border-gray-300'}`}
+                  className={`block min-h-12 w-full appearance-none rounded-md border px-4 py-3 shadow-sm placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm ${showFieldError('password') ? 'border-red-300' : 'border-gray-300'}`}
                 />
               </div>
               {showFieldError('password') && <p className="mt-2 text-sm text-red-600">{errors.password}</p>}
@@ -154,7 +154,7 @@ export function RegisterPage() {
                   value={form.confirmPassword}
                   onChange={(e) => setForm((current) => ({ ...current, confirmPassword: e.target.value }))}
                   onBlur={() => setTouched((current) => ({ ...current, confirmPassword: true }))}
-                  className={`appearance-none block w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm ${showFieldError('confirmPassword') ? 'border-red-300' : 'border-gray-300'}`}
+                  className={`block min-h-12 w-full appearance-none rounded-md border px-4 py-3 shadow-sm placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm ${showFieldError('confirmPassword') ? 'border-red-300' : 'border-gray-300'}`}
                 />
               </div>
               {showFieldError('confirmPassword') && <p className="mt-2 text-sm text-red-600">{errors.confirmPassword}</p>}

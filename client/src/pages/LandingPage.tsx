@@ -250,21 +250,21 @@ export function LandingPage() {
       </AnimatePresence>
 
       <nav className="relative z-20 border-b border-white/50 bg-white/42 backdrop-blur-xl">
-        <div className="mx-auto flex h-[4.5rem] max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center space-x-3">
-            <img src="/favicon.svg" alt="SyncBoard Logo" className="h-9 w-9" />
-            <span className="brand-mark text-3xl text-blue-600">SyncBoard</span>
+        <div className="mx-auto flex h-[4.5rem] max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
+          <div className="flex min-w-0 items-center space-x-3">
+            <img src="/favicon.svg" alt="SyncBoard Logo" className="h-8 w-8 sm:h-9 sm:w-9" />
+            <span className="brand-mark text-xl text-blue-600 sm:text-3xl">SyncBoard</span>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex shrink-0 items-center gap-2 sm:gap-3">
             <Link
               to="/login"
-              className="rounded-full px-4 py-2 text-sm font-semibold tracking-wide text-slate-600 transition-colors hover:text-blue-600"
+              className="rounded-full px-3 py-3 text-sm font-semibold tracking-wide text-slate-600 transition-colors hover:text-blue-600 sm:px-4"
             >
               Sign in
             </Link>
             <Link
               to="/register"
-              className="rounded-full bg-blue-600 px-6 py-3 text-sm font-semibold tracking-wide text-white shadow-[0_18px_34px_rgba(37,99,235,0.28)] transition hover:-translate-y-0.5 hover:bg-blue-700"
+              className="rounded-full bg-blue-600 px-5 py-3 text-sm font-semibold tracking-wide text-white shadow-[0_18px_34px_rgba(37,99,235,0.28)] transition hover:-translate-y-0.5 hover:bg-blue-700 sm:px-6"
             >
               Get Started
             </Link>
@@ -274,8 +274,8 @@ export function LandingPage() {
 
       <main className="relative z-10">
         <section className="relative isolate overflow-hidden">
-          <div className="mx-auto flex min-h-[calc(100vh-72px)] max-w-7xl items-center justify-center px-4 py-16 sm:px-6 lg:px-8">
-            <div className="absolute inset-0">
+          <div className="mx-auto flex min-h-[calc(100vh-72px)] max-w-7xl items-center justify-center px-4 py-14 sm:px-6 sm:py-16 lg:px-8">
+            <div className="absolute inset-0 hidden md:block">
               {HERO_NOTES.map((note) => (
                 <motion.article
                   key={note.id}
@@ -299,11 +299,11 @@ export function LandingPage() {
               ))}
             </div>
 
-            <div className="relative z-10 mx-auto max-w-4xl text-center">
+            <div className="relative z-10 mx-auto max-w-3xl text-center md:max-w-4xl">
               
 
               <motion.h1
-                className="hero-display landing-headline mx-auto max-w-5xl text-[3.5rem] sm:text-[5.35rem]"
+                className="hero-display landing-headline mx-auto max-w-4xl text-[2.9rem] sm:text-5xl md:text-6xl lg:text-[5.35rem]"
                 initial={{ opacity: 0, y: 18 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.62, ease: 'easeOut', delay: 0.08 }}
@@ -312,7 +312,7 @@ export function LandingPage() {
               </motion.h1>
 
               <motion.p
-                className="section-copy mx-auto mt-7 max-w-3xl text-lg sm:text-[1.32rem]"
+                className="section-copy mx-auto mt-5 max-w-[32rem] px-2 text-[1.02rem] leading-8 sm:mt-7 sm:px-1 sm:text-lg sm:leading-8 md:text-[1.32rem]"
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.58, ease: 'easeOut', delay: 0.14 }}
@@ -322,27 +322,27 @@ export function LandingPage() {
               </motion.p>
 
               <motion.div
-                className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row"
+                className="mt-9 flex flex-col items-stretch justify-center gap-4 md:mt-10 md:flex-row md:items-center"
                 initial={{ opacity: 0, y: 18 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.55, ease: 'easeOut', delay: 0.22 }}
               >
                 <Link
                   to="/register"
-                  className="inline-flex min-w-[230px] items-center justify-center rounded-full bg-blue-600 px-8 py-4 text-base font-semibold tracking-wide text-white shadow-[0_24px_45px_rgba(37,99,235,0.34)] transition hover:-translate-y-1 hover:bg-blue-700"
+                  className="inline-flex min-h-12 w-full items-center justify-center rounded-full bg-blue-600 px-8 py-4 text-base font-semibold tracking-wide text-white shadow-[0_24px_45px_rgba(37,99,235,0.34)] transition hover:-translate-y-1 hover:bg-blue-700 md:min-w-[230px] md:w-auto"
                 >
                   Start Creating Now
                 </Link>
                 <Link
                   to="/login"
-                  className="inline-flex min-w-[210px] items-center justify-center rounded-full border border-slate-200/80 bg-white/68 px-8 py-4 text-base font-semibold tracking-wide text-slate-700 shadow-[0_16px_32px_rgba(15,23,42,0.09)] backdrop-blur-xl transition hover:-translate-y-1 hover:bg-white/84"
+                  className="inline-flex min-h-12 w-full items-center justify-center rounded-full border border-slate-200/80 bg-white/68 px-8 py-4 text-base font-semibold tracking-wide text-slate-700 shadow-[0_16px_32px_rgba(15,23,42,0.09)] backdrop-blur-xl transition hover:-translate-y-1 hover:bg-white/84 md:min-w-[210px] md:w-auto"
                 >
                   Live Demo
                 </Link>
               </motion.div>
 
               <motion.div
-                className="mt-12 grid gap-3 sm:grid-cols-3"
+                className="mt-11 grid grid-cols-1 gap-4 sm:mt-12 sm:grid-cols-3"
                 initial={{ opacity: 0, y: 18 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, ease: 'easeOut', delay: 0.3 }}

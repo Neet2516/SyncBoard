@@ -121,20 +121,21 @@ export function BoardView() {
   return (
     <div className="flex h-screen flex-col overflow-hidden bg-[#f6efe3]">
       {/* Navbar */}
-      <nav className="z-10 flex h-20 shrink-0 items-center justify-between border-b border-white/50 bg-white/70 px-6 shadow-sm backdrop-blur-xl">
-        <div className="flex items-center space-x-4">
-          <Link to="/boards" className="rounded-full bg-white/80 p-2 text-gray-400 shadow-sm transition-colors hover:text-gray-600">
+      <nav className="z-10 shrink-0 border-b border-white/50 bg-white/70 px-4 py-3 shadow-sm backdrop-blur-xl md:px-6">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex min-w-0 items-center gap-3 sm:gap-4">
+          <Link to="/boards" className="rounded-full bg-white/80 p-3 text-gray-400 shadow-sm transition-colors hover:text-gray-600">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
           </Link>
-          <div className="flex min-w-0 items-baseline gap-3">
+          <div className="flex min-w-0 flex-1 flex-col gap-1 sm:flex-row sm:items-baseline sm:gap-3">
             <p className="brand-kicker whitespace-nowrap">Creative room</p>
-            <h1 className="section-title max-w-md truncate text-2xl text-gray-800">
+            <h1 className="section-title min-w-0 max-w-full truncate text-xl text-gray-800 sm:max-w-md sm:text-2xl">
               {board.name}
             </h1>
           </div>
-          <div className="flex items-center space-x-2 rounded-full bg-emerald-50 px-3 py-1.5 shadow-sm">
+          <div className="hidden items-center space-x-2 rounded-full bg-emerald-50 px-3 py-2 shadow-sm sm:flex">
             <div className={`w-2 h-2 rounded-full ${connected ? 'bg-green-500' : 'bg-red-500 animate-pulse'}`}></div>
             <span className="text-xs font-semibold tracking-wide text-gray-600">
               {connected ? 'Live' : 'Reconnecting...'}
@@ -145,19 +146,25 @@ export function BoardView() {
           </div>
         </div>
 
-        <div className="flex items-center space-x-4">
+        <div className="flex flex-wrap items-center gap-3 lg:justify-end">
+          <div className="flex items-center space-x-2 rounded-full bg-emerald-50 px-3 py-2 shadow-sm sm:hidden">
+            <div className={`h-2 w-2 rounded-full ${connected ? 'bg-green-500' : 'animate-pulse bg-red-500'}`}></div>
+            <span className="text-xs font-semibold tracking-wide text-gray-600">
+              {connected ? 'Live' : 'Reconnecting...'}
+            </span>
+          </div>
           {user && (
-            <div className="rounded-full bg-white/70 px-4 py-2 text-sm font-semibold text-gray-600 shadow-sm">
+            <div className="rounded-full bg-white/70 px-4 py-3 text-sm font-semibold text-gray-600 shadow-sm">
               {user.name}
             </div>
           )}
-          <div className="rounded-full bg-white/70 px-4 py-2 text-sm font-semibold text-gray-500 shadow-sm">
+          <div className="rounded-full bg-white/70 px-4 py-3 text-sm font-semibold text-gray-500 shadow-sm">
             {collaboratorCount} collaborator{collaboratorCount === 1 ? '' : 's'}
           </div>
           {isOwner && (
             <button
               onClick={() => setShareOpen(true)}
-              className="rounded-2xl bg-blue-600 px-4 py-3 text-sm font-semibold tracking-wide text-white shadow-lg transition-colors hover:bg-blue-700"
+              className="min-h-12 rounded-2xl bg-blue-600 px-4 py-3 text-sm font-semibold tracking-wide text-white shadow-lg transition-colors hover:bg-blue-700"
             >
               Share
             </button>
@@ -168,7 +175,7 @@ export function BoardView() {
           {isOwner && (
             <button
               onClick={openDeleteModal}
-              className="rounded-2xl p-3 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-600"
+              className="min-h-12 rounded-2xl p-3 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-600"
               title="Delete Board"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -176,6 +183,7 @@ export function BoardView() {
               </svg>
             </button>
           )}
+        </div>
         </div>
       </nav>
 
@@ -207,7 +215,7 @@ export function BoardView() {
 
       {deleteModalOpen && board && isOwner && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 px-4">
-          <div className="paper-card w-full max-w-md rounded-[2rem] bg-white/95 p-6">
+          <div className="paper-card w-[95%] max-w-md rounded-[2rem] bg-white/95 p-6 sm:w-full">
             <div className="mb-5">
               <h3 className="panel-title text-xl text-gray-900">Delete board?</h3>
               <p className="mt-1 text-sm text-gray-500">
@@ -348,7 +356,7 @@ function ShareModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4 backdrop-blur-sm">
-      <div className="paper-card w-full max-w-lg rounded-[2rem] bg-white/95 p-6">
+      <div className="paper-card w-[95%] max-w-lg rounded-[2rem] bg-white/95 p-6 sm:w-full">
         <div className="mb-5 flex items-start justify-between gap-4">
           <div>
             <h2 className="panel-title text-xl text-gray-900">Share Board</h2>
@@ -372,18 +380,18 @@ function ShareModal({
             Copy Invite Link
           </button>
 
-          <form onSubmit={handleInvite} className="flex gap-3">
+          <form onSubmit={handleInvite} className="flex flex-col gap-3 sm:flex-row">
             <input
               type="email"
               value={inviteEmail}
               onChange={(event) => setInviteEmail(event.target.value)}
               placeholder="teammate@example.com"
-              className="flex-1 rounded-2xl border border-gray-300 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+              className="min-h-12 flex-1 rounded-2xl border border-gray-300 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
             />
             <button
               type="submit"
               disabled={inviting || !inviteEmail.trim()}
-              className="rounded-2xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+              className="min-h-12 rounded-2xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {inviting ? 'Inviting...' : 'Invite'}
             </button>
