@@ -7,7 +7,7 @@
 [![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
 
 **SyncBoard** is a high-performance, real-time collaborative workspace that bridges the gap between spatial diagramming and deep rich-text editing. Whether you're brainstorming architecture, mapping out user journeys, or taking structured notes, SyncBoard keeps your entire team in perfect sync.
-
+**Live URL** -https://sync-board-client-lake.vercel.app/
 ---
 
 ## 🌟 Why SyncBoard?
