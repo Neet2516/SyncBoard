@@ -13,6 +13,8 @@
 ## LIVE URL  
 https://sync-board-client-lake.vercel.app/
 
+---
+
 
 ## 🌟 Why SyncBoard?
 
