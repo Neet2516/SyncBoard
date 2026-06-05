@@ -1,0 +1,12 @@
+services:
+  mongodb:
+    image: mongo:8
+    container_name: syncboard-mongo
+    ports:
+      - "27017:27017"
+
+  redis:
+    image: redis:7
+    container_name: syncboard-redis
+    ports:
+      - "6379:6379"
