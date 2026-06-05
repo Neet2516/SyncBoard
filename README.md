@@ -14,6 +14,10 @@
 https://sync-board-client-lake.vercel.app/
 
 ---
+## 🏗️ System Architecture
+![SyncBoard System Architecture](./SyncBoard%20Architecture.png)
+
+---
 
 
 ## 🌟 Why SyncBoard?
