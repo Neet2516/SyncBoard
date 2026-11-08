@@ -25,7 +25,6 @@ https://sync-board-client-lake.vercel.app/
 Traditional note-taking apps are too linear. Traditional diagramming tools are too static. **SyncBoard** gives you an infinite canvas where every node is a powerful editor. 
 - **No Save Buttons**: Everything is saved and synced as you type.
 - **No Conflicts**: Built on CRDT technology (Yjs), so multiple users can edit the same character at the same time without issues.
-- **Total Freedom**: Drag, drop, link, and format.
 
 ---
 
