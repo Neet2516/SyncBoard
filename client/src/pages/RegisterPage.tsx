@@ -140,6 +140,9 @@ export function RegisterPage() {
                   className={`block min-h-12 w-full appearance-none rounded-md border px-4 py-3 shadow-sm placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm ${showFieldError('password') ? 'border-red-300' : 'border-gray-300'}`}
                 />
               </div>
+              <p className="mt-1 text-xs text-gray-500">
+                Must be at least 8 characters and include uppercase, lowercase, number, and special character.
+              </p>
               {showFieldError('password') && <p className="mt-2 text-sm text-red-600">{errors.password}</p>}
             </div>
 
@@ -169,8 +172,8 @@ export function RegisterPage() {
             <div>
               <button
                 type="submit"
-                disabled={loading || !isFormValid}
-                className={`flex w-full justify-center rounded-full border border-transparent bg-blue-600 px-4 py-3 text-sm font-semibold tracking-wide text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 hover:bg-blue-700 ${(loading || !isFormValid) ? 'cursor-not-allowed opacity-50' : ''}`}
+                disabled={loading}
+                className={`flex w-full justify-center rounded-full border border-transparent bg-blue-600 px-4 py-3 text-sm font-semibold tracking-wide text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 hover:bg-blue-700 ${loading ? 'cursor-not-allowed opacity-50' : ''}`}
               >
                 {loading ? 'Creating account...' : 'Create account'}
               </button>
