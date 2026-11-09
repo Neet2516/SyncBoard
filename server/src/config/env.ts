@@ -8,7 +8,10 @@ function readNumber(value: string | undefined, fallback: number) {
 }
 
 function readOrigins(value: string | undefined) {
-  return (value || 'http://localhost:5173,http://localhost:3000')
+  if (!value || value.trim() === '*' || value.trim().toLowerCase() === 'all') {
+    return ['*']
+  }
+  return value
     .split(',')
     .map((origin) => origin.trim())
     .filter(Boolean)

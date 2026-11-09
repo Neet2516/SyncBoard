@@ -14,25 +14,18 @@ const app = express()
 const PORT = env.port
 const isVercel = process.env.VERCEL === '1'
 
-// CORS (secure, origin-allowlisted)
+// CORS (allow all origins, reflecting requesting origin to support credentials)
 const ALLOWED_ORIGINS = env.allowedOrigins
 
 console.log(`[server] Allowed Origins:`, ALLOWED_ORIGINS)
 
 const corsOptions: CorsOptions = {
   origin: (
-    origin: string | undefined,
+    _origin: string | undefined,
     callback: (err: Error | null, allow?: boolean) => void
   ) => {
-    // Allow requests with no origin (like mobile apps or curl)
-    if (!origin) return callback(null, true)
-
-    if (ALLOWED_ORIGINS.includes(origin) || env.nodeEnv === 'development') {
-      callback(null, true)
-    } else {
-      console.error(`[cors] Blocked origin: ${origin}`)
-      callback(new Error(`CORS: Origin '${origin}' not allowed`))
-    }
+    // Allow all origins (reflects the requesting origin so credentials: true works)
+    callback(null, true)
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],

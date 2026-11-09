@@ -47,7 +47,12 @@ async function verifyWsAccess(req: IncomingMessage) {
   const origin = req.headers.origin
   const allowedOrigins = env.allowedOrigins
 
-  if (origin && !allowedOrigins.includes(origin)) {
+  if (
+    origin &&
+    !allowedOrigins.includes('*') &&
+    allowedOrigins.length > 0 &&
+    !allowedOrigins.includes(origin)
+  ) {
     return { allowed: false as const, status: 403 }
   }
 
