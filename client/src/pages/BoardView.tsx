@@ -35,6 +35,17 @@ export function BoardView() {
   const activeUsers = useActiveUsers(awareness)
   const collaboratorCount = useMemo(() => board?.collaborators?.length ?? board?.collaboratorIds.length ?? 0, [board])
 
+  const handleCopyRoomId = async () => {
+    if (!board) return
+    try {
+      await navigator.clipboard.writeText(board.boardId)
+      showToast('Room ID copied to clipboard.', 'success')
+    } catch (err) {
+      console.error('[BoardView] Copy room ID error:', err)
+      showToast('Unable to copy room ID.', 'error')
+    }
+  }
+
   const openDeleteModal = () => {
     if (!board) return
     setDeleteModalOpen(true)
@@ -121,69 +132,107 @@ export function BoardView() {
   return (
     <div className="flex h-screen flex-col overflow-hidden bg-[#f6efe3]">
       {/* Navbar */}
-      <nav className="z-10 shrink-0 border-b border-white/50 bg-white/70 px-4 py-3 shadow-sm backdrop-blur-xl md:px-6">
-        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-        <div className="flex min-w-0 items-center gap-3 sm:gap-4">
-          <Link to="/boards" className="rounded-full bg-white/80 p-3 text-gray-400 shadow-sm transition-colors hover:text-gray-600">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-          </Link>
-          <div className="flex min-w-0 flex-1 flex-col gap-1 sm:flex-row sm:items-baseline sm:gap-3">
-            <p className="brand-kicker whitespace-nowrap">Creative room</p>
-            <h1 className="section-title min-w-0 max-w-full truncate text-xl text-gray-800 sm:max-w-md sm:text-2xl">
-              {board.name}
-            </h1>
-          </div>
-          <div className="hidden items-center space-x-2 rounded-full bg-emerald-50 px-3 py-2 shadow-sm sm:flex">
-            <div className={`w-2 h-2 rounded-full ${connected ? 'bg-green-500' : 'bg-red-500 animate-pulse'}`}></div>
-            <span className="text-xs font-semibold tracking-wide text-gray-600">
-              {connected ? 'Live' : 'Reconnecting...'}
-            </span>
-          </div>
-          <div className="hidden md:flex items-center gap-2">
-            <PresenceAvatars activeUsers={activeUsers} />
-          </div>
-        </div>
+      <nav className="z-10 shrink-0 border-b border-slate-200/80 bg-white/80 px-4 py-2.5 shadow-sm backdrop-blur-xl md:px-6">
+        <div className="flex flex-wrap items-center justify-between gap-2.5 lg:flex-nowrap">
+          <div className="flex min-w-0 items-center gap-3">
+            <Link
+              to="/boards"
+              className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-slate-200/80 bg-white text-slate-500 shadow-sm transition hover:border-slate-300 hover:bg-slate-50 hover:text-slate-800"
+              title="Back to Boards"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+            </Link>
 
-        <div className="flex flex-wrap items-center gap-3 lg:justify-end">
-          <div className="flex items-center space-x-2 rounded-full bg-emerald-50 px-3 py-2 shadow-sm sm:hidden">
-            <div className={`h-2 w-2 rounded-full ${connected ? 'bg-green-500' : 'animate-pulse bg-red-500'}`}></div>
-            <span className="text-xs font-semibold tracking-wide text-gray-600">
-              {connected ? 'Live' : 'Reconnecting...'}
-            </span>
-          </div>
-          {user && (
-            <div className="rounded-full bg-white/70 px-4 py-3 text-sm font-semibold text-gray-600 shadow-sm">
-              {user.name}
+            <div className="min-w-0">
+              <h1 className="section-title max-w-[180px] truncate text-lg leading-tight text-slate-900 sm:max-w-[260px] sm:text-xl">
+                {board.name}
+              </h1>
             </div>
-          )}
-          <div className="rounded-full bg-white/70 px-4 py-3 text-sm font-semibold text-gray-500 shadow-sm">
-            {collaboratorCount} collaborator{collaboratorCount === 1 ? '' : 's'}
-          </div>
-          {isOwner && (
-            <button
-              onClick={() => setShareOpen(true)}
-              className="min-h-12 rounded-2xl bg-blue-600 px-4 py-3 text-sm font-semibold tracking-wide text-white shadow-lg transition-colors hover:bg-blue-700"
+
+            <div className="hidden h-5 w-px bg-slate-200/80 sm:block" />
+
+            <div
+              className={`hidden h-8 shrink-0 items-center gap-1.5 rounded-full border px-2.5 text-xs font-semibold sm:inline-flex ${
+                connected
+                  ? 'border-emerald-200/80 bg-emerald-50 text-emerald-700'
+                  : 'border-red-200/80 bg-red-50 text-red-700'
+              }`}
             >
-              Share
-            </button>
-          )}
-          <div className="hidden rounded-2xl bg-white/70 px-4 py-3 text-sm font-medium text-gray-500 shadow-sm lg:block">
-            Room: <span className="font-mono text-xs text-gray-800">{board.boardId}</span>
+              <span className={`h-2 w-2 rounded-full ${connected ? 'bg-emerald-500' : 'animate-pulse bg-red-500'}`} />
+              <span>{connected ? 'Live' : 'Reconnecting...'}</span>
+            </div>
+
+            <div className="hidden items-center md:flex">
+              <PresenceAvatars activeUsers={activeUsers} />
+            </div>
           </div>
-          {isOwner && (
-            <button
-              onClick={openDeleteModal}
-              className="min-h-12 rounded-2xl p-3 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-600"
-              title="Delete Board"
+
+          <div className="flex flex-wrap items-center gap-2 lg:flex-nowrap lg:justify-end">
+            <div
+              className={`inline-flex h-8 shrink-0 items-center gap-1.5 rounded-full border px-2.5 text-xs font-semibold sm:hidden ${
+                connected
+                  ? 'border-emerald-200/80 bg-emerald-50 text-emerald-700'
+                  : 'border-red-200/80 bg-red-50 text-red-700'
+              }`}
             >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0 1 16.138 21H7.862a2 2 0 0 1-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v3M4 7h16" />
+              <span className={`h-2 w-2 rounded-full ${connected ? 'bg-emerald-500' : 'animate-pulse bg-red-500'}`} />
+              <span>{connected ? 'Live' : 'Reconnecting...'}</span>
+            </div>
+
+            {user && (
+              <div className="inline-flex h-9 shrink-0 items-center gap-2 rounded-full border border-slate-200/80 bg-white/90 px-3 text-xs font-semibold text-slate-700 shadow-sm whitespace-nowrap">
+                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-blue-100 text-[10px] font-bold text-blue-700">
+                  {user.name.charAt(0).toUpperCase()}
+                </span>
+                <span>{user.name}</span>
+              </div>
+            )}
+
+            <div className="inline-flex h-9 shrink-0 items-center rounded-full border border-slate-200/80 bg-white/90 px-3 text-xs font-semibold text-slate-600 shadow-sm whitespace-nowrap">
+              {collaboratorCount} collaborator{collaboratorCount === 1 ? '' : 's'}
+            </div>
+
+            <button
+              type="button"
+              onClick={handleCopyRoomId}
+              title={`Room ID: ${board.boardId} (click to copy)`}
+              className="hidden h-9 shrink-0 items-center gap-1.5 rounded-full border border-slate-200/80 bg-white/90 px-3 text-xs font-medium text-slate-500 shadow-sm transition hover:border-slate-300 hover:text-slate-800 xl:inline-flex"
+            >
+              <span>Room:</span>
+              <span className="font-mono font-semibold text-slate-700">{board.boardId.slice(0, 8)}</span>
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v2m-6 12h8a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-8a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2Z" />
               </svg>
             </button>
-          )}
-        </div>
+
+            {isOwner && (
+              <button
+                type="button"
+                onClick={() => setShareOpen(true)}
+                className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full bg-blue-600 px-4 text-xs font-semibold tracking-wide text-white shadow-sm shadow-blue-600/25 transition hover:bg-blue-700 whitespace-nowrap"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 1 1 0-2.684m0 2.684 6.632 3.316m-6.632-6 6.632-3.316m0 0a3 3 0 1 0 5.367-2.684 3 3 0 0 0-5.367 2.684Zm0 9.316a3 3 0 1 0 5.368 2.684 3 3 0 0 0-5.368-2.684Z" />
+                </svg>
+                <span>Share</span>
+              </button>
+            )}
+
+            {isOwner && (
+              <button
+                type="button"
+                onClick={openDeleteModal}
+                className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-transparent text-slate-400 transition hover:border-red-200 hover:bg-red-50 hover:text-red-600"
+                title="Delete Board"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0 1 16.138 21H7.862a2 2 0 0 1-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v3M4 7h16" />
+                </svg>
+              </button>
+            )}
+          </div>
         </div>
       </nav>
 
@@ -283,18 +332,18 @@ function useActiveUsers(awareness: Awareness | undefined) {
 
 function PresenceAvatars({ activeUsers }: { activeUsers: Array<{ name: string; color: string }> }) {
   return (
-    <div className="flex items-center gap-2">
-      <span className="stat-label text-xs text-gray-500">Active now</span>
-      <div className="flex -space-x-2">
+    <div className="flex items-center gap-2 whitespace-nowrap">
+      <span className="stat-label text-xs text-slate-500">Active now</span>
+      <div className="flex items-center -space-x-2">
         {activeUsers.length === 0 ? (
-          <span className="rounded-full bg-gray-100 px-3 py-1 text-[11px] font-semibold text-gray-500">
+          <span className="inline-flex h-8 items-center rounded-full border border-slate-200/80 bg-slate-100/80 px-2.5 text-xs font-medium text-slate-600">
             Just you
           </span>
         ) : (
           activeUsers.map((user) => (
             <div
               key={`${user.name}-${user.color}`}
-              className="flex h-9 w-9 items-center justify-center rounded-full border-2 border-white text-[11px] font-bold text-white shadow-md"
+              className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-white text-[11px] font-bold text-white shadow-sm"
               style={{ backgroundColor: user.color }}
               title={user.name}
             >
