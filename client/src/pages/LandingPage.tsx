@@ -156,42 +156,84 @@ const WORKFLOW_STEPS = [
   },
 ]
 
-const CANVAS_FEATURES = [
+const COMPASS_FEATURES = [
   {
+    id: 'north',
+    direction: 'N',
+    bearing: '000° NORTH',
+    angle: 0,
+    coords: 'VEC: [X: 000, Y: -180]',
     title: 'Quill Rich-Text Formatting',
     desc: 'Write bold statements, checklists, code snippets, and ordered lists directly inside sticky notes with intuitive inline controls.',
     badge: 'Rich Editor',
     color: 'bg-blue-50 border-blue-200 text-blue-700',
+    accentBorder: 'border-blue-500 ring-2 ring-blue-300/60',
+    accentBg: 'from-blue-500/10 via-indigo-500/5 to-white/90',
   },
   {
+    id: 'northeast',
+    direction: 'NE',
+    bearing: '060° NORTH-EAST',
+    angle: 60,
+    coords: 'VEC: [X: +155, Y: -090]',
     title: 'Dynamic Vector Connectors',
     desc: 'Connect note handles effortlessly. Smart orthogonal routes adapt dynamically as you move notes across the board.',
     badge: 'Vector Routing',
     color: 'bg-amber-50 border-amber-200 text-amber-700',
+    accentBorder: 'border-amber-500 ring-2 ring-amber-300/60',
+    accentBg: 'from-amber-500/10 via-orange-500/5 to-white/90',
   },
   {
+    id: 'southeast',
+    direction: 'SE',
+    bearing: '120° SOUTH-EAST',
+    angle: 120,
+    coords: 'VEC: [X: +155, Y: +090]',
     title: 'Zero-Conflict CRDT Merging',
     desc: 'Powered by Yjs CRDTs. Multiple collaborators can type into the same board simultaneously without overwriting data.',
     badge: 'Y.js CRDT',
     color: 'bg-emerald-50 border-emerald-200 text-emerald-700',
+    accentBorder: 'border-emerald-500 ring-2 ring-emerald-300/60',
+    accentBg: 'from-emerald-500/10 via-teal-500/5 to-white/90',
   },
   {
+    id: 'south',
+    direction: 'S',
+    bearing: '180° SOUTH',
+    angle: 180,
+    coords: 'VEC: [X: 000, Y: +180]',
     title: 'High-DPI PDF Generation',
     desc: 'Export your boards into crystal-clear vector documents preserving pins, gradients, typography, and connector paths.',
     badge: 'Vector Export',
     color: 'bg-rose-50 border-rose-200 text-rose-700',
+    accentBorder: 'border-rose-500 ring-2 ring-rose-300/60',
+    accentBg: 'from-rose-500/10 via-pink-500/5 to-white/90',
   },
   {
+    id: 'southwest',
+    direction: 'SW',
+    bearing: '240° SOUTH-WEST',
+    angle: 240,
+    coords: 'VEC: [X: -155, Y: +090]',
     title: 'Live Room Presence',
     desc: 'Share custom room links, see connected teammate counters, and follow live cursor pointers across the shared space.',
     badge: 'Real-Time',
     color: 'bg-purple-50 border-purple-200 text-purple-700',
+    accentBorder: 'border-purple-500 ring-2 ring-purple-300/60',
+    accentBg: 'from-purple-500/10 via-violet-500/5 to-white/90',
   },
   {
+    id: 'northwest',
+    direction: 'NW',
+    bearing: '300° NORTH-WEST',
+    angle: 300,
+    coords: 'VEC: [X: -155, Y: -090]',
     title: 'Instant 1-Click Demo User',
     desc: 'No passwords, verification emails, or accounts required to test. Click once and immediately enter a live canvas.',
     badge: 'Guest Friendly',
     color: 'bg-cyan-50 border-cyan-200 text-cyan-700',
+    accentBorder: 'border-cyan-500 ring-2 ring-cyan-300/60',
+    accentBg: 'from-cyan-500/10 via-sky-500/5 to-white/90',
   },
 ]
 
@@ -256,6 +298,7 @@ export function LandingPage() {
   const [demoLoading, setDemoLoading] = useState(false)
   const [demoError, setDemoError] = useState<string | null>(null)
   const [openFaq, setOpenFaq] = useState<number | null>(0)
+  const [activeCompassIndex, setActiveCompassIndex] = useState(0)
   const cursorX = useMotionValue(-80)
   const cursorY = useMotionValue(-80)
   const springX = useSpring(cursorX, { stiffness: 520, damping: 42, mass: 0.24 })
@@ -772,48 +815,228 @@ export function LandingPage() {
           </div>
         </section>
 
-        {/* SECTION 3: CANVAS FEATURES GRID */}
-        <section className="relative z-10 py-16">
+        {/* SECTION 3: SPATIAL COMPASS VIEW */}
+        <section className="relative z-10 py-20">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="mx-auto max-w-3xl text-center">
-              <p className="brand-kicker">Engineered for Spatial Thinking</p>
+              <p className="brand-kicker">SPATIAL COMPASS // 360° ENGINE</p>
               <h2 className="section-title mt-2 text-3xl font-extrabold tracking-tight text-slate-950 sm:text-4xl md:text-5xl">
-                Everything you need to map thoughts
+                Navigational Compass View
               </h2>
               <p className="section-copy mt-4 text-base sm:text-lg">
-                Crafted specifically for rapid visual brainstorming, system architecture diagrams, and real-time team sprints.
+                Explore SyncBoard’s spatial features through a 360° navigational instrument. Hover or tap any directional bearing to orient the magnetic needle.
               </p>
             </div>
 
-            <div className="mt-14 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {CANVAS_FEATURES.map((feat) => (
-                <div
-                  key={feat.title}
-                  className="paper-card group relative flex flex-col justify-between rounded-[1.8rem] p-7 transition hover:-translate-y-1 hover:shadow-[0_20px_45px_rgba(15,23,42,0.12)]"
-                >
-                  <div>
-                    <div className="flex items-center justify-between">
-                      <span className={`rounded-full border px-3 py-0.5 text-xs font-bold ${feat.color}`}>
-                        {feat.badge}
-                      </span>
+            {/* Desktop 3-Column Radial Layout & Mobile Stacking */}
+            <div className="mt-16 grid grid-cols-1 items-center gap-8 lg:grid-cols-12 lg:gap-6">
+              {/* Left Column Cards (West / South) */}
+              <div className="order-2 space-y-5 lg:order-1 lg:col-span-4">
+                {[5, 4, 3].map((idx) => {
+                  const feat = COMPASS_FEATURES[idx]
+                  const isActive = activeCompassIndex === idx
+                  return (
+                    <div
+                      key={feat.id}
+                      onClick={() => setActiveCompassIndex(idx)}
+                      onMouseEnter={() => setActiveCompassIndex(idx)}
+                      className={`paper-card group relative cursor-pointer rounded-[2rem] p-6 transition-all duration-300 ${
+                        isActive
+                          ? `shadow-[0_24px_50px_rgba(37,99,235,0.18)] -translate-y-1.5 border-2 ${feat.accentBorder} bg-gradient-to-br ${feat.accentBg}`
+                          : 'hover:-translate-y-1 hover:shadow-[0_16px_36px_rgba(15,23,42,0.08)]'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2">
+                          <span className={`rounded-full border px-2.5 py-0.5 text-xs font-bold ${feat.color}`}>
+                            {feat.badge}
+                          </span>
+                          <span className="font-mono text-xs font-bold tracking-wider text-slate-400">
+                            {feat.bearing}
+                          </span>
+                        </div>
+                        {isActive && (
+                          <span className="flex items-center gap-1 rounded-full bg-blue-600 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white shadow-sm">
+                            <span className="h-1.5 w-1.5 rounded-full bg-white animate-ping" />
+                            Target
+                          </span>
+                        )}
+                      </div>
+
+                      <h3 className={`mt-3.5 text-lg font-bold tracking-tight transition-colors ${isActive ? 'text-blue-600' : 'text-slate-900 group-hover:text-blue-600'}`}>
+                        {feat.title}
+                      </h3>
+                      <p className="section-copy mt-2 text-sm leading-relaxed text-slate-600">
+                        {feat.desc}
+                      </p>
+
+                      <div className="mt-4 flex items-center justify-between border-t border-slate-100/90 pt-3 text-xs">
+                        <span className="font-mono font-medium text-slate-400">{feat.coords}</span>
+                        <span className={`font-bold transition-colors ${isActive ? 'text-blue-600' : 'text-slate-400 group-hover:text-blue-600'}`}>
+                          Orient needle &rarr;
+                        </span>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+
+              {/* Center Column: The Animated Compass Instrument */}
+              <div className="order-1 flex flex-col items-center justify-center py-4 lg:order-2 lg:col-span-4 lg:py-0">
+                <div className="relative flex flex-col items-center">
+                  {/* Ambient backdrop glow */}
+                  <div className="pointer-events-none absolute -inset-6 rounded-full bg-blue-500/10 blur-3xl" />
+
+                  {/* Circular Compass Rose Dial */}
+                  <div className="relative flex h-72 w-72 sm:h-80 sm:w-80 items-center justify-center rounded-full border-4 border-white/90 bg-gradient-to-b from-white via-slate-50/90 to-blue-50/60 p-5 shadow-[0_28px_65px_rgba(37,99,235,0.18),inset_0_2px_4px_rgba(255,255,255,0.9)] backdrop-blur-2xl">
+                    {/* Concentric rings */}
+                    <div className="absolute inset-3 rounded-full border border-slate-200/90" />
+                    <div className="absolute inset-8 rounded-full border border-dashed border-blue-300/80" />
+                    <div className="absolute inset-14 rounded-full border border-slate-200/60" />
+
+                    {/* Degree numbers: 0, 90, 180, 270 */}
+                    <span className="absolute top-4 text-[10px] font-mono font-bold text-slate-400">000°</span>
+                    <span className="absolute right-4 text-[10px] font-mono font-bold text-slate-400">090°</span>
+                    <span className="absolute bottom-4 text-[10px] font-mono font-bold text-slate-400">180°</span>
+                    <span className="absolute left-4 text-[10px] font-mono font-bold text-slate-400">270°</span>
+
+                    {/* Reticle crosshairs */}
+                    <div className="absolute inset-x-5 top-1/2 h-px -translate-y-1/2 bg-gradient-to-r from-transparent via-slate-300/70 to-transparent" />
+                    <div className="absolute inset-y-5 left-1/2 w-px -translate-x-1/2 bg-gradient-to-b from-transparent via-slate-300/70 to-transparent" />
+
+                    {/* Cardinal & Ordinal Buttons around the dial */}
+                    {COMPASS_FEATURES.map((feat, idx) => {
+                      const rad = (feat.angle - 90) * (Math.PI / 180)
+                      const radius = 105
+                      const x = Math.round(radius * Math.cos(rad))
+                      const y = Math.round(radius * Math.sin(rad))
+                      const isSelected = activeCompassIndex === idx
+
+                      return (
+                        <button
+                          key={feat.id}
+                          type="button"
+                          onClick={() => setActiveCompassIndex(idx)}
+                          style={{
+                            transform: `translate(${x}px, ${y}px)`,
+                          }}
+                          className={`absolute z-20 flex h-8 w-8 items-center justify-center rounded-full text-xs font-mono font-black transition-all duration-300 ${
+                            isSelected
+                              ? 'bg-blue-600 text-white shadow-[0_4px_14px_rgba(37,99,235,0.45)] scale-110 ring-2 ring-blue-300 ring-offset-2'
+                              : 'bg-white/95 text-slate-700 hover:bg-blue-50 hover:text-blue-600 border border-slate-200 shadow-sm'
+                          }`}
+                          title={`${feat.direction} • ${feat.title}`}
+                        >
+                          {feat.direction}
+                        </button>
+                      )
+                    })}
+
+                    {/* Animated 3D Magnetic Needle */}
+                    <motion.div
+                      className="pointer-events-none absolute z-10 flex h-52 w-6 items-center justify-center"
+                      animate={{ rotate: COMPASS_FEATURES[activeCompassIndex].angle }}
+                      transition={{ type: 'spring', stiffness: 220, damping: 22, mass: 0.8 }}
+                    >
+                      {/* Active Heading Tip (Red Needle) */}
+                      <div className="absolute top-0 h-26 w-0 border-l-[8px] border-r-[8px] border-b-[100px] border-l-transparent border-r-transparent border-b-rose-500 drop-shadow-[0_4px_10px_rgba(244,63,94,0.45)]" />
+
+                      {/* Opposite Counterbalance Tip (Silver/Navy Needle) */}
+                      <div className="absolute bottom-0 h-26 w-0 border-l-[8px] border-r-[8px] border-t-[100px] border-l-transparent border-r-transparent border-t-slate-400 drop-shadow-[0_4px_8px_rgba(15,23,42,0.15)]" />
+                    </motion.div>
+
+                    {/* Center Hub */}
+                    <div className="relative z-30 flex h-10 w-10 items-center justify-center rounded-full border-2 border-white bg-gradient-to-tr from-slate-800 to-slate-950 text-white shadow-lg">
+                      <div className="h-3 w-3 rounded-full bg-cyan-400 animate-ping opacity-75" />
+                      <div className="absolute h-3 w-3 rounded-full bg-cyan-400" />
+                    </div>
+                  </div>
+
+                  {/* Digital Compass HUD */}
+                  <div className="mt-6 flex flex-col items-center text-center">
+                    <div className="inline-flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50/90 px-4 py-1.5 text-xs font-mono font-bold tracking-widest text-blue-800 shadow-sm backdrop-blur-md">
+                      <span className="h-2 w-2 rounded-full bg-blue-600 animate-pulse" />
+                      <span>{COMPASS_FEATURES[activeCompassIndex].bearing}</span>
                     </div>
 
-                    <h3 className="mt-5 text-lg font-bold tracking-tight text-slate-900 group-hover:text-blue-600 transition-colors">
-                      {feat.title}
-                    </h3>
-                    <p className="section-copy mt-2.5 text-sm leading-relaxed">
-                      {feat.desc}
+                    <p className="mt-2 text-xs font-mono font-medium text-slate-500">
+                      SPATIAL VECTOR: <span className="text-slate-800 font-bold">{COMPASS_FEATURES[activeCompassIndex].coords}</span>
                     </p>
-                  </div>
 
-                  <div className="mt-5 flex items-center gap-1.5 text-xs font-bold text-blue-600">
-                    <span>Feature included</span>
-                    <svg className="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
-                    </svg>
+                    {/* Directional selector pills */}
+                    <div className="mt-3.5 flex flex-wrap justify-center gap-1.5">
+                      {COMPASS_FEATURES.map((feat, idx) => {
+                        const isSelected = activeCompassIndex === idx
+                        return (
+                          <button
+                            key={feat.id}
+                            type="button"
+                            onClick={() => setActiveCompassIndex(idx)}
+                            className={`rounded-full px-3 py-1 text-xs font-mono font-bold transition-all ${
+                              isSelected
+                                ? 'bg-blue-600 text-white shadow-md scale-105'
+                                : 'bg-white/90 text-slate-600 hover:bg-blue-50 hover:text-blue-600 border border-slate-200'
+                            }`}
+                          >
+                            {feat.direction} • {feat.angle}°
+                          </button>
+                        )
+                      })}
+                    </div>
                   </div>
                 </div>
-              ))}
+              </div>
+
+              {/* Right Column Cards (North / East) */}
+              <div className="order-3 space-y-5 lg:col-span-4">
+                {[0, 1, 2].map((idx) => {
+                  const feat = COMPASS_FEATURES[idx]
+                  const isActive = activeCompassIndex === idx
+                  return (
+                    <div
+                      key={feat.id}
+                      onClick={() => setActiveCompassIndex(idx)}
+                      onMouseEnter={() => setActiveCompassIndex(idx)}
+                      className={`paper-card group relative cursor-pointer rounded-[2rem] p-6 transition-all duration-300 ${
+                        isActive
+                          ? `shadow-[0_24px_50px_rgba(37,99,235,0.18)] -translate-y-1.5 border-2 ${feat.accentBorder} bg-gradient-to-br ${feat.accentBg}`
+                          : 'hover:-translate-y-1 hover:shadow-[0_16px_36px_rgba(15,23,42,0.08)]'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2">
+                          <span className={`rounded-full border px-2.5 py-0.5 text-xs font-bold ${feat.color}`}>
+                            {feat.badge}
+                          </span>
+                          <span className="font-mono text-xs font-bold tracking-wider text-slate-400">
+                            {feat.bearing}
+                          </span>
+                        </div>
+                        {isActive && (
+                          <span className="flex items-center gap-1 rounded-full bg-blue-600 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white shadow-sm">
+                            <span className="h-1.5 w-1.5 rounded-full bg-white animate-ping" />
+                            Target
+                          </span>
+                        )}
+                      </div>
+
+                      <h3 className={`mt-3.5 text-lg font-bold tracking-tight transition-colors ${isActive ? 'text-blue-600' : 'text-slate-900 group-hover:text-blue-600'}`}>
+                        {feat.title}
+                      </h3>
+                      <p className="section-copy mt-2 text-sm leading-relaxed text-slate-600">
+                        {feat.desc}
+                      </p>
+
+                      <div className="mt-4 flex items-center justify-between border-t border-slate-100/90 pt-3 text-xs">
+                        <span className="font-mono font-medium text-slate-400">{feat.coords}</span>
+                        <span className={`font-bold transition-colors ${isActive ? 'text-blue-600' : 'text-slate-400 group-hover:text-blue-600'}`}>
+                          Orient needle &rarr;
+                        </span>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
             </div>
           </div>
         </section>
