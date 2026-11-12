@@ -7,20 +7,113 @@ interface CinematicPreloaderProps {
   onComplete: () => void
 }
 
-const BRAND_LETTERS = 'SYNCBOARD'.split('')
+interface TrailNote {
+  id: string
+  title: string
+  body: string
+  color: {
+    surface: string
+    border: string
+    header: string
+    pin: string
+    text: string
+  }
+}
+
+const TRAIL_NOTES: TrailNote[] = [
+  {
+    id: 'note-1',
+    title: 'Idea Flow',
+    body: 'Infinite visual canvas',
+    color: {
+      surface: 'linear-gradient(165deg, #fefce8 0%, #fef08a 100%)',
+      border: '#fde047',
+      header: 'rgba(254, 240, 138, 0.6)',
+      pin: 'linear-gradient(180deg, #f59e0b 0%, #d97706 100%)',
+      text: '#854d0e',
+    },
+  },
+  {
+    id: 'note-2',
+    title: 'Live Sync',
+    body: 'Conflict-free CRDTs',
+    color: {
+      surface: 'linear-gradient(165deg, #eff6ff 0%, #bfdbfe 100%)',
+      border: '#93c5fd',
+      header: 'rgba(191, 219, 254, 0.6)',
+      pin: 'linear-gradient(180deg, #2563eb 0%, #1d4ed8 100%)',
+      text: '#1e40af',
+    },
+  },
+  {
+    id: 'note-3',
+    title: 'Creative Wall',
+    body: 'Pin, connect & organize',
+    color: {
+      surface: 'linear-gradient(165deg, #fff1f2 0%, #fecdd3 100%)',
+      border: '#fda4af',
+      header: 'rgba(254, 205, 211, 0.6)',
+      pin: 'linear-gradient(180deg, #e11d48 0%, #be123c 100%)',
+      text: '#9f1239',
+    },
+  },
+  {
+    id: 'note-4',
+    title: 'Multiplayer',
+    body: 'Real-time collaborative cursors',
+    color: {
+      surface: 'linear-gradient(165deg, #f0fdf4 0%, #bbf7d0 100%)',
+      border: '#86efac',
+      header: 'rgba(187, 247, 208, 0.6)',
+      pin: 'linear-gradient(180deg, #16a34a 0%, #15803d 100%)',
+      text: '#166534',
+    },
+  },
+  {
+    id: 'note-5',
+    title: 'Spatial Notes',
+    body: 'Think without borders',
+    color: {
+      surface: 'linear-gradient(165deg, #faf5ff 0%, #e9d5ff 100%)',
+      border: '#d8b4fe',
+      header: 'rgba(233, 213, 255, 0.6)',
+      pin: 'linear-gradient(180deg, #9333ea 0%, #7e22ce 100%)',
+      text: '#6b21a8',
+    },
+  },
+  {
+    id: 'note-6',
+    title: 'Flow State',
+    body: 'Draw, drag & drop notes',
+    color: {
+      surface: 'linear-gradient(165deg, #ecfeff 0%, #a5f3fc 100%)',
+      border: '#67e8f9',
+      header: 'rgba(165, 243, 252, 0.6)',
+      pin: 'linear-gradient(180deg, #0891b2 0%, #0e7490 100%)',
+      text: '#155e75',
+    },
+  },
+  {
+    id: 'note-7',
+    title: 'SyncBoard',
+    body: 'Everything stays in sync',
+    color: {
+      surface: 'linear-gradient(165deg, #ffffff 0%, #f1f5f9 100%)',
+      border: '#cbd5e1',
+      header: 'rgba(241, 245, 249, 0.7)',
+      pin: 'linear-gradient(180deg, #0f172a 0%, #334155 100%)',
+      text: '#334155',
+    },
+  },
+]
 
 export function CinematicPreloader({ isReady, onComplete }: CinematicPreloaderProps) {
   const rootRef = useRef<HTMLDivElement>(null)
   const counterRef = useRef<HTMLSpanElement>(null)
-  const coreGroupRef = useRef<HTMLDivElement>(null)
-  const morphShapeRef = useRef<HTMLDivElement>(null)
-  const innerDiamondRef = useRef<HTMLDivElement>(null)
-  const orbitRingRef = useRef<HTMLDivElement>(null)
-  const shardLeftRef = useRef<HTMLDivElement>(null)
-  const shardRightRef = useRef<HTMLDivElement>(null)
-  const shardTopRef = useRef<HTMLDivElement>(null)
-  const taglineMaskRef = useRef<HTMLDivElement>(null)
-  const portalVeilRef = useRef<HTMLDivElement>(null)
+  const trailContainerRef = useRef<HTMLDivElement>(null)
+  const noteElementsRef = useRef<(HTMLDivElement | null)[]>([])
+  const svgConnectorsRef = useRef<SVGSVGElement>(null)
+  const connectorPathsRef = useRef<(SVGPathElement | null)[]>([])
 
   const progressProxyRef = useRef({ value: 0 })
   const hasStartedExitRef = useRef(false)
@@ -48,123 +141,83 @@ export function CinematicPreloader({ isReady, onComplete }: CinematicPreloaderPr
     const ctx = gsap.context(() => {
       if (prefersReducedMotion) return
 
-      // Continuous morphing & orbital motion of the central geometric sculpture
-      gsap.to(orbitRingRef.current, {
-        rotation: 360,
-        duration: 14,
-        repeat: -1,
-        ease: 'none',
-      })
+      // Fluid unorganised floating path for the NoteNode trail
+      // Each note follows these waypoints with a progressive phase offset
+      const waypoints = [
+        { x: -160, y: -110, rotate: -14, scale: 0.94 },
+        { x: 120, y: -180, rotate: 10, scale: 1.05 },
+        { x: 280, y: -30, rotate: -8, scale: 0.96 },
+        { x: 160, y: 150, rotate: 16, scale: 1.06 },
+        { x: -110, y: 180, rotate: -12, scale: 0.92 },
+        { x: -280, y: 50, rotate: 8, scale: 1.02 },
+        { x: -160, y: -110, rotate: -14, scale: 0.94 },
+      ]
 
-      gsap.to(innerDiamondRef.current, {
-        rotation: -360,
-        duration: 10,
-        repeat: -1,
-        ease: 'none',
-      })
+      const loopDuration = 6.8
+      const noteCount = TRAIL_NOTES.length
 
-      // Continuous morphing clip-path & scale pulse on the central core
-      gsap
-        .timeline({ repeat: -1, yoyo: true })
-        .to(morphShapeRef.current, {
-          scale: 1.08,
-          rotation: 45,
-          borderRadius: '38% 62% 55% 45% / 48% 36% 64% 52%',
-          duration: 1.4,
-          ease: 'sine.inOut',
-        })
-        .to(morphShapeRef.current, {
-          scale: 0.94,
-          rotation: 115,
-          borderRadius: '58% 42% 34% 66% / 38% 62% 38% 62%',
-          duration: 1.4,
-          ease: 'sine.inOut',
-        })
-        .to(morphShapeRef.current, {
-          scale: 1.04,
-          rotation: 180,
-          borderRadius: '28% 72% 46% 54% / 60% 44% 56% 40%',
-          duration: 1.4,
-          ease: 'sine.inOut',
+      noteElementsRef.current.forEach((el, index) => {
+        if (!el) return
+
+        // Time offset creates the "follow-the-leader" organic snake trail
+        const delayOffset = (index / noteCount) * loopDuration
+
+        // Intrinsic unique micro-tilt for unorganised character
+        const naturalTilt = ((index % 5) - 2) * 3
+
+        const tl = gsap.timeline({ repeat: -1 })
+
+        waypoints.forEach((wp) => {
+          tl.to(el, {
+            x: wp.x + ((index % 3) - 1) * 25,
+            y: wp.y + ((index % 2) === 0 ? 15 : -15),
+            rotation: wp.rotate + naturalTilt,
+            scale: wp.scale,
+            duration: loopDuration / (waypoints.length - 1),
+            ease: 'sine.inOut',
+          })
         })
 
-      // Abstract floating shards sweeping across the canvas
-      gsap.to(shardLeftRef.current, {
-        x: 28,
-        y: -22,
-        rotation: 14,
-        scale: 1.06,
-        duration: 2.6,
-        repeat: -1,
-        yoyo: true,
-        ease: 'sine.inOut',
+        // Seek forward by the delay offset so they start spread out along the curve
+        tl.seek(delayOffset)
       })
 
-      gsap.to(shardRightRef.current, {
-        x: -26,
-        y: 24,
-        rotation: -18,
-        scale: 0.94,
-        duration: 2.9,
-        repeat: -1,
-        yoyo: true,
-        ease: 'sine.inOut',
-      })
+      // Frame-by-frame connector edge updater (dashed lines linking trailing notes)
+      const updateConnectors = () => {
+        if (!svgConnectorsRef.current) return
+        const rootRect = rootRef.current?.getBoundingClientRect()
+        if (!rootRect) return
 
-      gsap.to(shardTopRef.current, {
-        y: 18,
-        rotation: 90,
-        duration: 3.4,
-        repeat: -1,
-        yoyo: true,
-        ease: 'power1.inOut',
-      })
+        for (let i = 0; i < noteCount - 1; i++) {
+          const fromEl = noteElementsRef.current[i]
+          const toEl = noteElementsRef.current[i + 1]
+          const pathEl = connectorPathsRef.current[i]
 
-      // Intro orchestration: typography, geometry, and initial progress climb
-      const introTl = gsap.timeline()
+          if (!fromEl || !toEl || !pathEl) continue
 
-      introTl
-        .from('.preloader-telemetry', {
-          y: 16,
-          opacity: 0,
-          duration: 0.55,
-          stagger: 0.06,
-          ease: 'power3.out',
-        })
-        .from(
-          coreGroupRef.current,
-          {
-            scale: 0.55,
-            opacity: 0,
-            rotation: -35,
-            duration: 0.8,
-            ease: 'expo.out',
-          },
-          0.05
-        )
-        .from(
-          '.preloader-char',
-          {
-            yPercent: 115,
-            rotateZ: 6,
-            opacity: 0,
-            duration: 0.72,
-            stagger: 0.032,
-            ease: 'expo.out',
-          },
-          0.12
-        )
-        .fromTo(
-          taglineMaskRef.current,
-          { clipPath: 'inset(0 100% 0 0)', opacity: 0 },
-          { clipPath: 'inset(0 0% 0 0)', opacity: 1, duration: 0.65, ease: 'power3.out' },
-          0.32
-        )
+          const r1 = fromEl.getBoundingClientRect()
+          const r2 = toEl.getBoundingClientRect()
 
-      // Smoothly climb toward 92% while waiting for page/font readiness and minimum duration
+          const x1 = r1.left + r1.width / 2 - rootRect.left
+          const y1 = r1.top + r1.height / 2 - rootRect.top
+          const x2 = r2.left + r2.width / 2 - rootRect.left
+          const y2 = r2.top + r2.height / 2 - rootRect.top
+
+          const dx = (x2 - x1) * 0.4
+          const dy = (y2 - y1) * 0.4
+
+          // Cubic bezier curve between connected trailing notes
+          const d = `M ${x1} ${y1} C ${x1 + dx} ${y1 - dy}, ${x2 - dx} ${y2 + dy}, ${x2} ${y2}`
+          pathEl.setAttribute('d', d)
+        }
+      }
+
+      gsap.ticker.add(updateConnectors)
+
+      // Smooth counter climb toward 92%
       gsap.to(progressProxyRef.current, {
         value: 92,
-        duration: 2.6,
+        duration: 2.5,
         ease: 'power2.out',
         onUpdate: () => {
           if (!hasStartedExitRef.current) {
@@ -172,6 +225,10 @@ export function CinematicPreloader({ isReady, onComplete }: CinematicPreloaderPr
           }
         },
       })
+
+      return () => {
+        gsap.ticker.remove(updateConnectors)
+      }
     }, rootRef)
 
     return () => {
@@ -180,7 +237,7 @@ export function CinematicPreloader({ isReady, onComplete }: CinematicPreloaderPr
     }
   }, [])
 
-  // Trigger final 100% completion and seamless viewport expansion exit once ready
+  // Exit animation once ready: counter finishes to 100%, notes scatter gracefully, screen dissolves
   useEffect(() => {
     if (!isReady || hasStartedExitRef.current) return
     hasStartedExitRef.current = true
@@ -210,7 +267,7 @@ export function CinematicPreloader({ isReady, onComplete }: CinematicPreloaderPr
         },
       })
 
-      // 1. Finish counter smoothly to 100
+      // 1. Finish counter to 100%
       exitTl.to(progressProxyRef.current, {
         value: 100,
         duration: 0.45,
@@ -218,72 +275,46 @@ export function CinematicPreloader({ isReady, onComplete }: CinematicPreloaderPr
         onUpdate: () => updateCounterText(progressProxyRef.current.value),
       })
 
-      // 2. Crisp typographic & telemetry exit
+      // 2. NoteNodes accelerate and scatter outward past viewport
       exitTl.to(
-        '.preloader-char',
+        noteElementsRef.current,
         {
-          yPercent: -115,
+          x: (i) => (i % 2 === 0 ? '-=450' : '+=450'),
+          y: (i) => (i < 3 ? '-=350' : '+=350'),
+          rotation: (i) => (i % 2 === 0 ? -45 : 45),
+          scale: 1.35,
           opacity: 0,
-          duration: 0.45,
-          stagger: 0.02,
-          ease: 'power3.in',
+          duration: 0.65,
+          stagger: 0.03,
+          ease: 'expo.in',
         },
         '>-0.1'
       )
 
       exitTl.to(
-        [taglineMaskRef.current, '.preloader-telemetry', '.preloader-counter-wrap'],
+        svgConnectorsRef.current,
         {
-          y: -18,
           opacity: 0,
-          duration: 0.36,
-          stagger: 0.04,
+          duration: 0.35,
           ease: 'power2.in',
         },
         '<'
       )
 
-      // 3. Abstract shards sweep out beyond the viewport
+      // 3. Counter exit
       exitTl.to(
-        shardLeftRef.current,
-        { xPercent: -180, yPercent: -80, scale: 2.2, rotation: -45, opacity: 0, duration: 0.7, ease: 'expo.inOut' },
-        '<-0.05'
-      )
-      exitTl.to(
-        shardRightRef.current,
-        { xPercent: 180, yPercent: 80, scale: 2.4, rotation: 55, opacity: 0, duration: 0.7, ease: 'expo.inOut' },
-        '<'
-      )
-      exitTl.to(
-        shardTopRef.current,
-        { yPercent: -220, scale: 1.8, rotation: 180, opacity: 0, duration: 0.65, ease: 'expo.inOut' },
-        '<'
-      )
-
-      // 4. Central sculpture scales past the viewport while the bright SyncBoard hero veil expands
-      exitTl.to(
-        coreGroupRef.current,
+        counterRef.current?.parentElement || '.preloader-counter-wrap',
         {
-          scale: 16,
-          rotation: 120,
+          scale: 0.85,
+          y: -24,
           opacity: 0,
-          duration: 0.85,
-          ease: 'expo.inOut',
+          duration: 0.4,
+          ease: 'power3.in',
         },
         '<-0.05'
       )
 
-      exitTl.to(
-        portalVeilRef.current,
-        {
-          clipPath: 'circle(145% at 50% 50%)',
-          duration: 0.78,
-          ease: 'expo.inOut',
-        },
-        '<0.08'
-      )
-
-      // 5. Dissolve the light veil seamlessly into the actual hero canvas underneath
+      // 4. Clean dissolution to reveal the website
       exitTl.set(rootRef.current, { pointerEvents: 'none' })
       exitTl.to(rootRef.current, {
         opacity: 0,
@@ -303,113 +334,101 @@ export function CinematicPreloader({ isReady, onComplete }: CinematicPreloaderPr
       role="status"
       aria-live="polite"
       aria-label="Loading SyncBoard"
-      className="preloader-root flex flex-col justify-between p-5 sm:p-8 lg:p-12"
+      className="preloader-root flex flex-col items-center justify-center p-6"
     >
-      {/* Layered atmosphere, architectural grid & subtle film grain */}
-      <div className="preloader-atmosphere" aria-hidden="true" />
-      <div className="preloader-grid" aria-hidden="true" />
-      <div className="preloader-grain" aria-hidden="true" />
+      {/* Dynamic SVG dashed lines trailing between NoteNodes */}
+      <svg
+        ref={svgConnectorsRef}
+        className="pointer-events-none absolute inset-0 h-full w-full"
+        style={{ zIndex: 5 }}
+      >
+        {TRAIL_NOTES.slice(0, -1).map((_, i) => (
+          <path
+            key={`connector-${i}`}
+            ref={(el) => (connectorPathsRef.current[i] = el)}
+            fill="none"
+            stroke="rgba(148, 163, 184, 0.45)"
+            strokeWidth="2.5"
+            strokeDasharray="6 8"
+            strokeLinecap="round"
+          />
+        ))}
+      </svg>
 
-      {/* Abstract geometric shapes orbiting & overlapping */}
+      {/* Floating Trail of NoteNodes following each other */}
       <div
-        ref={shardLeftRef}
-        aria-hidden="true"
-        className="pointer-events-none absolute -left-16 top-[18%] h-48 w-48 rounded-[42%] border border-blue-400/25 bg-gradient-to-br from-blue-600/20 to-cyan-400/5 sm:h-72 sm:w-72"
-      />
-      <div
-        ref={shardRightRef}
-        aria-hidden="true"
-        className="pointer-events-none absolute -right-12 bottom-[14%] h-52 w-52 rounded-full border border-cyan-300/25 bg-gradient-to-tl from-cyan-500/20 to-blue-600/5 sm:h-80 sm:w-80"
-      />
-      <div
-        ref={shardTopRef}
-        aria-hidden="true"
-        className="pointer-events-none absolute right-[18%] top-[12%] h-14 w-28 rounded-full border border-white/15 bg-white/5 sm:h-16 sm:w-36"
-      />
-
-      {/* Top metadata bar */}
-      <header className="relative z-10 flex items-center justify-between gap-4 text-[10px] font-semibold uppercase tracking-[0.26em] text-slate-400 sm:text-xs">
-        <div className="preloader-telemetry flex items-center gap-2.5">
-          <span className="inline-block h-2 w-2 rounded-full bg-blue-500 shadow-[0_0_12px_rgba(59,130,246,0.9)]" />
-          <span>SyncBoard // Studio</span>
-        </div>
-        <div className="preloader-telemetry hidden sm:block text-slate-500">
-          Spatial CRDT Workspace
-        </div>
-        <div className="preloader-telemetry text-blue-400">Live Engine</div>
-      </header>
-
-      {/* Centerpiece: Morphing geometric core + Oversized staggered typography */}
-      <div className="relative z-10 flex flex-1 flex-col items-center justify-center">
-        {/* Morphing Geometric Centerpiece */}
-        <div
-          ref={coreGroupRef}
-          aria-hidden="true"
-          className="pointer-events-none relative mb-6 flex h-36 w-36 items-center justify-center sm:mb-8 sm:h-48 sm:w-48 lg:h-56 lg:w-56"
-        >
-          {/* Outer orbital ring */}
+        ref={trailContainerRef}
+        className="pointer-events-none absolute inset-0 flex items-center justify-center"
+        style={{ zIndex: 10 }}
+      >
+        {TRAIL_NOTES.map((note, index) => (
           <div
-            ref={orbitRingRef}
-            className="absolute inset-0 rounded-full border border-dashed border-blue-400/35"
+            key={note.id}
+            ref={(el) => (noteElementsRef.current[index] = el)}
+            className="preloader-note-trail-item -ml-[85px] -mt-[62px] sm:-ml-[100px] sm:-mt-[72px]"
+            style={{ zIndex: 10 + index }}
           >
-            <span className="absolute -top-1 left-1/2 h-2 w-2 -translate-x-1/2 rounded-full bg-cyan-400 shadow-[0_0_12px_rgba(34,211,238,0.9)]" />
+            {/* The signature SyncBoard Push-Pin */}
+            <div className="trail-pin" style={{ background: note.color.pin }}>
+              <div className="trail-pin-shine" />
+              <div className="trail-pin-needle" />
+            </div>
+
+            {/* NoteNode Card Body */}
+            <div
+              className="trail-note-card"
+              style={{
+                background: note.color.surface,
+                borderColor: note.color.border,
+              }}
+            >
+              {/* Header with Grip handle */}
+              <div
+                className="flex h-7 shrink-0 items-center justify-between px-3"
+                style={{
+                  background: note.color.header,
+                  borderBottom: `1px solid ${note.color.border}`,
+                }}
+              >
+                <div className="flex items-center gap-1 opacity-70">
+                  <span className="h-2 w-2 rounded-full bg-black/20" />
+                  <span className="h-2 w-2 rounded-full bg-black/20" />
+                  <span className="h-2 w-2 rounded-full bg-black/20" />
+                </div>
+                {/* Micro grip icon */}
+                <div className="flex gap-1 text-[10px] text-black/35 font-bold">
+                  :::
+                </div>
+              </div>
+
+              {/* Note Content */}
+              <div className="flex flex-1 flex-col justify-center px-3.5 py-2">
+                <p
+                  className="truncate text-xs font-bold tracking-tight sm:text-sm"
+                  style={{ color: note.color.text }}
+                >
+                  {note.title}
+                </p>
+                <p className="mt-1 line-clamp-2 text-[10px] leading-tight text-slate-600 sm:text-xs">
+                  {note.body}
+                </p>
+              </div>
+            </div>
           </div>
-
-          {/* Morphing gradient core */}
-          <div
-            ref={morphShapeRef}
-            className="absolute inset-5 rounded-[36%_64%_54%_46%/44%_38%_62%_56%] bg-gradient-to-br from-blue-600 via-blue-500 to-cyan-400 opacity-90 shadow-[0_0_70px_rgba(37,99,235,0.55)]"
-          />
-
-          {/* Counter-rotating geometric wireframe */}
-          <div
-            ref={innerDiamondRef}
-            className="absolute inset-9 rounded-2xl border border-white/60 mix-blend-overlay"
-          />
-
-          {/* Crisp central emblem */}
-          <div className="relative flex h-11 w-11 items-center justify-center rounded-xl border border-white/40 bg-slate-950/60 backdrop-blur-md sm:h-14 sm:w-14">
-            <svg viewBox="0 0 24 24" className="h-5 w-5 text-white sm:h-6 sm:w-6" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M12 3l8 4.5v9L12 21l-8-4.5v-9L12 3z" />
-              <path d="M12 12l8-4.5M12 12v9M12 12L4 7.5" />
-            </svg>
-          </div>
-        </div>
-
-        {/* Oversized Animated Typography */}
-        <h1 className="preloader-wordmark text-center text-white" aria-label="SyncBoard">
-          {BRAND_LETTERS.map((char, index) => (
-            <span key={`${char}-${index}`} className="preloader-char-mask">
-              <span className="preloader-char">{char}</span>
-            </span>
-          ))}
-        </h1>
-
-        <div
-          ref={taglineMaskRef}
-          className="mt-3 text-center text-[11px] font-semibold uppercase tracking-[0.34em] text-blue-300/90 sm:mt-4 sm:text-xs"
-        >
-          Think Spatially &bull; Create Together
-        </div>
+        ))}
       </div>
 
-      {/* Bottom telemetry & dynamic 00-100% counter */}
-      <footer className="relative z-10 flex items-end justify-between gap-4">
-        <div className="preloader-telemetry max-w-[200px] text-[10px] leading-relaxed tracking-[0.18em] text-slate-500 uppercase sm:max-w-xs sm:text-xs">
-          Initializing shared canvas &amp; real-time presence
-        </div>
-
-        <div className="preloader-counter-wrap flex items-baseline gap-1 text-right">
-          <span ref={counterRef} className="preloader-counter text-white">
-            00
-          </span>
-          <span className="text-lg font-bold text-blue-500 sm:text-2xl">%</span>
-        </div>
-      </footer>
-
-      {/* Expanding radial portal veil that bridges into the light SyncBoard hero */}
-      <div ref={portalVeilRef} className="preloader-portal-veil" aria-hidden="true" />
+      {/* Pure animation count on clean white background */}
+      <div
+        className="preloader-counter-wrap relative z-20 flex select-none items-baseline gap-1.5"
+      >
+        <span ref={counterRef} className="preloader-counter">
+          00
+        </span>
+        <span className="text-3xl font-extrabold text-blue-600 sm:text-5xl lg:text-6xl">
+          %
+        </span>
+      </div>
     </div>
   )
 }
-
