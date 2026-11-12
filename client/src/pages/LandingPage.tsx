@@ -162,84 +162,72 @@ const GRID_FEATURES = [
     direction: 'NW',
     bearing: '315° NORTH-WEST',
     angle: -45,
-    coords: 'X: -160 • Y: -120',
+    coords: 'VEC: [X: -160, Y: -120]',
     title: 'Quill Rich-Text Formatting',
     desc: 'Write bold statements, checklists, code snippets, and ordered lists directly inside sticky notes with intuitive inline controls.',
     badge: 'Rich Editor',
     color: 'bg-blue-50 border-blue-200 text-blue-700',
-    dotBg: 'bg-blue-500',
-    col: 0,
-    row: 0,
+    position: 'Top-Left (NW)',
   },
   {
     id: 'vectors',
     direction: 'N',
     bearing: '000° NORTH',
     angle: 0,
-    coords: 'X: 000 • Y: -120',
+    coords: 'VEC: [X: 000, Y: -180]',
     title: 'Dynamic Vector Connectors',
     desc: 'Connect note handles effortlessly. Smart orthogonal routes adapt dynamically as you move notes across the board.',
     badge: 'Vector Routing',
     color: 'bg-amber-50 border-amber-200 text-amber-700',
-    dotBg: 'bg-amber-500',
-    col: 1,
-    row: 0,
+    position: 'Top-Center (N)',
   },
   {
     id: 'crdt',
     direction: 'NE',
     bearing: '045° NORTH-EAST',
     angle: 45,
-    coords: 'X: +160 • Y: -120',
+    coords: 'VEC: [X: +160, Y: -120]',
     title: 'Zero-Conflict CRDT Merging',
     desc: 'Powered by Yjs CRDTs. Multiple collaborators can type into the same board simultaneously without overwriting data.',
     badge: 'Y.js CRDT',
     color: 'bg-emerald-50 border-emerald-200 text-emerald-700',
-    dotBg: 'bg-emerald-500',
-    col: 2,
-    row: 0,
+    position: 'Top-Right (NE)',
   },
   {
     id: 'pdf',
     direction: 'SW',
     bearing: '225° SOUTH-WEST',
     angle: -135,
-    coords: 'X: -160 • Y: +120',
+    coords: 'VEC: [X: -160, Y: +120]',
     title: 'High-DPI PDF Generation',
     desc: 'Export your boards into crystal-clear vector documents preserving pins, gradients, typography, and connector paths.',
     badge: 'Vector Export',
     color: 'bg-rose-50 border-rose-200 text-rose-700',
-    dotBg: 'bg-rose-500',
-    col: 0,
-    row: 1,
+    position: 'Bottom-Left (SW)',
   },
   {
     id: 'presence',
     direction: 'S',
     bearing: '180° SOUTH',
     angle: 180,
-    coords: 'X: 000 • Y: +120',
+    coords: 'VEC: [X: 000, Y: +180]',
     title: 'Live Room Presence',
     desc: 'Share custom room links, see connected teammate counters, and follow live cursor pointers across the shared space.',
     badge: 'Real-Time',
     color: 'bg-purple-50 border-purple-200 text-purple-700',
-    dotBg: 'bg-purple-500',
-    col: 1,
-    row: 1,
+    position: 'Bottom-Center (S)',
   },
   {
     id: 'demo',
     direction: 'SE',
     bearing: '135° SOUTH-EAST',
     angle: 135,
-    coords: 'X: +160 • Y: +120',
+    coords: 'VEC: [X: +160, Y: +120]',
     title: 'Instant 1-Click Demo User',
     desc: 'No passwords, verification emails, or accounts required to test. Click once and immediately enter a live canvas.',
     badge: 'Guest Friendly',
     color: 'bg-cyan-50 border-cyan-200 text-cyan-700',
-    dotBg: 'bg-cyan-500',
-    col: 2,
-    row: 1,
+    position: 'Bottom-Right (SE)',
   },
 ]
 
@@ -822,7 +810,7 @@ export function LandingPage() {
         </section>
 
         {/* SECTION 3: CANVAS FEATURES GRID WITH COMPASS CONNECTION */}
-        <section className="relative z-10 py-16">
+        <section className="relative z-10 py-16 sm:py-20">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             {/* Header matching screenshot */}
             <div className="mx-auto max-w-3xl text-center">
@@ -835,173 +823,264 @@ export function LandingPage() {
               </p>
             </div>
 
-            {/* Central Compass Instrument */}
-            <div className="relative mt-10 flex flex-col items-center">
-              {/* Subtle ambient compass glow */}
-              <div className="pointer-events-none absolute -inset-6 rounded-full bg-blue-500/10 blur-2xl" />
+            {/* Spatial Feature Grid Surrounding Central Compass */}
+            <div className="relative mt-12 sm:mt-16">
+              {/* TOP ROW: 3 Cards (NW, N, NE) */}
+              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                {GRID_FEATURES.slice(0, 3).map((feat, sliceIdx) => {
+                  const index = sliceIdx
+                  const isActive = activeCompassIndex === index
 
-              {/* Circular Compass Dial */}
-              <div className="relative flex h-36 w-36 sm:h-44 sm:w-44 items-center justify-center rounded-full border-2 border-white/90 bg-gradient-to-b from-white/95 via-slate-50/90 to-blue-50/70 p-3 shadow-[0_18px_45px_rgba(37,99,235,0.14),inset_0_2px_4px_rgba(255,255,255,0.9)] backdrop-blur-2xl">
-                {/* Concentric rings */}
-                <div className="absolute inset-2 rounded-full border border-slate-200/90" />
-                <div className="absolute inset-5 rounded-full border border-dashed border-blue-300/70" />
-
-                {/* Degree indicators */}
-                <span className="absolute top-2 text-[9px] font-mono font-bold text-slate-400">0° N</span>
-                <span className="absolute right-2 text-[9px] font-mono font-bold text-slate-400">90° E</span>
-                <span className="absolute bottom-2 text-[9px] font-mono font-bold text-slate-400">180° S</span>
-                <span className="absolute left-2 text-[9px] font-mono font-bold text-slate-400">270° W</span>
-
-                {/* Crosshairs */}
-                <div className="absolute inset-x-4 top-1/2 h-px -translate-y-1/2 bg-gradient-to-r from-transparent via-slate-300/70 to-transparent" />
-                <div className="absolute inset-y-4 left-1/2 w-px -translate-x-1/2 bg-gradient-to-b from-transparent via-slate-300/70 to-transparent" />
-
-                {/* Animated 3D Magnetic Needle */}
-                <motion.div
-                  className="pointer-events-none absolute z-10 flex h-28 w-4 sm:h-36 items-center justify-center"
-                  animate={{ rotate: GRID_FEATURES[activeCompassIndex].angle }}
-                  transition={{ type: 'spring', stiffness: 220, damping: 20, mass: 0.8 }}
-                >
-                  {/* North Pointer (Red) */}
-                  <div className="absolute top-0 h-14 w-0 border-l-[6px] border-r-[6px] border-b-[56px] border-l-transparent border-r-transparent border-b-rose-500 drop-shadow-[0_2px_6px_rgba(244,63,94,0.4)]" />
-                  {/* South Pointer (Silver/Slate) */}
-                  <div className="absolute bottom-0 h-14 w-0 border-l-[6px] border-r-[6px] border-t-[56px] border-l-transparent border-r-transparent border-t-slate-400 drop-shadow-[0_2px_4px_rgba(15,23,42,0.15)]" />
-                </motion.div>
-
-                {/* Center Hub */}
-                <div className="relative z-30 flex h-7 w-7 items-center justify-center rounded-full border-2 border-white bg-slate-900 text-white shadow-md">
-                  <div className="h-2 w-2 rounded-full bg-cyan-400 animate-ping opacity-75" />
-                  <div className="absolute h-2 w-2 rounded-full bg-cyan-400" />
-                </div>
-              </div>
-
-              {/* Digital Compass HUD */}
-              <div className="mt-3 flex items-center gap-2">
-                <div className="inline-flex items-center gap-1.5 rounded-full border border-blue-200/80 bg-blue-50/80 px-3.5 py-1 text-xs font-mono font-bold tracking-wider text-blue-700 shadow-sm backdrop-blur-md">
-                  <span className="h-1.5 w-1.5 rounded-full bg-blue-600 animate-pulse" />
-                  <span>{GRID_FEATURES[activeCompassIndex].bearing}</span>
-                </div>
-                <span className="hidden sm:inline-block font-mono text-[11px] text-slate-400">
-                  {GRID_FEATURES[activeCompassIndex].coords}
-                </span>
-              </div>
-
-              {/* SVG Connecting Vector Lines branching down to the 6 notes */}
-              <div className="pointer-events-none relative h-10 w-full max-w-5xl hidden lg:block overflow-visible">
-                <svg className="h-10 w-full overflow-visible" viewBox="0 0 1000 40" preserveAspectRatio="none">
-                  {/* Main bus line down from compass */}
-                  <line
-                    x1="500"
-                    y1="0"
-                    x2="500"
-                    y2="20"
-                    stroke="#94a3b8"
-                    strokeWidth="1.5"
-                    strokeDasharray="4 4"
-                  />
-                  {/* Horizontal branching bus line */}
-                  <line
-                    x1="166"
-                    y1="20"
-                    x2="834"
-                    y2="20"
-                    stroke="#94a3b8"
-                    strokeWidth="1.5"
-                    strokeDasharray="4 4"
-                  />
-                  {/* Drops to Column 1 (Left), Column 2 (Center), Column 3 (Right) */}
-                  <line
-                    x1="166"
-                    y1="20"
-                    x2="166"
-                    y2="40"
-                    stroke={activeCompassIndex === 0 || activeCompassIndex === 3 ? '#2563eb' : '#94a3b8'}
-                    strokeWidth={activeCompassIndex === 0 || activeCompassIndex === 3 ? '2' : '1.5'}
-                    strokeDasharray="4 4"
-                  />
-                  <line
-                    x1="500"
-                    y1="20"
-                    x2="500"
-                    y2="40"
-                    stroke={activeCompassIndex === 1 || activeCompassIndex === 4 ? '#2563eb' : '#94a3b8'}
-                    strokeWidth={activeCompassIndex === 1 || activeCompassIndex === 4 ? '2' : '1.5'}
-                    strokeDasharray="4 4"
-                  />
-                  <line
-                    x1="834"
-                    y1="20"
-                    x2="834"
-                    y2="40"
-                    stroke={activeCompassIndex === 2 || activeCompassIndex === 5 ? '#2563eb' : '#94a3b8'}
-                    strokeWidth={activeCompassIndex === 2 || activeCompassIndex === 5 ? '2' : '1.5'}
-                    strokeDasharray="4 4"
-                  />
-                </svg>
-              </div>
-            </div>
-
-            {/* 3x2 Grid matching screenshot */}
-            <div className="relative mt-4 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {GRID_FEATURES.map((feat, index) => {
-                const isActive = activeCompassIndex === index
-
-                return (
-                  <div
-                    key={feat.title}
-                    onMouseEnter={() => setActiveCompassIndex(index)}
-                    onClick={() => setActiveCompassIndex(index)}
-                    className={`paper-card group relative flex flex-col justify-between rounded-[2rem] p-7 transition-all duration-300 ${
-                      isActive
-                        ? 'shadow-[0_24px_50px_rgba(37,99,235,0.14)] -translate-y-1.5 ring-2 ring-blue-400/60'
-                        : 'hover:-translate-y-1 hover:shadow-[0_20px_45px_rgba(15,23,42,0.12)]'
-                    }`}
-                  >
-                    {/* Top Connector Handle matching NoteNode */}
+                  return (
                     <div
-                      className={`pointer-events-none absolute -top-1.5 left-1/2 -translate-x-1/2 h-3.5 w-3.5 rounded-full border-2 border-white shadow-sm transition-all duration-300 ${
+                      key={feat.title}
+                      onMouseEnter={() => setActiveCompassIndex(index)}
+                      onClick={() => setActiveCompassIndex(index)}
+                      className={`paper-card group relative flex flex-col justify-between rounded-[2rem] p-7 transition-all duration-300 cursor-pointer ${
                         isActive
-                          ? 'bg-blue-600 ring-4 ring-blue-200 scale-125'
-                          : 'bg-slate-300 group-hover:bg-slate-400'
+                          ? 'shadow-[0_24px_50px_rgba(37,99,235,0.18)] -translate-y-1.5 ring-2 ring-blue-500/80 bg-white'
+                          : 'hover:-translate-y-1 hover:shadow-[0_20px_45px_rgba(15,23,42,0.12)]'
                       }`}
+                    >
+                      {/* Connector Handle at Bottom matching NoteNode */}
+                      <div
+                        className={`pointer-events-none absolute -bottom-2 left-1/2 -translate-x-1/2 h-4 w-4 rounded-full border-2 border-white shadow-md transition-all duration-300 ${
+                          isActive
+                            ? 'bg-blue-600 ring-4 ring-blue-300 scale-125'
+                            : 'bg-slate-300 group-hover:bg-slate-400'
+                        }`}
+                      />
+
+                      <div>
+                        <div className="flex items-center justify-between">
+                          <span className={`rounded-full border px-3 py-0.5 text-xs font-bold ${feat.color}`}>
+                            {feat.badge}
+                          </span>
+                          <span className="font-mono text-[11px] font-semibold text-slate-400">
+                            {feat.bearing}
+                          </span>
+                        </div>
+
+                        <h3 className="mt-5 text-lg font-bold tracking-tight text-slate-900 group-hover:text-blue-600 transition-colors">
+                          {feat.title}
+                        </h3>
+                        <p className="section-copy mt-2.5 text-sm leading-relaxed">
+                          {feat.desc}
+                        </p>
+                      </div>
+
+                      <div className="mt-5 flex items-center justify-between pt-2">
+                        <div className="flex items-center gap-1.5 text-xs font-bold text-blue-600">
+                          <span>Feature included</span>
+                          <svg className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                          </svg>
+                        </div>
+
+                        {isActive && (
+                          <span className="flex items-center gap-1 text-[10px] font-mono font-bold uppercase tracking-wider text-blue-600">
+                            <span className="h-1.5 w-1.5 rounded-full bg-blue-600 animate-ping" />
+                            Compass Locked
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+
+              {/* CENTER HUB: Compass Instrument with Radial Vector Connections */}
+              <div className="relative my-6 sm:my-8 flex flex-col items-center justify-center">
+                {/* SVG Vector Connecting Lines radiating from Compass Hub to all 6 surrounding cards */}
+                <div className="pointer-events-none absolute inset-0 hidden lg:block overflow-visible">
+                  <svg className="h-full w-full overflow-visible" viewBox="0 0 1000 200" preserveAspectRatio="none">
+                    <defs>
+                      <filter id="glow-line" x="-20%" y="-20%" width="140%" height="140%">
+                        <feDropShadow dx="0" dy="0" stdDeviation="3" floodColor="#2563eb" floodOpacity="0.5" />
+                      </filter>
+                    </defs>
+
+                    {/* Vector 0: to Top-Left Card (NW) */}
+                    <path
+                      d="M 167 0 C 167 60, 420 50, 440 60"
+                      fill="none"
+                      stroke={activeCompassIndex === 0 ? '#2563eb' : '#cbd5e1'}
+                      strokeWidth={activeCompassIndex === 0 ? '2.5' : '1.5'}
+                      strokeDasharray={activeCompassIndex === 0 ? 'none' : '5 5'}
+                      filter={activeCompassIndex === 0 ? 'url(#glow-line)' : undefined}
+                      className="transition-all duration-300"
                     />
 
-                    <div>
-                      <div className="flex items-center justify-between">
-                        <span className={`rounded-full border px-3 py-0.5 text-xs font-bold ${feat.color}`}>
-                          {feat.badge}
-                        </span>
-                        <span className="font-mono text-[11px] font-semibold text-slate-400">
-                          {feat.bearing}
-                        </span>
-                      </div>
+                    {/* Vector 1: to Top-Center Card (N) */}
+                    <path
+                      d="M 500 0 L 500 20"
+                      fill="none"
+                      stroke={activeCompassIndex === 1 ? '#2563eb' : '#cbd5e1'}
+                      strokeWidth={activeCompassIndex === 1 ? '2.5' : '1.5'}
+                      strokeDasharray={activeCompassIndex === 1 ? 'none' : '5 5'}
+                      filter={activeCompassIndex === 1 ? 'url(#glow-line)' : undefined}
+                      className="transition-all duration-300"
+                    />
 
-                      <h3 className="mt-5 text-lg font-bold tracking-tight text-slate-900 group-hover:text-blue-600 transition-colors">
-                        {feat.title}
-                      </h3>
-                      <p className="section-copy mt-2.5 text-sm leading-relaxed">
-                        {feat.desc}
-                      </p>
-                    </div>
+                    {/* Vector 2: to Top-Right Card (NE) */}
+                    <path
+                      d="M 833 0 C 833 60, 580 50, 560 60"
+                      fill="none"
+                      stroke={activeCompassIndex === 2 ? '#2563eb' : '#cbd5e1'}
+                      strokeWidth={activeCompassIndex === 2 ? '2.5' : '1.5'}
+                      strokeDasharray={activeCompassIndex === 2 ? 'none' : '5 5'}
+                      filter={activeCompassIndex === 2 ? 'url(#glow-line)' : undefined}
+                      className="transition-all duration-300"
+                    />
 
-                    <div className="mt-5 flex items-center justify-between pt-2">
-                      <div className="flex items-center gap-1.5 text-xs font-bold text-blue-600">
-                        <span>Feature included</span>
-                        <svg className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" viewBox="0 0 20 20" fill="currentColor">
-                          <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
-                        </svg>
-                      </div>
+                    {/* Vector 3: to Bottom-Left Card (SW) */}
+                    <path
+                      d="M 167 200 C 167 140, 420 150, 440 140"
+                      fill="none"
+                      stroke={activeCompassIndex === 3 ? '#2563eb' : '#cbd5e1'}
+                      strokeWidth={activeCompassIndex === 3 ? '2.5' : '1.5'}
+                      strokeDasharray={activeCompassIndex === 3 ? 'none' : '5 5'}
+                      filter={activeCompassIndex === 3 ? 'url(#glow-line)' : undefined}
+                      className="transition-all duration-300"
+                    />
 
-                      {isActive && (
-                        <span className="flex items-center gap-1 text-[10px] font-mono font-bold uppercase tracking-wider text-blue-600">
-                          <span className="h-1.5 w-1.5 rounded-full bg-blue-600 animate-ping" />
-                          Compass Locked
-                        </span>
-                      )}
-                    </div>
+                    {/* Vector 4: to Bottom-Center Card (S) */}
+                    <path
+                      d="M 500 200 L 500 180"
+                      fill="none"
+                      stroke={activeCompassIndex === 4 ? '#2563eb' : '#cbd5e1'}
+                      strokeWidth={activeCompassIndex === 4 ? '2.5' : '1.5'}
+                      strokeDasharray={activeCompassIndex === 4 ? 'none' : '5 5'}
+                      filter={activeCompassIndex === 4 ? 'url(#glow-line)' : undefined}
+                      className="transition-all duration-300"
+                    />
+
+                    {/* Vector 5: to Bottom-Right Card (SE) */}
+                    <path
+                      d="M 833 200 C 833 140, 580 150, 560 140"
+                      fill="none"
+                      stroke={activeCompassIndex === 5 ? '#2563eb' : '#cbd5e1'}
+                      strokeWidth={activeCompassIndex === 5 ? '2.5' : '1.5'}
+                      strokeDasharray={activeCompassIndex === 5 ? 'none' : '5 5'}
+                      filter={activeCompassIndex === 5 ? 'url(#glow-line)' : undefined}
+                      className="transition-all duration-300"
+                    />
+                  </svg>
+                </div>
+
+                {/* Ambient glow behind dial */}
+                <div className="pointer-events-none absolute h-52 w-52 rounded-full bg-blue-500/10 blur-3xl" />
+
+                {/* Circular Compass Dial */}
+                <div className="relative z-10 flex h-40 w-40 sm:h-48 sm:w-48 items-center justify-center rounded-full border-2 border-white/95 bg-gradient-to-b from-white/95 via-slate-50/90 to-blue-50/70 p-3 shadow-[0_20px_50px_rgba(37,99,235,0.16),inset_0_2px_4px_rgba(255,255,255,0.95)] backdrop-blur-2xl">
+                  {/* Outer & Inner Concentric Rings */}
+                  <div className="absolute inset-2 rounded-full border border-slate-200/90" />
+                  <div className="absolute inset-6 rounded-full border border-dashed border-blue-300/70" />
+
+                  {/* Cardinal degree indicators */}
+                  <span className="absolute top-2.5 text-[9px] font-mono font-bold text-slate-500">0° N</span>
+                  <span className="absolute right-2.5 text-[9px] font-mono font-bold text-slate-500">90° E</span>
+                  <span className="absolute bottom-2.5 text-[9px] font-mono font-bold text-slate-500">180° S</span>
+                  <span className="absolute left-2.5 text-[9px] font-mono font-bold text-slate-500">270° W</span>
+
+                  {/* Cardinal Crosshairs */}
+                  <div className="absolute inset-x-5 top-1/2 h-px -translate-y-1/2 bg-gradient-to-r from-transparent via-slate-300/80 to-transparent" />
+                  <div className="absolute inset-y-5 left-1/2 w-px -translate-x-1/2 bg-gradient-to-b from-transparent via-slate-300/80 to-transparent" />
+
+                  {/* Animated 3D Magnetic Needle */}
+                  <motion.div
+                    className="pointer-events-none absolute z-20 flex h-32 w-5 sm:h-40 items-center justify-center"
+                    animate={{ rotate: GRID_FEATURES[activeCompassIndex].angle }}
+                    transition={{ type: 'spring', stiffness: 220, damping: 20, mass: 0.8 }}
+                  >
+                    {/* North Pointer (Red) */}
+                    <div className="absolute top-0 h-16 w-0 border-l-[7px] border-r-[7px] border-b-[64px] border-l-transparent border-r-transparent border-b-rose-500 drop-shadow-[0_2px_8px_rgba(244,63,94,0.45)]" />
+                    {/* South Pointer (Silver/Slate) */}
+                    <div className="absolute bottom-0 h-16 w-0 border-l-[7px] border-r-[7px] border-t-[64px] border-l-transparent border-r-transparent border-t-slate-400 drop-shadow-[0_2px_6px_rgba(15,23,42,0.18)]" />
+                  </motion.div>
+
+                  {/* Center Hub */}
+                  <div className="relative z-30 flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-slate-900 text-white shadow-lg">
+                    <div className="h-2.5 w-2.5 rounded-full bg-cyan-400 animate-ping opacity-75" />
+                    <div className="absolute h-2.5 w-2.5 rounded-full bg-cyan-400" />
                   </div>
-                )
-              })}
+                </div>
+
+                {/* Digital Compass HUD */}
+                <div className="relative z-10 mt-3 flex items-center gap-2">
+                  <div className="inline-flex items-center gap-1.5 rounded-full border border-blue-200/90 bg-white/90 px-3.5 py-1 text-xs font-mono font-bold tracking-wider text-blue-700 shadow-sm backdrop-blur-md">
+                    <span className="h-1.5 w-1.5 rounded-full bg-blue-600 animate-pulse" />
+                    <span>{GRID_FEATURES[activeCompassIndex].bearing}</span>
+                  </div>
+                  <span className="hidden sm:inline-block font-mono text-[11px] text-slate-500">
+                    {GRID_FEATURES[activeCompassIndex].coords}
+                  </span>
+                </div>
+              </div>
+
+              {/* BOTTOM ROW: 3 Cards (SW, S, SE) */}
+              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                {GRID_FEATURES.slice(3, 6).map((feat, sliceIdx) => {
+                  const index = sliceIdx + 3
+                  const isActive = activeCompassIndex === index
+
+                  return (
+                    <div
+                      key={feat.title}
+                      onMouseEnter={() => setActiveCompassIndex(index)}
+                      onClick={() => setActiveCompassIndex(index)}
+                      className={`paper-card group relative flex flex-col justify-between rounded-[2rem] p-7 transition-all duration-300 cursor-pointer ${
+                        isActive
+                          ? 'shadow-[0_24px_50px_rgba(37,99,235,0.18)] -translate-y-1.5 ring-2 ring-blue-500/80 bg-white'
+                          : 'hover:-translate-y-1 hover:shadow-[0_20px_45px_rgba(15,23,42,0.12)]'
+                      }`}
+                    >
+                      {/* Connector Handle at Top matching NoteNode */}
+                      <div
+                        className={`pointer-events-none absolute -top-2 left-1/2 -translate-x-1/2 h-4 w-4 rounded-full border-2 border-white shadow-md transition-all duration-300 ${
+                          isActive
+                            ? 'bg-blue-600 ring-4 ring-blue-300 scale-125'
+                            : 'bg-slate-300 group-hover:bg-slate-400'
+                        }`}
+                      />
+
+                      <div>
+                        <div className="flex items-center justify-between">
+                          <span className={`rounded-full border px-3 py-0.5 text-xs font-bold ${feat.color}`}>
+                            {feat.badge}
+                          </span>
+                          <span className="font-mono text-[11px] font-semibold text-slate-400">
+                            {feat.bearing}
+                          </span>
+                        </div>
+
+                        <h3 className="mt-5 text-lg font-bold tracking-tight text-slate-900 group-hover:text-blue-600 transition-colors">
+                          {feat.title}
+                        </h3>
+                        <p className="section-copy mt-2.5 text-sm leading-relaxed">
+                          {feat.desc}
+                        </p>
+                      </div>
+
+                      <div className="mt-5 flex items-center justify-between pt-2">
+                        <div className="flex items-center gap-1.5 text-xs font-bold text-blue-600">
+                          <span>Feature included</span>
+                          <svg className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                          </svg>
+                        </div>
+
+                        {isActive && (
+                          <span className="flex items-center gap-1 text-[10px] font-mono font-bold uppercase tracking-wider text-blue-600">
+                            <span className="h-1.5 w-1.5 rounded-full bg-blue-600 animate-ping" />
+                            Compass Locked
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
             </div>
           </div>
         </section>
