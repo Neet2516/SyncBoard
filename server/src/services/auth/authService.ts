@@ -62,6 +62,28 @@ export class AuthService {
     }
   }
 
+  async loginAsDemo() {
+    const demoEmail = 'guest@syncboard.dev'
+    let user = await User.findOne({ email: demoEmail }).select('name email')
+    if (!user) {
+      const dummyPasswordHash = await bcrypt.hash('DemoSyncboard2026!', env.bcryptSaltRounds)
+      user = await User.create({
+        email: demoEmail,
+        passwordHash: dummyPasswordHash,
+        name: 'Demo Explorer',
+      })
+    }
+
+    const authUser = this.toAuthenticatedUser(user)
+    const sessionToken = await this.store.createSession(authUser)
+
+    return {
+      user: authUser,
+      sessionToken,
+      status: 200 as const,
+    }
+  }
+
   async getAuthenticatedUser(sessionToken: string) {
     const session = await this.store.getSession(sessionToken)
     if (!session) {

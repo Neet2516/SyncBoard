@@ -71,6 +71,21 @@ export const authController = {
     }
   },
 
+  async demoLogin(_req: Request, res: Response) {
+    try {
+      const result = await authService.loginAsDemo()
+      res.cookie(env.authCookieName, result.sessionToken, getAuthCookieOptions())
+
+      return res.status(200).json({
+        user: result.user,
+        message: 'Signed in as Demo User.',
+      })
+    } catch (error) {
+      console.error('[auth] Demo login error:', error)
+      return res.status(500).json({ error: 'Unable to start demo session right now.' })
+    }
+  },
+
   async logout(req: Request, res: Response) {
     const token = req.cookies?.[env.authCookieName]
 

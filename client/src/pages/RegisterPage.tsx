@@ -16,7 +16,7 @@ import {
  */
 export function RegisterPage() {
   const navigate = useNavigate()
-  const { isAuthenticated, isLoading } = useAuth()
+  const { loginAsDemo, isAuthenticated, isLoading } = useAuth()
   const [form, setForm] = useState<RegisterFormValues>({
     fullName: '',
     email: '',
@@ -30,6 +30,7 @@ export function RegisterPage() {
     confirmPassword: false,
   })
   const [loading, setLoading] = useState(false)
+  const [demoLoading, setDemoLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const errors = useMemo(() => validateRegisterForm(form), [form])
   const isFormValid = Object.keys(errors).length === 0
@@ -75,6 +76,20 @@ export function RegisterPage() {
       setError(err instanceof Error ? err.message : 'An error occurred. Please try again.')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleDemoLogin = async () => {
+    setDemoLoading(true)
+    setError(null)
+    try {
+      await loginAsDemo()
+      navigate('/boards', { replace: true })
+    } catch (err) {
+      console.error('[Demo Login] Error:', err)
+      setError(err instanceof Error ? err.message : 'Unable to sign in as demo user.')
+    } finally {
+      setDemoLoading(false)
     }
   }
 
@@ -169,13 +184,24 @@ export function RegisterPage() {
               </div>
             )}
 
-            <div>
+            <div className="space-y-3">
               <button
                 type="submit"
-                disabled={loading}
+                disabled={loading || demoLoading}
                 className={`flex w-full justify-center rounded-full border border-transparent bg-blue-600 px-4 py-3 text-sm font-semibold tracking-wide text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 hover:bg-blue-700 ${loading ? 'cursor-not-allowed opacity-50' : ''}`}
               >
                 {loading ? 'Creating account...' : 'Create account'}
+              </button>
+              <button
+                type="button"
+                onClick={handleDemoLogin}
+                disabled={loading || demoLoading}
+                className={`flex w-full items-center justify-center gap-2 rounded-full border border-blue-200 bg-blue-50/80 px-4 py-3 text-sm font-semibold tracking-wide text-blue-700 shadow-sm transition hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${demoLoading ? 'cursor-not-allowed opacity-50' : ''}`}
+              >
+                <svg className="h-4 w-4 text-blue-600" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clipRule="evenodd" />
+                </svg>
+                {demoLoading ? 'Starting Demo Session...' : 'Instant Guest / Demo Access'}
               </button>
             </div>
           </form>

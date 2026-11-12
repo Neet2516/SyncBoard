@@ -7,6 +7,7 @@ const router = Router()
 
 router.post('/register', createRateLimitMiddleware('register'), authController.register)
 router.post('/login', createRateLimitMiddleware('login'), authController.login)
+router.post('/demo', authController.demoLogin)
 router.post('/logout', authController.logout)
 router.get('/me', authMiddleware, authController.me)
 

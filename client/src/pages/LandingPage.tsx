@@ -1,5 +1,5 @@
 import { useEffect, useId, useMemo, useState, type CSSProperties, type MouseEvent } from 'react'
-import { Link, Navigate } from 'react-router-dom'
+import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence, useMotionValue, useSpring } from 'framer-motion'
 import Lenis from 'lenis'
 
@@ -128,16 +128,132 @@ const DEVELOPER_PROFILE = {
   discord: 'https://discord.com/users/kailler_53339',
 }
 
+const WORKFLOW_STEPS = [
+  {
+    step: '01',
+    kicker: 'Free-form Ideation',
+    title: 'Pin, color-code, and organize without boundaries',
+    desc: 'Break out of linear docs. Drop sticky notes anywhere on an infinite zoomable canvas, choose from 5 vibrant paper themes, and format thoughts with Quill rich text.',
+    accent: 'border-amber-300 text-amber-700 bg-amber-500/10',
+    tag: '5 Color Themes • Quill Rich Text',
+  },
+  {
+    step: '02',
+    kicker: 'Multiplayer Engine',
+    title: 'See teammates move and edit in sub-millisecond sync',
+    desc: 'Collaborate live with zero conflict locks. Yjs CRDTs and WebSockets synchronize every stroke, cursor motion, and text modification instantly across peers.',
+    accent: 'border-blue-300 text-blue-700 bg-blue-500/10',
+    tag: 'Live Cursors • Conflict-Free CRDTs',
+  },
+  {
+    step: '03',
+    kicker: 'Connect & Export',
+    title: 'Draw smart vector connectors and export high-DPI PDFs',
+    desc: 'Link cards to build flowcharts and idea maps. When your brainstorm is complete, generate publication-ready high-DPI PDFs with pristine vector lines in one click.',
+    accent: 'border-emerald-300 text-emerald-700 bg-emerald-500/10',
+    tag: 'Smart Orthogonal Lines • 1-Click PDF',
+  },
+]
+
+const CANVAS_FEATURES = [
+  {
+    title: 'Quill Rich-Text Formatting',
+    desc: 'Write bold statements, checklists, code snippets, and ordered lists directly inside sticky notes with intuitive inline controls.',
+    badge: 'Rich Editor',
+    color: 'bg-blue-50 border-blue-200 text-blue-700',
+  },
+  {
+    title: 'Dynamic Vector Connectors',
+    desc: 'Connect note handles effortlessly. Smart orthogonal routes adapt dynamically as you move notes across the board.',
+    badge: 'Vector Routing',
+    color: 'bg-amber-50 border-amber-200 text-amber-700',
+  },
+  {
+    title: 'Zero-Conflict CRDT Merging',
+    desc: 'Powered by Yjs CRDTs. Multiple collaborators can type into the same board simultaneously without overwriting data.',
+    badge: 'Y.js CRDT',
+    color: 'bg-emerald-50 border-emerald-200 text-emerald-700',
+  },
+  {
+    title: 'High-DPI PDF Generation',
+    desc: 'Export your boards into crystal-clear vector documents preserving pins, gradients, typography, and connector paths.',
+    badge: 'Vector Export',
+    color: 'bg-rose-50 border-rose-200 text-rose-700',
+  },
+  {
+    title: 'Live Room Presence',
+    desc: 'Share custom room links, see connected teammate counters, and follow live cursor pointers across the shared space.',
+    badge: 'Real-Time',
+    color: 'bg-purple-50 border-purple-200 text-purple-700',
+  },
+  {
+    title: 'Instant 1-Click Demo User',
+    desc: 'No passwords, verification emails, or accounts required to test. Click once and immediately enter a live canvas.',
+    badge: 'Guest Friendly',
+    color: 'bg-cyan-50 border-cyan-200 text-cyan-700',
+  },
+]
+
+const TECH_STACK = [
+  {
+    name: 'ReactFlow & GSAP',
+    category: 'Canvas Engine & Motion',
+    desc: 'Hardware-accelerated infinite panning, smooth zooming, physics-based note pins, and fluid transitions.',
+  },
+  {
+    name: 'Y.js & WebSockets',
+    category: 'CRDT Sync Engine',
+    desc: 'Sub-millisecond state convergence ensuring deterministic multi-user editing without central locks.',
+  },
+  {
+    name: 'Redis Pub/Sub',
+    category: 'Real-Time Messaging',
+    desc: 'High-throughput cluster communication and fast room presence dispatching for distributed instances.',
+  },
+  {
+    name: 'MongoDB & Docker',
+    category: 'Persistence & Cloud',
+    desc: 'Containerized micro-services with automatic board state recovery and persistent user documents.',
+  },
+]
+
+const FAQS = [
+  {
+    q: 'Why should I use the Demo User instead of creating an account?',
+    a: 'We built the Demo User for speed and convenience! You do not need to fill out sign-up forms, verify emails, or remember passwords just to test SyncBoard or brainstorm for a quick session. One click gives you full access to create notes, connect them, and export boards.',
+  },
+  {
+    q: 'Why choose a spatial canvas over standard linear documents?',
+    a: 'Linear docs force your thoughts into a strict top-to-bottom hierarchy. A spatial canvas mirrors how human minds naturally organize thoughts—allowing you to cluster related topics, draw arrows between ideas, and see the full map of your project at a single glance.',
+  },
+  {
+    q: 'How does real-time synchronization work without conflicts?',
+    a: 'SyncBoard is powered by Yjs Conflict-Free Replicated Data Types (CRDTs) over WebSockets. Rather than locking notes or relying on last-write-wins collisions, changes are deterministically merged in real time, so every collaborator sees consistent state immediately.',
+  },
+  {
+    q: 'Can I export my board to share with non-SyncBoard users?',
+    a: 'Yes! SyncBoard features a custom high-DPI PDF export engine that rasterizes your canvas with full fidelity—preserving note pins, gradient surfaces, rich text styling, and vector connection paths without clipping or blurry artifacts.',
+  },
+  {
+    q: 'Can I invite other teammates to the same board?',
+    a: 'Yes! Every board has a unique Room ID. Simply copy your room link or code and share it with your teammates. They can sign in or jump in as a Demo User and collaborate with you on the same screen instantly.',
+  },
+]
+
 /**
  * LandingPage Component
  *
  * The public-facing entry point of SyncBoard with landing page animation
  */
 export function LandingPage() {
-  const { isAuthenticated, isLoading } = useAuth()
+  const navigate = useNavigate()
+  const { loginAsDemo, isAuthenticated, isLoading } = useAuth()
   const [effects, setEffects] = useState<EphemeralEffect[]>([])
   const [cursorVisible, setCursorVisible] = useState(false)
   const [parallax, setParallax] = useState({ x: 0, y: 0 })
+  const [demoLoading, setDemoLoading] = useState(false)
+  const [demoError, setDemoError] = useState<string | null>(null)
+  const [openFaq, setOpenFaq] = useState<number | null>(0)
   const cursorX = useMotionValue(-80)
   const cursorY = useMotionValue(-80)
   const springX = useSpring(cursorX, { stiffness: 520, damping: 42, mass: 0.24 })
@@ -207,6 +323,20 @@ export function LandingPage() {
 
   if (isAuthenticated) {
     return <Navigate to="/boards" replace />
+  }
+
+  const handleDemoLogin = async () => {
+    setDemoLoading(true)
+    setDemoError(null)
+    try {
+      await loginAsDemo()
+      navigate('/boards', { replace: true })
+    } catch (err) {
+      console.error('[Demo Login] Error:', err)
+      setDemoError(err instanceof Error ? err.message : 'Unable to sign in as demo user.')
+    } finally {
+      setDemoLoading(false)
+    }
   }
 
   const spawnEffect = (clientX: number, clientY: number) => {
@@ -314,15 +444,27 @@ export function LandingPage() {
             <span className="brand-mark text-xl text-blue-600 sm:text-3xl">SyncBoard</span>
           </div>
           <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+            <button
+              type="button"
+              onClick={handleDemoLogin}
+              disabled={demoLoading}
+              className="inline-flex items-center gap-1.5 rounded-full border border-blue-200/90 bg-blue-50/80 px-3.5 py-2 text-xs sm:text-sm font-semibold tracking-wide text-blue-700 backdrop-blur-md transition hover:bg-blue-100 hover:-translate-y-0.5 active:translate-y-0"
+            >
+              <span className="relative flex h-2 w-2">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-blue-400 opacity-75"></span>
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-blue-600"></span>
+              </span>
+              {demoLoading ? 'Starting...' : 'Try Demo User'}
+            </button>
             <Link
               to="/login"
-              className="rounded-full px-3 py-3 text-sm font-semibold tracking-wide text-slate-600 transition-colors hover:text-blue-600 sm:px-4"
+              className="rounded-full px-3 py-2 text-xs sm:text-sm font-semibold tracking-wide text-slate-600 transition-colors hover:text-blue-600 sm:px-4"
             >
               Sign in
             </Link>
             <Link
               to="/register"
-              className="rounded-full bg-blue-600 px-5 py-3 text-sm font-semibold tracking-wide text-white shadow-[0_18px_34px_rgba(37,99,235,0.28)] transition hover:-translate-y-0.5 hover:bg-blue-700 sm:px-6"
+              className="rounded-full bg-blue-600 px-4 py-2 text-xs sm:text-sm font-semibold tracking-wide text-white shadow-[0_14px_28px_rgba(37,99,235,0.28)] transition hover:-translate-y-0.5 hover:bg-blue-700 sm:px-5"
             >
               Get Started
             </Link>
@@ -449,19 +591,34 @@ export function LandingPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.55, ease: 'easeOut', delay: 0.22 }}
               >
+                <button
+                  type="button"
+                  onClick={handleDemoLogin}
+                  disabled={demoLoading}
+                  className="inline-flex min-h-12 w-full items-center justify-center gap-2.5 rounded-full bg-blue-600 px-8 py-4 text-base font-semibold tracking-wide text-white shadow-[0_24px_45px_rgba(37,99,235,0.34)] transition hover:-translate-y-1 hover:bg-blue-700 active:translate-y-0 md:min-w-[240px] md:w-auto"
+                >
+                  <svg className="h-5 w-5 text-amber-300" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clipRule="evenodd" />
+                  </svg>
+                  {demoLoading ? 'Starting Instant Demo...' : 'Instant Demo User (1-Click)'}
+                </button>
                 <Link
                   to="/register"
-                  className="inline-flex min-h-12 w-full items-center justify-center rounded-full bg-blue-600 px-8 py-4 text-base font-semibold tracking-wide text-white shadow-[0_24px_45px_rgba(37,99,235,0.34)] transition hover:-translate-y-1 hover:bg-blue-700 md:min-w-[230px] md:w-auto"
-                >
-                  Start Creating Now
-                </Link>
-                <Link
-                  to="/login"
                   className="inline-flex min-h-12 w-full items-center justify-center rounded-full border border-slate-200/80 bg-white/68 px-8 py-4 text-base font-semibold tracking-wide text-slate-700 shadow-[0_16px_32px_rgba(15,23,42,0.09)] backdrop-blur-xl transition hover:-translate-y-1 hover:bg-white/84 md:min-w-[210px] md:w-auto"
                 >
-                  Live Demo
+                  Create Account
                 </Link>
               </motion.div>
+
+              {demoError && (
+                <div className="mx-auto mt-4 max-w-md rounded-xl border border-red-200 bg-red-50 p-2 text-sm font-medium text-red-600">
+                  {demoError}
+                </div>
+              )}
+
+              <p className="mt-3.5 text-xs font-medium text-slate-500 sm:text-sm">
+                ⚡ No sign-up required — test real-time collaboration instantly with a ready-to-use demo session.
+              </p>
 
               <motion.div
                 className="mt-11 grid grid-cols-1 gap-4 sm:mt-12 sm:grid-cols-3"
@@ -483,11 +640,12 @@ export function LandingPage() {
           </div>
         </section>
 
-        <section className="relative z-10 pb-20">
+        {/* SECTION 1: OVERVIEW PILLARS */}
+        <section className="relative z-10 pb-16">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-1 gap-10 md:grid-cols-3">
+            <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
               <div className="paper-card rounded-[2rem] p-8">
-                <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-lg bg-blue-100">
+                <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-100">
                   <svg className="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
                   </svg>
@@ -499,7 +657,7 @@ export function LandingPage() {
               </div>
 
               <div className="paper-card rounded-[2rem] p-8">
-                <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-lg bg-cyan-100">
+                <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-xl bg-cyan-100">
                   <svg className="h-6 w-6 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                   </svg>
@@ -511,7 +669,7 @@ export function LandingPage() {
               </div>
 
               <div className="paper-card rounded-[2rem] p-8">
-                <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-lg bg-amber-100">
+                <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-xl bg-amber-100">
                   <svg className="h-6 w-6 text-amber-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
@@ -520,6 +678,219 @@ export function LandingPage() {
                 <p className="section-copy text-base">
                   Your ideas stay safe. Every stroke and note is carried forward with durable persistence.
                 </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* SECTION 2: HOW SYNCBOARD WORKS (3-STEP WORKFLOW) */}
+        <section className="relative z-10 py-16">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="mx-auto max-w-3xl text-center">
+              <p className="brand-kicker">Workflow Architecture</p>
+              <h2 className="section-title mt-2 text-3xl font-extrabold tracking-tight text-slate-950 sm:text-4xl md:text-5xl">
+                How SyncBoard Works
+              </h2>
+              <p className="section-copy mt-4 text-base sm:text-lg">
+                From an empty canvas to an interconnected knowledge board in three simple steps.
+              </p>
+            </div>
+
+            <div className="mt-14 grid grid-cols-1 gap-8 lg:grid-cols-3">
+              {WORKFLOW_STEPS.map((step) => (
+                <div
+                  key={step.step}
+                  className="paper-card relative flex flex-col justify-between rounded-[2rem] p-8 transition hover:-translate-y-1.5"
+                >
+                  <div>
+                    <div className="flex items-center justify-between">
+                      <span className="font-mono text-3xl font-black text-blue-600/80">{step.step}</span>
+                      <span className={`rounded-full border px-3 py-1 text-xs font-bold uppercase tracking-wider ${step.accent}`}>
+                        {step.kicker}
+                      </span>
+                    </div>
+
+                    <h3 className="mt-6 text-xl font-bold tracking-tight text-slate-900">
+                      {step.title}
+                    </h3>
+                    <p className="section-copy mt-3 text-sm leading-relaxed sm:text-base">
+                      {step.desc}
+                    </p>
+                  </div>
+
+                  <div className="mt-6 border-t border-slate-100 pt-4">
+                    <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+                      {step.tag}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* SECTION 3: CANVAS FEATURES GRID */}
+        <section className="relative z-10 py-16">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="mx-auto max-w-3xl text-center">
+              <p className="brand-kicker">Engineered for Spatial Thinking</p>
+              <h2 className="section-title mt-2 text-3xl font-extrabold tracking-tight text-slate-950 sm:text-4xl md:text-5xl">
+                Everything you need to map thoughts
+              </h2>
+              <p className="section-copy mt-4 text-base sm:text-lg">
+                Crafted specifically for rapid visual brainstorming, system architecture diagrams, and real-time team sprints.
+              </p>
+            </div>
+
+            <div className="mt-14 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {CANVAS_FEATURES.map((feat) => (
+                <div
+                  key={feat.title}
+                  className="paper-card group relative flex flex-col justify-between rounded-[1.8rem] p-7 transition hover:-translate-y-1 hover:shadow-[0_20px_45px_rgba(15,23,42,0.12)]"
+                >
+                  <div>
+                    <div className="flex items-center justify-between">
+                      <span className={`rounded-full border px-3 py-0.5 text-xs font-bold ${feat.color}`}>
+                        {feat.badge}
+                      </span>
+                    </div>
+
+                    <h3 className="mt-5 text-lg font-bold tracking-tight text-slate-900 group-hover:text-blue-600 transition-colors">
+                      {feat.title}
+                    </h3>
+                    <p className="section-copy mt-2.5 text-sm leading-relaxed">
+                      {feat.desc}
+                    </p>
+                  </div>
+
+                  <div className="mt-5 flex items-center gap-1.5 text-xs font-bold text-blue-600">
+                    <span>Feature included</span>
+                    <svg className="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* SECTION 4: TECH STACK & ARCHITECTURE */}
+        <section className="relative z-10 py-16">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="rounded-[2.4rem] border border-white/70 bg-white/50 p-8 shadow-[0_24px_60px_rgba(15,23,42,0.08)] backdrop-blur-2xl sm:p-12 lg:p-16">
+              <div className="mx-auto max-w-3xl text-center">
+                <p className="brand-kicker">High-Performance Foundation</p>
+                <h2 className="section-title mt-2 text-3xl font-extrabold text-slate-950 sm:text-4xl">
+                  Built on modern real-time engineering
+                </h2>
+                <p className="section-copy mt-4 text-base">
+                  Zero centralized lock contention, sub-millisecond CRDT sync, and hardware-accelerated rendering.
+                </p>
+              </div>
+
+              <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                {TECH_STACK.map((tech) => (
+                  <div
+                    key={tech.name}
+                    className="flex flex-col justify-between rounded-2xl border border-slate-200/70 bg-white/70 p-6 shadow-sm backdrop-blur-sm"
+                  >
+                    <div>
+                      <p className="text-xs font-bold uppercase tracking-wider text-blue-600">{tech.category}</p>
+                      <h3 className="mt-2 text-lg font-bold text-slate-900">{tech.name}</h3>
+                      <p className="mt-2 text-xs leading-relaxed text-slate-600">{tech.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* SECTION 5: FREQUENTLY ASKED QUESTIONS */}
+        <section className="relative z-10 py-16">
+          <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+            <div className="text-center">
+              <p className="brand-kicker">Got questions?</p>
+              <h2 className="section-title mt-2 text-3xl font-extrabold text-slate-950 sm:text-4xl">
+                Frequently Asked Questions
+              </h2>
+              <p className="section-copy mt-4 text-base">
+                Everything you need to know about using SyncBoard as a guest, team, or developer.
+              </p>
+            </div>
+
+            <div className="mt-12 space-y-4">
+              {FAQS.map((faq, index) => {
+                const isOpen = openFaq === index
+                return (
+                  <div
+                    key={faq.q}
+                    className="overflow-hidden rounded-2xl border border-white/80 bg-white/60 shadow-sm backdrop-blur-xl transition"
+                  >
+                    <button
+                      type="button"
+                      onClick={() => setOpenFaq(isOpen ? null : index)}
+                      className="flex w-full items-center justify-between px-6 py-5 text-left text-base font-bold text-slate-900 transition hover:text-blue-600 sm:text-lg"
+                    >
+                      <span>{faq.q}</span>
+                      <span className={`ml-4 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-600 transition-transform ${isOpen ? 'rotate-180 bg-blue-100 text-blue-600' : ''}`}>
+                        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </span>
+                    </button>
+                    {isOpen && (
+                      <div className="border-t border-slate-100/80 px-6 pb-6 pt-3 text-sm leading-relaxed text-slate-600 sm:text-base">
+                        {faq.a}
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        </section>
+
+        {/* SECTION 6: HIGH-CONVERTING BOTTOM CTA BANNER */}
+        <section className="relative z-10 pb-20 pt-8">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="relative overflow-hidden rounded-[2.5rem] border border-blue-200/80 bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 px-6 py-14 shadow-[0_28px_70px_rgba(37,99,235,0.32)] sm:px-12 sm:py-18 lg:px-20 text-white">
+              {/* Background ambient accents */}
+              <div className="pointer-events-none absolute -left-20 -top-20 h-72 w-72 rounded-full bg-white/10 blur-3xl" />
+              <div className="pointer-events-none absolute -bottom-20 -right-20 h-72 w-72 rounded-full bg-cyan-400/20 blur-3xl" />
+
+              <div className="relative z-10 mx-auto max-w-3xl text-center">
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-4 py-1 text-xs font-bold uppercase tracking-widest text-blue-100 backdrop-blur-md">
+                  ⚡ Ready to collaborate?
+                </span>
+                <h2 className="mt-4 text-3xl font-black tracking-tight sm:text-4xl md:text-5xl">
+                  Start mapping your next idea right now
+                </h2>
+                <p className="mt-4 text-base font-medium text-blue-100 sm:text-lg">
+                  No sign-up or password required to test. Click below to jump straight in as a Demo User, or create a free account to save your boards forever.
+                </p>
+
+                <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
+                  <button
+                    type="button"
+                    onClick={handleDemoLogin}
+                    disabled={demoLoading}
+                    className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-white px-8 py-4 text-base font-bold text-blue-600 shadow-lg transition hover:-translate-y-1 hover:bg-slate-50 active:translate-y-0 sm:w-auto"
+                  >
+                    <svg className="h-5 w-5 text-amber-500" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clipRule="evenodd" />
+                    </svg>
+                    {demoLoading ? 'Starting Instant Demo...' : 'Instant Demo User (1-Click)'}
+                  </button>
+
+                  <Link
+                    to="/register"
+                    className="inline-flex min-h-12 w-full items-center justify-center rounded-full border border-white/40 bg-white/10 px-8 py-4 text-base font-bold text-white backdrop-blur-md transition hover:-translate-y-1 hover:bg-white/20 active:translate-y-0 sm:w-auto"
+                  >
+                    Create Free Account
+                  </Link>
+                </div>
               </div>
             </div>
           </div>

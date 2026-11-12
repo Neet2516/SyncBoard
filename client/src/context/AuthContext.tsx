@@ -11,6 +11,7 @@ interface User {
 interface AuthContextType {
   user: User | null
   login: (user: User) => void
+  loginAsDemo: () => Promise<User>
   logout: () => void
   isAuthenticated: boolean
   isLoading: boolean
@@ -56,6 +57,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(newUser)
   }
 
+  const loginAsDemo = async () => {
+    const session = await api.post<SessionUserResponse>('/auth/demo')
+    const demoUser: User = {
+      id: session.user.userId,
+      name: session.user.name,
+      email: session.user.email,
+    }
+
+    localStorage.setItem('user', JSON.stringify(demoUser))
+    localStorage.setItem('name', demoUser.name)
+    localStorage.setItem('userId', demoUser.id)
+    setUser(demoUser)
+    return demoUser
+  }
+
   const logout = () => {
     localStorage.removeItem('user')
     localStorage.removeItem('name')
@@ -64,7 +80,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, isAuthenticated: !!user, isLoading }}>
+    <AuthContext.Provider value={{ user, login, loginAsDemo, logout, isAuthenticated: !!user, isLoading }}>
       {children}
     </AuthContext.Provider>
   )
