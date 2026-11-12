@@ -155,6 +155,157 @@ function getCanvasBounds(nodes: Node[]) {
   }
 }
 
+type ExportEdgeInfo = {
+  d: string
+  stroke: string
+  strokeWidth: number
+  dashArray: number[]
+  lineCap: CanvasLineCap
+  opacity: number
+}
+
+function parseDashArray(rawDashArray: string): number[] {
+  if (!rawDashArray || rawDashArray === 'none') return []
+  return rawDashArray
+    .split(/[\s,]+/)
+    .map((part) => Number.parseFloat(part))
+    .filter((value) => Number.isFinite(value) && value > 0)
+}
+
+function collectLiveEdges(theme: 'light' | 'dark'): {
+  edges: ExportEdgeInfo[]
+  edgeBounds: { minX: number; minY: number; maxX: number; maxY: number } | null
+} {
+  const pathElements = Array.from(
+    document.querySelectorAll<SVGPathElement>('.react-flow__edges path.react-flow__edge-path')
+  )
+  const fallbackStroke = theme === 'dark' ? 'rgba(255,255,255,0.42)' : 'rgba(71,85,105,0.42)'
+
+  let minX = Number.POSITIVE_INFINITY
+  let minY = Number.POSITIVE_INFINITY
+  let maxX = Number.NEGATIVE_INFINITY
+  let maxY = Number.NEGATIVE_INFINITY
+  const collected: ExportEdgeInfo[] = []
+
+  for (const pathEl of pathElements) {
+    const d = pathEl.getAttribute('d')
+    if (!d) continue
+
+    const style = getComputedStyle(pathEl)
+    const stroke = style.stroke && style.stroke !== 'none' ? style.stroke : fallbackStroke
+    const strokeWidth = Number.parseFloat(style.strokeWidth) || 2.5
+    const opacity = Number.parseFloat(style.opacity)
+    const lineCap = (style.strokeLinecap as CanvasLineCap) || 'round'
+
+    collected.push({
+      d,
+      stroke,
+      strokeWidth,
+      dashArray: parseDashArray(style.strokeDasharray),
+      lineCap,
+      opacity: Number.isFinite(opacity) ? opacity : 1,
+    })
+
+    try {
+      const bbox = pathEl.getBBox()
+      if (bbox.width > 0 || bbox.height > 0) {
+        minX = Math.min(minX, bbox.x)
+        minY = Math.min(minY, bbox.y)
+        maxX = Math.max(maxX, bbox.x + bbox.width)
+        maxY = Math.max(maxY, bbox.y + bbox.height)
+      }
+    } catch {
+      // Ignore getBBox errors if element is not rendered
+    }
+  }
+
+  return {
+    edges: collected,
+    edgeBounds:
+      Number.isFinite(minX) && Number.isFinite(minY)
+        ? { minX, minY, maxX, maxY }
+        : null,
+  }
+}
+
+function prepareExportClone(
+  clonedDoc: Document,
+  surfaceWidth: number,
+  surfaceHeight: number,
+  translateX: number,
+  translateY: number,
+  scale: number,
+  liveEdges: ExportEdgeInfo[]
+) {
+  // Replace ReactFlow's SVG edges with a high-DPI Canvas2D layer in the clone
+  // because html2canvas clips 0x0 overflow:visible ReactFlow SVGs.
+  const clonedEdges = clonedDoc.querySelector<HTMLElement>('.react-flow__edges')
+  if (clonedEdges) {
+    clonedEdges.style.display = 'none'
+  }
+
+  const clonedPane = clonedDoc.querySelector<HTMLElement>('.react-flow__pane')
+  const clonedViewport = clonedDoc.querySelector<HTMLElement>('.react-flow__viewport')
+  if (clonedPane && liveEdges.length > 0 && surfaceWidth > 0 && surfaceHeight > 0) {
+    const edgeCanvas = clonedDoc.createElement('canvas')
+    const dpr = 2
+    edgeCanvas.width = Math.round(surfaceWidth * dpr)
+    edgeCanvas.height = Math.round(surfaceHeight * dpr)
+    edgeCanvas.style.position = 'absolute'
+    edgeCanvas.style.left = '0'
+    edgeCanvas.style.top = '0'
+    edgeCanvas.style.width = `${surfaceWidth}px`
+    edgeCanvas.style.height = `${surfaceHeight}px`
+    edgeCanvas.style.pointerEvents = 'none'
+    edgeCanvas.style.zIndex = '1'
+
+    const ctx = edgeCanvas.getContext('2d')
+    if (ctx) {
+      ctx.scale(dpr, dpr)
+      ctx.translate(translateX, translateY)
+      ctx.scale(scale, scale)
+
+      for (const edge of liveEdges) {
+        ctx.save()
+        ctx.strokeStyle = edge.stroke
+        ctx.lineWidth = edge.strokeWidth
+        ctx.lineCap = edge.lineCap
+        ctx.lineJoin = 'round'
+        ctx.globalAlpha = edge.opacity
+        ctx.setLineDash(edge.dashArray)
+        ctx.stroke(new Path2D(edge.d))
+        ctx.restore()
+      }
+    }
+
+    if (clonedViewport && clonedViewport.parentElement === clonedPane) {
+      clonedPane.insertBefore(edgeCanvas, clonedViewport)
+    } else {
+      clonedPane.appendChild(edgeCanvas)
+    }
+  }
+
+  // Strip CSS effects that html2canvas misrenders as an opaque inner box over note text
+  // (inset box-shadows, unblurred filter:blur layers, and backdrop-filter).
+  clonedDoc.querySelectorAll<HTMLElement>('.note-node').forEach((nodeEl) => {
+    nodeEl.style.boxShadow = 'none'
+  })
+
+  clonedDoc.querySelectorAll<HTMLElement>('.note-card').forEach((cardEl) => {
+    cardEl.style.boxShadow = 'none'
+    cardEl.style.backdropFilter = 'none'
+  })
+
+  clonedDoc.querySelectorAll<HTMLElement>('.note-card-gloss').forEach((glossEl) => {
+    glossEl.style.display = 'none'
+  })
+
+  clonedDoc.querySelectorAll<HTMLElement>('.ql-container, .ql-editor').forEach((editorEl) => {
+    editorEl.style.background = 'transparent'
+    editorEl.style.backgroundColor = 'transparent'
+  })
+}
+
 function cropCanvas(source: HTMLCanvasElement, x: number, y: number, width: number, height: number) {
   const safeWidth = Math.max(1, Math.round(width))
   const safeHeight = Math.max(1, Math.round(height))
@@ -194,8 +345,8 @@ function BoardCanvasInner({ yNodes, yEdges, yTexts, awareness, boardId }: BoardC
 
     try {
       showToast('Preparing PDF...', 'info')
-      const exportBounds = getCanvasBounds(nodes)
-      if (!exportBounds) {
+      const nodeBounds = getCanvasBounds(nodes)
+      if (!nodeBounds) {
         throw new Error('There are no notes to export yet')
       }
 
@@ -205,6 +356,26 @@ function BoardCanvasInner({ yNodes, yEdges, yTexts, awareness, boardId }: BoardC
       const boardSurface = document.querySelector('.board-surface') as HTMLElement | null
       const viewport = document.querySelector('.react-flow__viewport') as HTMLElement | null
       if (!boardSurface || !viewport) throw new Error('Canvas viewport not found')
+
+      const transform = getComputedStyle(viewport).transform
+      const matrix = transform && transform !== 'none' ? new DOMMatrixReadOnly(transform) : null
+      const scale = matrix?.a ?? 1
+      const translateX = matrix?.e ?? 0
+      const translateY = matrix?.f ?? 0
+
+      const { edges: liveEdges, edgeBounds } = collectLiveEdges(theme)
+      const exportBounds = edgeBounds
+        ? {
+            x: Math.min(nodeBounds.x, edgeBounds.minX),
+            y: Math.min(nodeBounds.y, edgeBounds.minY),
+            width:
+              Math.max(nodeBounds.x + nodeBounds.width, edgeBounds.maxX) -
+              Math.min(nodeBounds.x, edgeBounds.minX),
+            height:
+              Math.max(nodeBounds.y + nodeBounds.height, edgeBounds.maxY) -
+              Math.min(nodeBounds.y, edgeBounds.minY),
+          }
+        : nodeBounds
 
       const fullCanvas = await html2canvas(boardSurface, {
         backgroundColor: null,
@@ -216,13 +387,18 @@ function BoardCanvasInner({ yNodes, yEdges, yTexts, awareness, boardId }: BoardC
           el.classList.contains('react-flow__attribution') ||
           el.classList.contains('react-flow__resize-control') ||
           el.classList.contains('react-flow__handle'),
+        onclone: (clonedDoc) =>
+          prepareExportClone(
+            clonedDoc,
+            boardSurface.clientWidth,
+            boardSurface.clientHeight,
+            translateX,
+            translateY,
+            scale,
+            liveEdges
+          ),
       })
 
-      const transform = getComputedStyle(viewport).transform
-      const matrix = transform && transform !== 'none' ? new DOMMatrixReadOnly(transform) : null
-      const scale = matrix?.a ?? 1
-      const translateX = matrix?.e ?? 0
-      const translateY = matrix?.f ?? 0
       const captureScale = fullCanvas.width / boardSurface.clientWidth
       const padding = 96
 
@@ -255,7 +431,7 @@ function BoardCanvasInner({ yNodes, yEdges, yTexts, awareness, boardId }: BoardC
     } finally {
       setIsExporting(false)
     }
-  }, [fitView, boardId, showToast, isExporting, nodes])
+  }, [fitView, boardId, showToast, isExporting, nodes, theme])
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', theme === 'dark')

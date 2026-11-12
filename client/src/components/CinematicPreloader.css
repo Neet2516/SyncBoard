@@ -1,0 +1,99 @@
+.preloader-root {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  overflow: hidden;
+  background-color: #060913;
+  color: #f8fafc;
+  user-select: none;
+  -webkit-font-smoothing: antialiased;
+}
+
+.preloader-atmosphere {
+  position: absolute;
+  inset: -20%;
+  background:
+    radial-gradient(circle at 22% 24%, rgba(37, 99, 235, 0.24), transparent 42%),
+    radial-gradient(circle at 78% 72%, rgba(6, 182, 212, 0.18), transparent 40%),
+    radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.12), transparent 55%);
+  pointer-events: none;
+}
+
+.preloader-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(148, 163, 184, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(148, 163, 184, 0.06) 1px, transparent 1px);
+  background-size: 64px 64px;
+  mask-image: radial-gradient(circle at center, rgba(0, 0, 0, 0.9) 25%, transparent 78%);
+  pointer-events: none;
+}
+
+.preloader-grain {
+  position: absolute;
+  inset: -50%;
+  width: 200%;
+  height: 200%;
+  opacity: 0.055;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 240 240' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation: preloader-grain-shift 6s steps(8) infinite;
+}
+
+@keyframes preloader-grain-shift {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  25% { transform: translate3d(-3%, 2%, 0); }
+  50% { transform: translate3d(2%, -3%, 0); }
+  75% { transform: translate3d(-2%, -2%, 0); }
+}
+
+.preloader-wordmark {
+  font-family: var(--font-body, 'Trebuchet MS', 'Segoe UI', sans-serif);
+  font-size: clamp(2.85rem, 11vw, 9.5rem);
+  font-weight: 800;
+  line-height: 0.92;
+  letter-spacing: -0.05em;
+}
+
+.preloader-char-mask {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+  padding-bottom: 0.08em;
+}
+
+.preloader-char {
+  display: inline-block;
+  will-change: transform, opacity;
+}
+
+.preloader-counter {
+  font-family: var(--font-body, 'Trebuchet MS', 'Segoe UI', sans-serif);
+  font-size: clamp(3rem, 8.5vw, 7rem);
+  font-weight: 800;
+  line-height: 0.88;
+  letter-spacing: -0.06em;
+  font-variant-numeric: tabular-nums;
+}
+
+.preloader-portal-veil {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at 50% 50%,
+    #ffffff 0%,
+    #f8fafc 55%,
+    #dbeafe 100%
+  );
+  clip-path: circle(0% at 50% 50%);
+  will-change: clip-path, opacity;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .preloader-grain {
+    animation: none;
+  }
+}
+

@@ -113,7 +113,7 @@ export function NoteNode({ id, data, selected }: NoteNodeProps) {
 
   return (
     <div
-      className={`note-node group relative h-full w-full transition-all duration-300 ${
+      className={`note-node group relative h-full w-full rounded-[28px] transition-all duration-300 ${
         selected
           ? 'shadow-[0_34px_80px_rgba(15,23,42,0.34)]'
           : 'shadow-[0_24px_56px_rgba(15,23,42,0.2)] hover:shadow-[0_28px_68px_rgba(15,23,42,0.26)]'
@@ -142,7 +142,7 @@ export function NoteNode({ id, data, selected }: NoteNodeProps) {
       </div>
 
       <div
-        className={`relative flex h-full w-full flex-col overflow-hidden rounded-[28px] border ${
+        className={`note-card relative flex h-full w-full flex-col overflow-hidden rounded-[28px] border ${
           selected ? 'ring-2 ring-blue-400/70 ring-offset-4 ring-offset-transparent' : ''
         }`}
         style={{
@@ -152,7 +152,7 @@ export function NoteNode({ id, data, selected }: NoteNodeProps) {
           boxShadow: `inset 0 1px 0 rgba(255,255,255,0.58), inset 0 -20px 44px ${currentColor.glow}`,
         }}
       >
-        <div className="pointer-events-none absolute inset-0 opacity-70">
+        <div className="note-card-gloss pointer-events-none absolute inset-0 opacity-70">
           <div className="absolute left-0 top-0 h-24 w-full bg-white/22 blur-2xl" />
           <div className="absolute inset-x-5 bottom-3 h-8 rounded-full bg-slate-900/8 blur-xl" />
         </div>
