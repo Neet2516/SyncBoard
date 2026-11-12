@@ -1,9 +1,10 @@
 import { useEffect, useId, useMemo, useState, type CSSProperties, type MouseEvent } from 'react'
-import { Link, Navigate, useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence, useMotionValue, useSpring } from 'framer-motion'
 import Lenis from 'lenis'
 
 import { useAuth } from '../context/AuthContext'
+import { useToast } from '../context/ToastContext'
 import Loader from '../components/Loader'
 
 type HeroNoteColor = 'yellow' | 'pink' | 'cyan' | 'blue' | 'green'
@@ -247,7 +248,8 @@ const FAQS = [
  */
 export function LandingPage() {
   const navigate = useNavigate()
-  const { loginAsDemo, isAuthenticated, isLoading } = useAuth()
+  const { user, loginAsDemo, isAuthenticated, isLoading } = useAuth()
+  const { showToast } = useToast()
   const [effects, setEffects] = useState<EphemeralEffect[]>([])
   const [cursorVisible, setCursorVisible] = useState(false)
   const [parallax, setParallax] = useState({ x: 0, y: 0 })
@@ -319,10 +321,6 @@ export function LandingPage() {
 
   if (isLoading) {
     return <Loader />
-  }
-
-  if (isAuthenticated) {
-    return <Navigate to="/boards" replace />
   }
 
   const handleDemoLogin = async () => {
@@ -439,36 +437,61 @@ export function LandingPage() {
 
       <nav className="relative z-20 border-b border-white/50 bg-white/42 backdrop-blur-xl">
         <div className="mx-auto flex h-[4.5rem] max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
-          <div className="flex min-w-0 items-center space-x-3">
-            <img src="/favicon.svg" alt="SyncBoard Logo" className="h-8 w-8 sm:h-9 sm:w-9" />
-            <span className="brand-mark text-xl text-blue-600 sm:text-3xl">SyncBoard</span>
-          </div>
-          <div className="flex shrink-0 items-center gap-2 sm:gap-3">
-            <button
-              type="button"
-              onClick={handleDemoLogin}
-              disabled={demoLoading}
-              className="inline-flex items-center gap-1.5 rounded-full border border-blue-200/90 bg-blue-50/80 px-3.5 py-2 text-xs sm:text-sm font-semibold tracking-wide text-blue-700 backdrop-blur-md transition hover:bg-blue-100 hover:-translate-y-0.5 active:translate-y-0"
-            >
-              <span className="relative flex h-2 w-2">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-blue-400 opacity-75"></span>
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-blue-600"></span>
-              </span>
-              {demoLoading ? 'Starting...' : 'Try Demo User'}
-            </button>
-            <Link
-              to="/login"
-              className="rounded-full px-3 py-2 text-xs sm:text-sm font-semibold tracking-wide text-slate-600 transition-colors hover:text-blue-600 sm:px-4"
-            >
-              Sign in
-            </Link>
-            <Link
-              to="/register"
-              className="rounded-full bg-blue-600 px-4 py-2 text-xs sm:text-sm font-semibold tracking-wide text-white shadow-[0_14px_28px_rgba(37,99,235,0.28)] transition hover:-translate-y-0.5 hover:bg-blue-700 sm:px-5"
-            >
-              Get Started
-            </Link>
-          </div>
+          <button
+            type="button"
+            onClick={() => {
+              showToast('Welcome to SyncBoard! You are on the landing page 🚀', 'info')
+              window.scrollTo({ top: 0, behavior: 'smooth' })
+            }}
+            className="group flex min-w-0 items-center space-x-3 text-left transition hover:opacity-90 focus:outline-none"
+            title="SyncBoard Home"
+          >
+            <img src="/favicon.svg" alt="SyncBoard Logo" className="h-8 w-8 transition-transform duration-200 group-hover:scale-110 sm:h-9 sm:w-9" />
+            <span className="brand-mark text-xl text-blue-600 transition-colors group-hover:text-blue-700 sm:text-3xl">SyncBoard</span>
+          </button>
+
+          {isAuthenticated ? (
+            <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+              {user && (
+                <span className="hidden sm:inline-block rounded-full border border-slate-200/80 bg-white/70 px-3.5 py-2 text-xs font-semibold text-slate-700 shadow-sm backdrop-blur-md">
+                  {user.name}
+                </span>
+              )}
+              <Link
+                to="/boards"
+                className="rounded-full bg-blue-600 px-4 py-2 text-xs sm:text-sm font-semibold tracking-wide text-white shadow-[0_14px_28px_rgba(37,99,235,0.28)] transition hover:-translate-y-0.5 hover:bg-blue-700 sm:px-5"
+              >
+                Go to Boards &rarr;
+              </Link>
+            </div>
+          ) : (
+            <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+              <button
+                type="button"
+                onClick={handleDemoLogin}
+                disabled={demoLoading}
+                className="inline-flex items-center gap-1.5 rounded-full border border-blue-200/90 bg-blue-50/80 px-3.5 py-2 text-xs sm:text-sm font-semibold tracking-wide text-blue-700 backdrop-blur-md transition hover:bg-blue-100 hover:-translate-y-0.5 active:translate-y-0"
+              >
+                <span className="relative flex h-2 w-2">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-blue-400 opacity-75"></span>
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-blue-600"></span>
+                </span>
+                {demoLoading ? 'Starting...' : 'Try Demo User'}
+              </button>
+              <Link
+                to="/login"
+                className="rounded-full px-3 py-2 text-xs sm:text-sm font-semibold tracking-wide text-slate-600 transition-colors hover:text-blue-600 sm:px-4"
+              >
+                Sign in
+              </Link>
+              <Link
+                to="/register"
+                className="rounded-full bg-blue-600 px-4 py-2 text-xs sm:text-sm font-semibold tracking-wide text-white shadow-[0_14px_28px_rgba(37,99,235,0.28)] transition hover:-translate-y-0.5 hover:bg-blue-700 sm:px-5"
+              >
+                Get Started
+              </Link>
+            </div>
+          )}
         </div>
       </nav>
 
@@ -591,23 +614,46 @@ export function LandingPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.55, ease: 'easeOut', delay: 0.22 }}
               >
-                <button
-                  type="button"
-                  onClick={handleDemoLogin}
-                  disabled={demoLoading}
-                  className="inline-flex min-h-12 w-full items-center justify-center gap-2.5 rounded-full bg-blue-600 px-8 py-4 text-base font-semibold tracking-wide text-white shadow-[0_24px_45px_rgba(37,99,235,0.34)] transition hover:-translate-y-1 hover:bg-blue-700 active:translate-y-0 md:min-w-[240px] md:w-auto"
-                >
-                  <svg className="h-5 w-5 text-amber-300" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clipRule="evenodd" />
-                  </svg>
-                  {demoLoading ? 'Starting Instant Demo...' : 'Instant Demo User (1-Click)'}
-                </button>
-                <Link
-                  to="/register"
-                  className="inline-flex min-h-12 w-full items-center justify-center rounded-full border border-slate-200/80 bg-white/68 px-8 py-4 text-base font-semibold tracking-wide text-slate-700 shadow-[0_16px_32px_rgba(15,23,42,0.09)] backdrop-blur-xl transition hover:-translate-y-1 hover:bg-white/84 md:min-w-[210px] md:w-auto"
-                >
-                  Create Account
-                </Link>
+                {isAuthenticated ? (
+                  <>
+                    <Link
+                      to="/boards"
+                      className="inline-flex min-h-12 w-full items-center justify-center gap-2.5 rounded-full bg-blue-600 px-8 py-4 text-base font-semibold tracking-wide text-white shadow-[0_24px_45px_rgba(37,99,235,0.34)] transition hover:-translate-y-1 hover:bg-blue-700 active:translate-y-0 md:min-w-[240px] md:w-auto"
+                    >
+                      Go to Your Boards &rarr;
+                    </Link>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        showToast('Exploring SyncBoard canvas features ✨', 'info')
+                        window.scrollBy({ top: 650, behavior: 'smooth' })
+                      }}
+                      className="inline-flex min-h-12 w-full items-center justify-center rounded-full border border-slate-200/80 bg-white/68 px-8 py-4 text-base font-semibold tracking-wide text-slate-700 shadow-[0_16px_32px_rgba(15,23,42,0.09)] backdrop-blur-xl transition hover:-translate-y-1 hover:bg-white/84 md:min-w-[210px] md:w-auto"
+                    >
+                      Explore Features &darr;
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button
+                      type="button"
+                      onClick={handleDemoLogin}
+                      disabled={demoLoading}
+                      className="inline-flex min-h-12 w-full items-center justify-center gap-2.5 rounded-full bg-blue-600 px-8 py-4 text-base font-semibold tracking-wide text-white shadow-[0_24px_45px_rgba(37,99,235,0.34)] transition hover:-translate-y-1 hover:bg-blue-700 active:translate-y-0 md:min-w-[240px] md:w-auto"
+                    >
+                      <svg className="h-5 w-5 text-amber-300" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clipRule="evenodd" />
+                      </svg>
+                      {demoLoading ? 'Starting Instant Demo...' : 'Instant Demo User (1-Click)'}
+                    </button>
+                    <Link
+                      to="/register"
+                      className="inline-flex min-h-12 w-full items-center justify-center rounded-full border border-slate-200/80 bg-white/68 px-8 py-4 text-base font-semibold tracking-wide text-slate-700 shadow-[0_16px_32px_rgba(15,23,42,0.09)] backdrop-blur-xl transition hover:-translate-y-1 hover:bg-white/84 md:min-w-[210px] md:w-auto"
+                    >
+                      Create Account
+                    </Link>
+                  </>
+                )}
               </motion.div>
 
               {demoError && (
@@ -616,9 +662,6 @@ export function LandingPage() {
                 </div>
               )}
 
-              <p className="mt-3.5 text-xs font-medium text-slate-500 sm:text-sm">
-                ⚡ No sign-up required — test real-time collaboration instantly with a ready-to-use demo session.
-              </p>
 
               <motion.div
                 className="mt-11 grid grid-cols-1 gap-4 sm:mt-12 sm:grid-cols-3"
@@ -872,24 +915,35 @@ export function LandingPage() {
                 </p>
 
                 <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
-                  <button
-                    type="button"
-                    onClick={handleDemoLogin}
-                    disabled={demoLoading}
-                    className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-white px-8 py-4 text-base font-bold text-blue-600 shadow-lg transition hover:-translate-y-1 hover:bg-slate-50 active:translate-y-0 sm:w-auto"
-                  >
-                    <svg className="h-5 w-5 text-amber-500" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clipRule="evenodd" />
-                    </svg>
-                    {demoLoading ? 'Starting Instant Demo...' : 'Instant Demo User (1-Click)'}
-                  </button>
+                  {isAuthenticated ? (
+                    <Link
+                      to="/boards"
+                      className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-white px-8 py-4 text-base font-bold text-blue-600 shadow-lg transition hover:-translate-y-1 hover:bg-slate-50 active:translate-y-0 sm:w-auto"
+                    >
+                      Go to Your Dashboard &rarr;
+                    </Link>
+                  ) : (
+                    <>
+                      <button
+                        type="button"
+                        onClick={handleDemoLogin}
+                        disabled={demoLoading}
+                        className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-white px-8 py-4 text-base font-bold text-blue-600 shadow-lg transition hover:-translate-y-1 hover:bg-slate-50 active:translate-y-0 sm:w-auto"
+                      >
+                        <svg className="h-5 w-5 text-amber-500" viewBox="0 0 20 20" fill="currentColor">
+                          <path fillRule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clipRule="evenodd" />
+                        </svg>
+                        {demoLoading ? 'Starting Instant Demo...' : 'Instant Demo User (1-Click)'}
+                      </button>
 
-                  <Link
-                    to="/register"
-                    className="inline-flex min-h-12 w-full items-center justify-center rounded-full border border-white/40 bg-white/10 px-8 py-4 text-base font-bold text-white backdrop-blur-md transition hover:-translate-y-1 hover:bg-white/20 active:translate-y-0 sm:w-auto"
-                  >
-                    Create Free Account
-                  </Link>
+                      <Link
+                        to="/register"
+                        className="inline-flex min-h-12 w-full items-center justify-center rounded-full border border-white/40 bg-white/10 px-8 py-4 text-base font-bold text-white backdrop-blur-md transition hover:-translate-y-1 hover:bg-white/20 active:translate-y-0 sm:w-auto"
+                      >
+                        Create Free Account
+                      </Link>
+                    </>
+                  )}
                 </div>
               </div>
             </div>

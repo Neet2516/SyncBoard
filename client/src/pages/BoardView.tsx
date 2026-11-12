@@ -135,6 +135,19 @@ export function BoardView() {
       <nav className="z-10 shrink-0 border-b border-slate-200/80 bg-white/80 px-4 py-2.5 shadow-sm backdrop-blur-xl md:px-6">
         <div className="flex flex-wrap items-center justify-between gap-2.5 lg:flex-nowrap">
           <div className="flex min-w-0 items-center gap-3">
+            <button
+              type="button"
+              onClick={() => {
+                showToast('Navigating to SyncBoard landing page 🚀', 'info')
+                navigate('/')
+              }}
+              className="group hidden items-center gap-2 rounded-full border border-slate-200/80 bg-white px-3 py-1.5 shadow-sm transition hover:border-slate-300 hover:bg-slate-50 md:inline-flex"
+              title="Go to Landing Page"
+            >
+              <img src="/favicon.svg" alt="SyncBoard Logo" className="h-5 w-5 transition-transform duration-200 group-hover:scale-110" />
+              <span className="brand-mark text-base text-blue-600 transition-colors group-hover:text-blue-700">SyncBoard</span>
+            </button>
+
             <Link
               to="/boards"
               className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-slate-200/80 bg-white text-slate-500 shadow-sm transition hover:border-slate-300 hover:bg-slate-50 hover:text-slate-800"

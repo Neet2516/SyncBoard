@@ -163,8 +163,19 @@ export function BoardList() {
       {/* Header */}
       <nav className="border-b border-white/60 bg-white/70 px-4 py-3 shadow-sm backdrop-blur-xl md:px-8">
         <div className="mx-auto flex max-w-6xl flex-col gap-3 md:flex-row md:items-center md:justify-between">
-        <h1 className="brand-mark text-2xl text-blue-600">SyncBoard</h1>
-        <div className="flex flex-wrap items-center gap-3 md:justify-end">
+          <button
+            type="button"
+            onClick={() => {
+              showToast('Navigating to SyncBoard landing page 🚀', 'info')
+              navigate('/')
+            }}
+            className="group flex items-center gap-3 text-left transition hover:opacity-90 focus:outline-none"
+            title="Go to Landing Page"
+          >
+            <img src="/favicon.svg" alt="SyncBoard Logo" className="h-8 w-8 transition-transform duration-200 group-hover:scale-110" />
+            <h1 className="brand-mark text-2xl text-blue-600 transition-colors group-hover:text-blue-700">SyncBoard</h1>
+          </button>
+          <div className="flex flex-wrap items-center gap-3 md:justify-end">
           {user && (
             <div className="rounded-full bg-white/80 px-4 py-3 text-sm font-semibold text-gray-600 shadow-sm">
               {user.name}
