@@ -125,7 +125,7 @@ const DEVELOPER_PROFILE = {
     'SyncBoard was designed and built by Navneet as a real-time collaboration workspace for teams that think visually and move fast.',
   email: 'getneet.25@gmail.com',
   github: 'https://github.com/Neet2516',
-  linkedin: 'https://www.linkedin.com/in/navneet-sinha-ba0853375/',
+  linkedin: 'https://www.linkedin.com/in/sinha-navneet/',
   discord: 'https://discord.com/users/kailler_53339',
 }
 
@@ -1246,7 +1246,7 @@ export function LandingPage() {
                   <ContactCard
                     href={DEVELOPER_PROFILE.linkedin}
                     label="LinkedIn"
-                    value="Professional profile"
+                    value="in/sinha-navneet"
                     icon={<LinkedInIcon />}
                   />
                   <ContactCard
