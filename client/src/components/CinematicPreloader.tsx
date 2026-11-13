@@ -305,8 +305,8 @@ export function CinematicPreloader({ isReady, onComplete }: CinematicPreloaderPr
       exitTl.to(
         counterRef.current?.parentElement || '.preloader-counter-wrap',
         {
-          scale: 0.85,
-          y: -24,
+          scale: 0.9,
+          y: 16,
           opacity: 0,
           duration: 0.4,
           ease: 'power3.in',
@@ -418,9 +418,9 @@ export function CinematicPreloader({ isReady, onComplete }: CinematicPreloaderPr
         ))}
       </div>
 
-      {/* Pure animation count on clean white background */}
+      {/* Pure animation count on clean white background placed on bottom right of page */}
       <div
-        className="preloader-counter-wrap relative z-20 flex select-none items-baseline gap-1.5"
+        className="preloader-counter-wrap"
       >
         <span ref={counterRef} className="preloader-counter">
           00

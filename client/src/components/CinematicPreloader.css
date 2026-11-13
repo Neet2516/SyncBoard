@@ -9,9 +9,35 @@
   -webkit-font-smoothing: antialiased;
 }
 
+.preloader-counter-wrap {
+  position: absolute;
+  bottom: 2rem;
+  right: 2rem;
+  z-index: 20;
+  display: flex;
+  align-items: baseline;
+  gap: 0.375rem;
+  user-select: none;
+  pointer-events: none;
+}
+
+@media (min-width: 640px) {
+  .preloader-counter-wrap {
+    bottom: 3rem;
+    right: 3.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .preloader-counter-wrap {
+    bottom: 3.5rem;
+    right: 4.5rem;
+  }
+}
+
 .preloader-counter {
   font-family: var(--font-body, 'Trebuchet MS', 'Segoe UI', sans-serif);
-  font-size: clamp(4.5rem, 14vw, 11rem);
+  font-size: clamp(4.5rem, 12vw, 9.5rem);
   font-weight: 900;
   line-height: 0.85;
   letter-spacing: -0.06em;
