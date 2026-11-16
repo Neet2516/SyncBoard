@@ -299,15 +299,6 @@ export function LandingPage() {
   const springY = useSpring(cursorY, { stiffness: 520, damping: 42, mass: 0.24 })
   const idBase = useId()
 
-  const stats = useMemo(
-    () => [
-      { label: 'Shared boards', value: 'Live' },
-      { label: 'Team presence', value: 'Visible' },
-      { label: 'Ideas saved', value: 'Persistent' },
-    ],
-    [],
-  )
-
   useEffect(() => {
     const lenis = new Lenis({
       duration: 1.05,
@@ -699,23 +690,6 @@ export function LandingPage() {
                 </div>
               )}
 
-
-              <motion.div
-                className="mt-11 grid grid-cols-1 gap-4 sm:mt-12 sm:grid-cols-3"
-                initial={{ opacity: 0, y: 18 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, ease: 'easeOut', delay: 0.3 }}
-              >
-                {stats.map((stat) => (
-                  <div
-                    key={stat.label}
-                    className="rounded-[1.6rem] border border-white/60 bg-white/48 px-5 py-4 shadow-[0_14px_32px_rgba(15,23,42,0.08)] backdrop-blur-xl"
-                  >
-                    <p className="text-xl font-black tracking-[-0.03em] text-slate-900">{stat.value}</p>
-                    <p className="stat-label mt-1 text-sm text-slate-500">{stat.label}</p>
-                  </div>
-                ))}
-              </motion.div>
             </div>
           </div>
         </section>
