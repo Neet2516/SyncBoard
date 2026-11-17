@@ -9,10 +9,11 @@ interface DeveloperProfile {
   github: string
   linkedin: string
   discord: string
+  portfolio: string
 }
 
 const DEVELOPER_PROFILE: DeveloperProfile = {
-  name: 'Navneet',
+  name: 'Navneet Sinha',
   role: 'Full-stack developer',
   blurb:
     'SyncBoard was designed and built by Navneet as a real-time collaboration workspace for teams that think visually and move fast.',
@@ -20,6 +21,7 @@ const DEVELOPER_PROFILE: DeveloperProfile = {
   github: 'https://github.com/Neet2516',
   linkedin: 'https://www.linkedin.com/in/sinha-navneet/',
   discord: 'https://discord.com/users/kailler_53339',
+  portfolio: 'https://portfolio-1-tofl.onrender.com/',
 }
 
 type Direction = 'top' | 'right' | 'bottom' | 'left'
@@ -74,6 +76,142 @@ const iconFillVariants: Variants = {
       ease: 'easeOut' as const,
     },
   }),
+}
+
+interface InlineBadgeProps {
+  href?: string
+  label: string
+  icon: React.ReactNode
+  activeIcon?: React.ReactNode
+  onHoverTarget: (el: HTMLElement | null) => void
+  reducedMotion: boolean
+  isAvatar?: boolean
+}
+
+/**
+ * Aceternity UI style inline selectable badge token
+ */
+function InlineSelectable({
+  href,
+  label,
+  icon,
+  activeIcon,
+  onHoverTarget,
+  reducedMotion,
+  isAvatar = false,
+}: InlineBadgeProps) {
+  const itemRef = useRef<HTMLAnchorElement>(null)
+  const badgeRef = useRef<HTMLSpanElement>(null)
+  const [direction, setDirection] = useState<Direction>('left')
+  const [isHovered, setIsHovered] = useState(false)
+
+  const handleMouseEnter = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    const dir = getEntryDirection(e, badgeRef.current || e.currentTarget)
+    setDirection(dir)
+    setIsHovered(true)
+    if (itemRef.current) {
+      onHoverTarget(itemRef.current)
+    }
+  }
+
+  const handleMouseLeave = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    const dir = getEntryDirection(e, badgeRef.current || e.currentTarget)
+    setDirection(dir)
+    setIsHovered(false)
+  }
+
+  const handleFocus = () => {
+    if (itemRef.current) {
+      setIsHovered(true)
+      onHoverTarget(itemRef.current)
+    }
+  }
+
+  const handleBlur = () => {
+    setIsHovered(false)
+  }
+
+  const Content = (
+    <>
+      {/* Icon / Avatar Badge */}
+      <span
+        ref={badgeRef}
+        className={`relative inline-flex shrink-0 items-center justify-center overflow-hidden align-middle transition-transform duration-300 group-hover:scale-105 ${
+          isAvatar
+            ? 'h-8 w-8 sm:h-9 sm:w-9 rounded-full border-2 border-blue-500/80 shadow-[0_2px_8px_rgba(37,99,235,0.2)] bg-blue-600'
+            : 'h-7 w-7 sm:h-8 sm:w-8 rounded-lg border border-slate-300/80 bg-slate-900 text-white shadow-sm'
+        }`}
+      >
+        {/* Base Layer */}
+        <span className="relative z-10 flex h-full w-full items-center justify-center">
+          {icon}
+        </span>
+
+        {/* Direction-Aware Sliding Color-Fill Layer */}
+        <AnimatePresence mode="wait">
+          {isHovered && (
+            <motion.span
+              key="inline-fill"
+              custom={direction}
+              variants={reducedMotion ? undefined : iconFillVariants}
+              initial={reducedMotion ? { opacity: 0 } : 'initial'}
+              animate={reducedMotion ? { opacity: 1 } : 'animate'}
+              exit={reducedMotion ? { opacity: 0 } : 'exit'}
+              className={`absolute inset-0 z-20 flex h-full w-full items-center justify-center text-white shadow-md ${
+                isAvatar
+                  ? 'bg-blue-600 rounded-full'
+                  : 'bg-blue-600 rounded-lg'
+              }`}
+            >
+              {activeIcon || icon}
+            </motion.span>
+          )}
+        </AnimatePresence>
+      </span>
+
+      {/* Label Text */}
+      <span className="font-bold tracking-tight text-slate-950 transition-colors duration-200 group-hover:text-blue-600">
+        {label}
+      </span>
+    </>
+  )
+
+  const commonClasses =
+    'group relative inline-flex items-center gap-2 rounded-xl px-2 py-1 align-baseline cursor-pointer transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500'
+
+  if (href) {
+    return (
+      <a
+        ref={itemRef}
+        href={href}
+        target={href.startsWith('http') ? '_blank' : undefined}
+        rel={href.startsWith('http') ? 'noreferrer' : undefined}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+        onFocus={handleFocus}
+        onBlur={handleBlur}
+        data-inline-target="true"
+        className={commonClasses}
+      >
+        {Content}
+      </a>
+    )
+  }
+
+  return (
+    <span
+      ref={itemRef as unknown as React.RefObject<HTMLSpanElement>}
+      onMouseEnter={handleMouseEnter as unknown as React.MouseEventHandler<HTMLSpanElement>}
+      onMouseLeave={handleMouseLeave as unknown as React.MouseEventHandler<HTMLSpanElement>}
+      onFocus={handleFocus}
+      onBlur={handleBlur}
+      tabIndex={0}
+      data-inline-target="true"
+      className={commonClasses}
+    >
+      {Content}
+    </span>
+  )
 }
 
 interface DirectionAwareContactCardProps {
@@ -228,8 +366,12 @@ export function DirectionAwareFooter() {
     const eRect = activeElement.getBoundingClientRect()
 
     const isCard = activeElement.hasAttribute('data-card')
-    const padX = isCard ? 0 : 8
-    const padY = isCard ? 0 : 4
+    const isInline = activeElement.hasAttribute('data-inline-target')
+
+    const padX = isCard ? 0 : isInline ? 4 : 8
+    const padY = isCard ? 0 : isInline ? 2 : 4
+
+    const borderRadius = isCard ? '1.4rem' : isInline ? '0.75rem' : '0.5rem'
 
     setRect({
       top: eRect.top - cRect.top - padY,
@@ -238,7 +380,7 @@ export function DirectionAwareFooter() {
       height: eRect.height + padY * 2,
       rawWidth: Math.round(eRect.width),
       rawHeight: Math.round(eRect.height),
-      borderRadius: isCard ? '1.4rem' : '0.5rem',
+      borderRadius,
     })
   }, [activeElement])
 
@@ -290,7 +432,7 @@ export function DirectionAwareFooter() {
         <div
           ref={containerRef}
           onMouseLeave={handleContainerMouseLeave}
-          className="relative rounded-[2rem] border border-white/60 bg-white/42 p-8 shadow-[0_20px_50px_rgba(15,23,42,0.08)] backdrop-blur-xl"
+          className="relative rounded-[2rem] border border-white/60 bg-white/42 p-8 sm:p-10 shadow-[0_20px_50px_rgba(15,23,42,0.08)] backdrop-blur-xl"
         >
           {/* Shared Figma-Style Selection Frame */}
           <AnimatePresence>
@@ -377,38 +519,102 @@ export function DirectionAwareFooter() {
 
           <div>
             {/* Eyebrow Header */}
-            <p className="brand-kicker mb-3">About the developer</p>
+            <p className="brand-kicker mb-6">About the developer</p>
 
+            {/* Aceternity UI Inspired Headline Section with Doodle Arrow */}
+            <div className="relative mb-8 max-w-4xl">
+              {/* "hover here" doodle with hand-drawn curved arrow pointing to Navneet Sinha */}
+              <div className="absolute -top-10 left-16 sm:-top-11 sm:left-24 hidden sm:flex flex-col items-center pointer-events-none select-none z-10">
+                <span className="font-serif italic text-xs sm:text-sm text-slate-500 font-medium tracking-wide transform -rotate-6">
+                  hover here
+                </span>
+                <svg
+                  className="w-10 h-7 text-slate-400 stroke-current -mt-0.5 -rotate-3"
+                  viewBox="0 0 50 35"
+                  fill="none"
+                >
+                  <path
+                    d="M12 4 C 18 2, 26 6, 27 14 C 28 20, 22 23, 18 19 C 14 14, 22 8, 32 16 C 37 21, 41 27, 44 31"
+                    strokeWidth="1.6"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                  <path
+                    d="M38 31 L44 31 L42 24"
+                    strokeWidth="1.6"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </div>
+
+              {/* Iconic Flowing Sentence matching uploaded reference screenshot */}
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-normal text-slate-600 leading-snug sm:leading-relaxed">
+                <span>Hi, I'm</span>{' '}
+                {/* 1. Navneet Sinha with Avatar */}
+                <InlineSelectable
+                  href={DEVELOPER_PROFILE.portfolio}
+                  label={DEVELOPER_PROFILE.name}
+                  icon={
+                    <img
+                      src="/navneet.jpg"
+                      alt={DEVELOPER_PROFILE.name}
+                      className="h-full w-full object-cover object-top rounded-full"
+                    />
+                  }
+                  activeIcon={
+                    <img
+                      src="/navneet.jpg"
+                      alt={DEVELOPER_PROFILE.name}
+                      className="h-full w-full object-cover object-top rounded-full ring-2 ring-white"
+                    />
+                  }
+                  isAvatar={true}
+                  onHoverTarget={handleElementHover}
+                  reducedMotion={reducedMotion}
+                />
+                <span>. I build</span>{' '}
+                {/* 2. SyncBoard with App Logo */}
+                <InlineSelectable
+                  label="SyncBoard"
+                  icon={<SyncBoardIcon />}
+                  onHoverTarget={handleElementHover}
+                  reducedMotion={reducedMotion}
+                />
+                <span>for teams and</span>{' '}
+                {/* 3. Portfolio with Web Logo */}
+                <InlineSelectable
+                  href={DEVELOPER_PROFILE.portfolio}
+                  label="Portfolio"
+                  icon={<PortfolioIcon />}
+                  onHoverTarget={handleElementHover}
+                  reducedMotion={reducedMotion}
+                />
+                <span>for the web.</span>
+              </h2>
+            </div>
+
+            {/* Split Row: Details and Contact Cards */}
             <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
               <div className="max-w-2xl">
-                {/* 1. Heading: Built by Navneet */}
-                <h2
-                  onMouseEnter={(e) => handleElementHover(e.currentTarget)}
-                  onFocus={(e) => handleElementHover(e.currentTarget)}
-                  tabIndex={0}
-                  className="section-title text-3xl text-slate-950 inline-block w-fit cursor-default rounded focus:outline-none"
-                >
-                  Built by {DEVELOPER_PROFILE.name}
-                </h2>
-
-                {/* 2. Designation: FULL-STACK DEVELOPER */}
+                {/* Designation: FULL-STACK DEVELOPER */}
                 <div>
                   <p
                     onMouseEnter={(e) => handleElementHover(e.currentTarget)}
                     onFocus={(e) => handleElementHover(e.currentTarget)}
                     tabIndex={0}
-                    className="mt-2 text-sm font-semibold uppercase tracking-[0.18em] text-blue-600/90 inline-block w-fit cursor-default rounded focus:outline-none"
+                    className="text-sm font-semibold uppercase tracking-[0.18em] text-blue-600/90 inline-block w-fit cursor-default rounded focus:outline-none"
                   >
                     {DEVELOPER_PROFILE.role}
                   </p>
                 </div>
 
-                {/* 3. Developer Description */}
+                {/* Developer Description */}
                 <p
                   onMouseEnter={(e) => handleElementHover(e.currentTarget)}
                   onFocus={(e) => handleElementHover(e.currentTarget)}
                   tabIndex={0}
-                  className="section-copy mt-4 text-base cursor-default rounded focus:outline-none"
+                  className="section-copy mt-3 text-base cursor-default rounded focus:outline-none"
                 >
                   {DEVELOPER_PROFILE.blurb} It blends shared presence, sticky-note thinking, and a board-first workflow into one polished canvas.
                 </p>
@@ -460,7 +666,7 @@ export function DirectionAwareFooter() {
           </div>
 
           {/* Divider */}
-          <div className="mt-6 border-t border-white/55 pt-5">
+          <div className="mt-8 border-t border-white/55 pt-5">
             {/* 8. Closing Footer Statement */}
             <p
               onMouseEnter={(e) => handleElementHover(e.currentTarget)}
@@ -481,6 +687,24 @@ export function DirectionAwareFooter() {
         </div>
       </div>
     </footer>
+  )
+}
+
+function SyncBoardIcon() {
+  return (
+    <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M4 5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5zm3 2v4h4V7H7zm6 0v2h4V7h-4zm0 4v6h4v-6h-4zm-6 2v4h4v-4H7z" />
+    </svg>
+  )
+}
+
+function PortfolioIcon() {
+  return (
+    <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <circle cx="12" cy="12" r="9" />
+      <path d="M3.6 9h16.8M3.6 15h16.8" />
+      <path d="M11.5 3a17 17 0 0 0 0 18M12.5 3a17 17 0 0 1 0 18" />
+    </svg>
   )
 }
 
