@@ -409,30 +409,6 @@ export function DirectionAwareFooter() {
 
             {/* Aceternity UI Flowing Paragraph with all Navigation Links Inline */}
             <div className="relative max-w-5xl">
-              {/* "hover here" doodle with hand-drawn curved arrow pointing to Navneet Sinha */}
-              <div className="absolute -top-10 left-16 sm:-top-11 sm:left-24 hidden sm:flex flex-col items-center pointer-events-none select-none z-10">
-                <span className="font-serif italic text-xs sm:text-sm text-slate-500 font-medium tracking-wide transform -rotate-6">
-                  hover here
-                </span>
-                <svg
-                  className="w-10 h-7 text-slate-400 stroke-current -mt-0.5 -rotate-3"
-                  viewBox="0 0 50 35"
-                  fill="none"
-                >
-                  <path
-                    d="M12 4 C 18 2, 26 6, 27 14 C 28 20, 22 23, 18 19 C 14 14, 22 8, 32 16 C 37 21, 41 27, 44 31"
-                    strokeWidth="1.6"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                  <path
-                    d="M38 31 L44 31 L42 24"
-                    strokeWidth="1.6"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </div>
 
               {/* All Navigation & Social Links in the Same Paragraph */}
               <h2 className="text-2xl sm:text-3xl lg:text-[2.2rem] font-normal text-slate-600 leading-relaxed sm:leading-[1.85]">
