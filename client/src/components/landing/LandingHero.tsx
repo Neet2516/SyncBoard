@@ -8,6 +8,14 @@ export type HeroNote = {
   color: HeroNoteColor
   title: string
   body: string
+  from: {
+    x: number
+    y: number
+    rotate: number
+  }
+  cursor?: {
+    label: string
+  }
   style: {
     top?: string
     bottom?: string
@@ -77,28 +85,33 @@ const HERO_NOTES: HeroNote[] = [
     color: 'yellow',
     title: 'Sprint notes',
     body: 'Map ideas, drop notes, connect the dots.',
-    style: { top: '18%', left: '7%', rotate: -7, delay: 0.1 },
+    from: { x: -480, y: -260, rotate: -32 },
+    cursor: { label: 'You' },
+    style: { top: '18%', left: '7%', rotate: -7, delay: 0.15 },
   },
   {
     id: 'note-2',
     color: 'pink',
     title: 'Live cursors',
     body: 'Everyone shows up on the same shared space.',
-    style: { top: '20%', right: '10%', rotate: 8, delay: 0.2 },
+    from: { x: 480, y: -260, rotate: 34 },
+    style: { top: '20%', right: '10%', rotate: 8, delay: 0.28 },
   },
   {
     id: 'note-3',
     color: 'cyan',
     title: 'Sticky flow',
     body: 'Capture thoughts before they disappear.',
-    style: { bottom: '24%', left: '12%', rotate: 6, delay: 0.3 },
+    from: { x: -480, y: 320, rotate: 26 },
+    style: { bottom: '24%', left: '12%', rotate: 6, delay: 0.42 },
   },
   {
     id: 'note-4',
     color: 'green',
     title: 'Board rhythm',
     body: 'Sketch, arrange, and refine in real time.',
-    style: { bottom: '24%', right: '11%', rotate: -5, delay: 0.4 },
+    from: { x: 480, y: 320, rotate: -26 },
+    style: { bottom: '24%', right: '11%', rotate: -5, delay: 0.55 },
   },
 ]
 
@@ -126,27 +139,52 @@ export function LandingHero({
             return (
               <motion.article
                 key={note.id}
-                className="hero-notenode absolute select-none"
+                className="hero-notenode absolute select-none cursor-pointer"
                 style={{
                   ...note.style,
                   width: 'min(240px, 24vw)',
                   minWidth: '190px',
                 }}
-                initial={{ opacity: 0, y: 24, rotate: note.style.rotate - 3, scale: 0.94 }}
+                initial={{
+                  opacity: 0,
+                  x: note.from.x,
+                  y: note.from.y,
+                  rotate: note.from.rotate,
+                  scale: 0.78,
+                }}
                 animate={{
                   opacity: 1,
+                  x: 0,
                   y: 0,
                   rotate: note.style.rotate,
                   scale: 1,
                 }}
-                transition={{ duration: 0.65, delay: note.style.delay, ease: 'easeOut' }}
+                transition={{
+                  type: 'spring',
+                  stiffness: 65,
+                  damping: 13,
+                  mass: 0.9,
+                  delay: note.style.delay,
+                }}
                 whileHover={{
                   y: -10,
+                  scale: 1.04,
                   rotate: note.style.rotate + (note.style.rotate > 0 ? 1.8 : -1.8),
+                  transition: { duration: 0.2 },
                 }}
               >
                 {/* Pushpin matching NoteNode */}
-                <div className="pointer-events-none absolute inset-x-0 -top-3.5 z-30 flex justify-center">
+                <motion.div
+                  className="pointer-events-none absolute inset-x-0 -top-3.5 z-30 flex justify-center"
+                  initial={{ scale: 0, y: -26, opacity: 0 }}
+                  animate={{ scale: 1, y: 0, opacity: 1 }}
+                  transition={{
+                    type: 'spring',
+                    stiffness: 280,
+                    damping: 15,
+                    delay: note.style.delay + 0.38,
+                  }}
+                >
                   <div
                     className="relative h-7 w-7 rounded-full border border-white/80 shadow-[0_8px_18px_rgba(15,23,42,0.25)]"
                     style={{ background: theme.pin }}
@@ -155,7 +193,7 @@ export function LandingHero({
                     <div className="absolute left-1/2 top-[18px] h-5 w-[2px] -translate-x-1/2 rounded-full bg-slate-500/60" />
                     <div className="absolute left-1/2 top-[22px] h-0 w-0 -translate-x-1/2 border-l-[3.5px] border-r-[3.5px] border-t-[8px] border-l-transparent border-r-transparent border-t-slate-500/65" />
                   </div>
-                </div>
+                </motion.div>
 
                 {/* Card container matching NoteNode */}
                 <div
@@ -200,6 +238,32 @@ export function LandingHero({
                     </p>
                   </div>
                 </div>
+
+                {/* Real-time collaborator cursor badge (matching live canvas presence) */}
+                {note.cursor && (
+                  <motion.div
+                    className="pointer-events-none absolute -bottom-3 -right-2 z-30 flex items-center gap-1"
+                    initial={{ opacity: 0, scale: 0, x: -10, y: -10 }}
+                    animate={{ opacity: 1, scale: 1, x: 0, y: 0 }}
+                    transition={{
+                      type: 'spring',
+                      stiffness: 220,
+                      damping: 14,
+                      delay: note.style.delay + 0.55,
+                    }}
+                  >
+                    <svg
+                      className="h-4 w-4 text-blue-600 drop-shadow-[0_2px_4px_rgba(37,99,235,0.35)]"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                    >
+                      <path d="M4 2l16 11.5-6.5 1.5 4 8-3 1.5-4-8-4.5 4.5V2z" />
+                    </svg>
+                    <span className="rounded-full bg-blue-600 px-2 py-0.5 text-[10px] font-bold text-white shadow-[0_4px_10px_rgba(37,99,235,0.35)]">
+                      {note.cursor.label}
+                    </span>
+                  </motion.div>
+                )}
 
                 {/* 4 side connector handles matching NoteNode */}
                 <div className="pointer-events-none absolute -top-1 left-[30%] h-2.5 w-2.5 -translate-x-1/2 rounded-full border border-white/90 bg-slate-600/70 shadow-sm" />
