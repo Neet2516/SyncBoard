@@ -2,9 +2,9 @@ import { useEffect, useRef } from 'react'
 import gsap from 'gsap'
 import './CinematicPreloader.css'
 
-interface CinematicPreloaderProps {
-  isReady: boolean
-  onComplete: () => void
+export interface CinematicPreloaderProps {
+  isReady?: boolean
+  onComplete?: () => void
 }
 
 interface TrailNote {
@@ -252,7 +252,7 @@ export function CinematicPreloader({ isReady, onComplete }: CinematicPreloaderPr
           ease: 'power2.out',
           onComplete: () => {
             document.documentElement.style.overflow = ''
-            onCompleteRef.current()
+            onCompleteRef.current?.()
           },
         })
         return
@@ -263,7 +263,7 @@ export function CinematicPreloader({ isReady, onComplete }: CinematicPreloaderPr
       const exitTl = gsap.timeline({
         onComplete: () => {
           document.documentElement.style.overflow = ''
-          onCompleteRef.current()
+          onCompleteRef.current?.()
         },
       })
 
