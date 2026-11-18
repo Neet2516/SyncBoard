@@ -282,6 +282,7 @@ export function LandingPage() {
   const [demoLoading, setDemoLoading] = useState(false)
   const [demoError, setDemoError] = useState<string | null>(null)
   const [openFaq, setOpenFaq] = useState<number | null>(0)
+  const [openWorkflowCard, setOpenWorkflowCard] = useState<string | null>(null)
   const [activeCompassIndex, setActiveCompassIndex] = useState(0)
   const cursorX = useMotionValue(-80)
   const cursorY = useMotionValue(-80)
@@ -741,34 +742,56 @@ export function LandingPage() {
             </div>
 
             <div className="mt-14 grid grid-cols-1 gap-8 lg:grid-cols-3">
-              {WORKFLOW_STEPS.map((step) => (
-                <div
-                  key={step.step}
-                  className="paper-card relative flex flex-col justify-between rounded-[2rem] p-8 transition hover:-translate-y-1.5"
-                >
-                  <div>
-                    <div className="flex items-center justify-between">
-                      <span className="font-mono text-3xl font-black text-blue-600/80">{step.step}</span>
-                      <span className={`rounded-full border px-3 py-1 text-xs font-bold uppercase tracking-wider ${step.accent}`}>
-                        {step.kicker}
-                      </span>
+              {WORKFLOW_STEPS.map((step) => {
+                const isOpen = openWorkflowCard === step.step
+                return (
+                  <div
+                    key={step.step}
+                    onClick={() => setOpenWorkflowCard(isOpen ? null : step.step)}
+                    className="group relative h-full min-h-[340px] sm:min-h-[360px] rounded-[2rem] [perspective:2000px] [transform-style:preserve-3d] transition-all duration-300 hover:z-30 cursor-pointer"
+                  >
+                    {/* Inside Book Page (Revealed when cover rotates open) */}
+                    <div className="paper-card relative flex h-full flex-col justify-between rounded-[2rem] bg-white p-8 shadow-[0_12px_32px_rgba(15,23,42,0.06)] border border-slate-200/80 [transform-style:preserve-3d]">
+                      <div>
+                        <div className="flex items-center justify-between">
+                          <span className="font-mono text-3xl font-black text-blue-600/80">{step.step}</span>
+                          <span className={`rounded-full border px-3 py-1 text-xs font-bold uppercase tracking-wider ${step.accent}`}>
+                            {step.kicker}
+                          </span>
+                        </div>
+
+                        <h3 className="mt-6 text-xl font-bold tracking-tight text-slate-900">
+                          {step.title}
+                        </h3>
+                        <p className="section-copy mt-3 text-sm leading-relaxed sm:text-base text-slate-600">
+                          {step.desc}
+                        </p>
+                      </div>
+
+                      <div className="mt-6 border-t border-slate-100 pt-4">
+                        <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+                          {step.tag}
+                        </span>
+                      </div>
                     </div>
 
-                    <h3 className="mt-6 text-xl font-bold tracking-tight text-slate-900">
-                      {step.title}
-                    </h3>
-                    <p className="section-copy mt-3 text-sm leading-relaxed sm:text-base">
-                      {step.desc}
-                    </p>
-                  </div>
+                    {/* The Book Cover (Swings open to -80deg on hover/click, just showing the title) */}
+                    <div
+                      className={`absolute inset-0 z-20 flex flex-col items-center justify-center rounded-[2rem] border border-slate-200/90 bg-gradient-to-br from-white via-slate-50 to-slate-100 p-8 text-center shadow-[1px_1px_14px_rgba(15,23,42,0.08)] cursor-pointer origin-left transition-all duration-500 ease-out [transform-style:preserve-3d] group-hover:[transform:rotateY(-80deg)] group-hover:shadow-[-12px_20px_36px_rgba(15,23,42,0.18)] ${
+                        isOpen ? '[transform:rotateY(-80deg)] shadow-[-12px_20px_36px_rgba(15,23,42,0.18)]' : ''
+                      }`}
+                    >
+                      {/* Left book spine crease & hinge */}
+                      <div className="absolute left-0 top-0 bottom-0 w-3.5 rounded-l-[2rem] bg-gradient-to-r from-slate-300/50 via-slate-200/20 to-transparent border-r border-slate-200/50" />
 
-                  <div className="mt-6 border-t border-slate-100 pt-4">
-                    <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">
-                      {step.tag}
-                    </span>
+                      {/* Cover Title */}
+                      <p className="text-[20px] sm:text-2xl font-black tracking-tight text-slate-900 leading-snug">
+                        {step.title}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              ))}
+                )
+              })}
             </div>
           </div>
         </section>
