@@ -138,8 +138,8 @@ function InlineSelectable({
         ref={badgeRef}
         className={`relative inline-flex shrink-0 items-center justify-center overflow-hidden align-middle transition-transform duration-300 group-hover:scale-105 ${
           isAvatar
-            ? 'h-8 w-8 sm:h-9 sm:w-9 rounded-full border-2 border-blue-500/80 shadow-[0_2px_8px_rgba(37,99,235,0.2)] bg-blue-600'
-            : 'h-7 w-7 sm:h-8 sm:w-8 rounded-lg border border-slate-300/80 bg-slate-900 text-white shadow-sm'
+            ? 'h-6 w-6 sm:h-7 sm:w-7 rounded-full border border-blue-500/80 shadow-[0_2px_6px_rgba(37,99,235,0.2)] bg-blue-600'
+            : 'h-5 w-5 sm:h-6 sm:w-6 rounded-md border border-slate-300/80 bg-slate-900 text-white shadow-xs'
         }`}
       >
         {/* Base Layer */}
@@ -177,7 +177,7 @@ function InlineSelectable({
   )
 
   const commonClasses =
-    'group relative inline-flex items-center gap-2 rounded-xl px-2 py-1 align-baseline cursor-pointer transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500'
+    'group relative inline-flex items-center gap-1.5 rounded-lg px-1.5 py-0.5 align-baseline cursor-pointer transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500'
 
   if (href) {
     return (
@@ -411,7 +411,7 @@ export function DirectionAwareFooter() {
             <div className="relative max-w-5xl">
 
               {/* All Navigation & Social Links in the Same Paragraph */}
-              <h2 className="text-2xl sm:text-3xl lg:text-[2.2rem] font-normal text-slate-600 leading-relaxed sm:leading-[1.85]">
+              <h2 className="text-base sm:text-lg md:text-xl lg:text-[1.35rem] font-normal text-slate-600 leading-relaxed sm:leading-[1.85]">
                 <span>Hi, I'm</span>{' '}
                 {/* 1. Navneet Sinha with Avatar Badge */}
                 <InlineSelectable
