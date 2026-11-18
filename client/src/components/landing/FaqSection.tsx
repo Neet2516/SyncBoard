@@ -36,16 +36,9 @@ export function FaqSection() {
     <section className="relative z-10 py-20 sm:py-24">
       <div className="mx-auto max-w-6xl xl:max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="text-center">
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-blue-200/80 bg-blue-50/80 px-3.5 py-1 text-xs font-bold uppercase tracking-wider text-blue-700 shadow-sm backdrop-blur-md">
-            <span className="h-1.5 w-1.5 rounded-full bg-blue-600 animate-pulse" />
-            Got questions?
-          </span>
-          <h2 className="section-title mt-3 text-3xl font-extrabold tracking-tight text-slate-950 sm:text-4xl md:text-5xl">
+          <h2 className="section-title text-3xl font-extrabold tracking-tight text-slate-950 sm:text-4xl md:text-5xl">
             Frequently Asked Questions
           </h2>
-          <p className="section-copy mt-4 text-base sm:text-lg max-w-2xl mx-auto">
-            Everything you need to know about using SyncBoard as a guest, team, or developer.
-          </p>
         </div>
 
         <div className="mt-12 space-y-4">

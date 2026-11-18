@@ -120,7 +120,7 @@ export function CompassFeaturesSection() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mx-auto max-w-3xl text-center">
-          <h2 className="section-title mt-2 text-3xl font-extrabold tracking-tight text-slate-950 sm:text-4xl md:text-5xl">
+          <h2 className="section-title text-3xl font-extrabold tracking-tight text-slate-950 sm:text-4xl md:text-5xl">
             Everything you need to map thoughts
           </h2>
         </div>

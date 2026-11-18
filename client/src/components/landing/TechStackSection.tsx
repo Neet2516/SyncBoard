@@ -26,13 +26,9 @@ export function TechStackSection() {
     <section className="relative z-10 py-16 sm:py-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-3xl text-center">
-          <p className="brand-kicker">Architecture & Stack</p>
-          <h2 className="section-title mt-2 text-3xl font-extrabold tracking-tight text-slate-950 sm:text-4xl">
+          <h2 className="section-title text-3xl font-extrabold tracking-tight text-slate-950 sm:text-4xl">
             Modern Collaborative Stack
           </h2>
-          <p className="section-copy mt-4 text-base sm:text-lg">
-            Engineered from ground up with real-time primitives and state-of-the-art web technologies.
-          </p>
         </div>
 
         <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">

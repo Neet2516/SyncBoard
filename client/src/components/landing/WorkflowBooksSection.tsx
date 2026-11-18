@@ -182,13 +182,9 @@ export function WorkflowBooksSection() {
     <section className="relative z-10 py-16">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-3xl text-center">
-          <p className="brand-kicker">Core Capabilities & Workflow</p>
-          <h2 className="section-title mt-2 text-3xl font-extrabold tracking-tight text-slate-950 sm:text-4xl md:text-5xl">
+          <h2 className="section-title text-3xl font-extrabold tracking-tight text-slate-950 sm:text-4xl md:text-5xl">
             How SyncBoard Works
           </h2>
-          <p className="section-copy mt-4 text-base sm:text-lg">
-            From an empty canvas to an interconnected knowledge board in three simple steps.
-          </p>
         </div>
 
         <div className="mt-14 grid grid-cols-1 gap-8 lg:grid-cols-3">
