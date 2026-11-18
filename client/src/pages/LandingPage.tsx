@@ -1,4 +1,4 @@
-import { useEffect, useId, useState, type CSSProperties, type MouseEvent } from 'react'
+import { useEffect, useId, useRef, useState, type CSSProperties, type MouseEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence, useMotionValue, useSpring } from 'framer-motion'
 import Lenis from 'lenis'
@@ -43,6 +43,7 @@ export function LandingPage() {
   const [demoLoading, setDemoLoading] = useState(false)
   const [demoError, setDemoError] = useState<string | null>(null)
 
+  const lenisRef = useRef<Lenis | null>(null)
   const cursorX = useMotionValue(-80)
   const cursorY = useMotionValue(-80)
   const springX = useSpring(cursorX, { stiffness: 520, damping: 42, mass: 0.24 })
@@ -51,10 +52,17 @@ export function LandingPage() {
 
   useEffect(() => {
     const lenis = new Lenis({
-      duration: 1.05,
+      duration: 1.25,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      orientation: 'vertical',
+      gestureOrientation: 'vertical',
       smoothWheel: true,
-      touchMultiplier: 1,
+      wheelMultiplier: 1.05,
+      touchMultiplier: 1.5,
+      infinite: false,
     })
+
+    lenisRef.current = lenis
 
     let frame = 0
 
@@ -68,6 +76,7 @@ export function LandingPage() {
     return () => {
       window.cancelAnimationFrame(frame)
       lenis.destroy()
+      lenisRef.current = null
     }
   }, [])
 
@@ -143,17 +152,25 @@ export function LandingPage() {
 
   const handleHomeClick = () => {
     showToast('Welcome to SyncBoard! You are on the landing page 🚀', 'info')
-    window.scrollTo({ top: 0, behavior: 'smooth' })
+    if (lenisRef.current) {
+      lenisRef.current.scrollTo(0, { duration: 1.2 })
+    } else {
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
   }
 
   const handleExploreFeatures = () => {
     showToast('Exploring SyncBoard canvas features ✨', 'info')
-    window.scrollBy({ top: 650, behavior: 'smooth' })
+    if (lenisRef.current) {
+      lenisRef.current.scrollTo(window.scrollY + 650, { duration: 1.2 })
+    } else {
+      window.scrollBy({ top: 650, behavior: 'smooth' })
+    }
   }
 
   return (
     <div
-      className="landing-shell relative min-h-screen overflow-hidden bg-transparent text-slate-950"
+      className="landing-shell relative min-h-screen overflow-x-clip bg-transparent text-slate-950"
       onClick={handleCanvasClick}
       style={
         {
