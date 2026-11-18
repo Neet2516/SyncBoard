@@ -153,6 +153,7 @@ interface BookPalette {
   dotClass: string
   coverBg: string
   coverBorder: string
+  insideCoverBg: string
   spine: string
   ribbon: string
   glow: string
@@ -167,70 +168,75 @@ const BOOK_COLOR_PALETTES: Record<BookColorKey, BookPalette> = {
   amber: {
     name: 'Amber Gold',
     dotClass: 'bg-amber-500 hover:ring-amber-300',
-    coverBg: 'bg-gradient-to-br from-amber-400/25 via-amber-50/80 to-orange-100/50',
-    coverBorder: 'border-amber-300/80',
-    spine: 'bg-gradient-to-r from-amber-600/70 via-amber-400/40 to-transparent border-r border-amber-300/50',
+    coverBg: 'bg-[#fef3c7]',
+    coverBorder: 'border-amber-300',
+    insideCoverBg: 'bg-[#fffbeb]',
+    spine: 'bg-gradient-to-r from-amber-600 via-amber-400 to-amber-200 border-r border-amber-400',
     ribbon: 'bg-amber-500 shadow-amber-500/40',
     glow: 'hover:shadow-[0_24px_55px_rgba(245,158,11,0.26)]',
-    tagBg: 'bg-amber-50 border-amber-200 text-amber-700',
-    numColor: 'text-amber-600',
-    badge: 'border-amber-300 text-amber-700 bg-amber-500/10',
+    tagBg: 'bg-amber-100 border-amber-300 text-amber-800',
+    numColor: 'text-amber-700',
+    badge: 'border-amber-400 text-amber-800 bg-amber-100',
     insideWash: 'rgba(245, 158, 11, 0.08)',
     shimmer: 'rgba(251, 191, 36, 0.18)',
   },
   blue: {
     name: 'Sapphire Blue',
     dotClass: 'bg-blue-600 hover:ring-blue-300',
-    coverBg: 'bg-gradient-to-br from-blue-500/25 via-blue-50/80 to-indigo-100/50',
-    coverBorder: 'border-blue-300/80',
-    spine: 'bg-gradient-to-r from-blue-600/70 via-blue-400/40 to-transparent border-r border-blue-300/50',
+    coverBg: 'bg-[#dbeafe]',
+    coverBorder: 'border-blue-300',
+    insideCoverBg: 'bg-[#eff6ff]',
+    spine: 'bg-gradient-to-r from-blue-600 via-blue-400 to-blue-200 border-r border-blue-400',
     ribbon: 'bg-blue-600 shadow-blue-600/40',
     glow: 'hover:shadow-[0_24px_55px_rgba(37,99,235,0.26)]',
-    tagBg: 'bg-blue-50 border-blue-200 text-blue-700',
-    numColor: 'text-blue-600',
-    badge: 'border-blue-300 text-blue-700 bg-blue-500/10',
+    tagBg: 'bg-blue-100 border-blue-300 text-blue-800',
+    numColor: 'text-blue-700',
+    badge: 'border-blue-400 text-blue-800 bg-blue-100',
     insideWash: 'rgba(37, 99, 235, 0.08)',
     shimmer: 'rgba(59, 130, 246, 0.18)',
   },
   emerald: {
     name: 'Emerald Jade',
     dotClass: 'bg-emerald-500 hover:ring-emerald-300',
-    coverBg: 'bg-gradient-to-br from-emerald-500/25 via-emerald-50/80 to-teal-100/50',
-    coverBorder: 'border-emerald-300/80',
-    spine: 'bg-gradient-to-r from-emerald-600/70 via-emerald-400/40 to-transparent border-r border-emerald-300/50',
+    coverBg: 'bg-[#d1fae5]',
+    coverBorder: 'border-emerald-300',
+    insideCoverBg: 'bg-[#ecfdf5]',
+    spine: 'bg-gradient-to-r from-emerald-600 via-emerald-400 to-emerald-200 border-r border-emerald-400',
     ribbon: 'bg-emerald-500 shadow-emerald-500/40',
     glow: 'hover:shadow-[0_24px_55px_rgba(16,185,129,0.26)]',
-    tagBg: 'bg-emerald-50 border-emerald-200 text-emerald-700',
-    numColor: 'text-emerald-600',
-    badge: 'border-emerald-300 text-emerald-700 bg-emerald-500/10',
+    tagBg: 'bg-emerald-100 border-emerald-300 text-emerald-800',
+    numColor: 'text-emerald-700',
+    badge: 'border-emerald-400 text-emerald-800 bg-emerald-100',
     insideWash: 'rgba(16, 185, 129, 0.08)',
     shimmer: 'rgba(16, 185, 129, 0.18)',
   },
   purple: {
     name: 'Amethyst Purple',
     dotClass: 'bg-purple-600 hover:ring-purple-300',
-    coverBg: 'bg-gradient-to-br from-purple-500/25 via-purple-50/80 to-fuchsia-100/50',
-    coverBorder: 'border-purple-300/80',
-    spine: 'bg-gradient-to-r from-purple-600/70 via-purple-400/40 to-transparent border-r border-purple-300/50',
+    coverBg: 'bg-[#f3e8ff]',
+    coverBorder: 'border-purple-300',
+    insideCoverBg: 'bg-[#faf5ff]',
+    spine: 'bg-gradient-to-r from-purple-600 via-purple-400 to-purple-200 border-r border-purple-400',
     ribbon: 'bg-purple-600 shadow-purple-600/40',
     glow: 'hover:shadow-[0_24px_55px_rgba(147,51,234,0.26)]',
-    tagBg: 'bg-purple-50 border-purple-200 text-purple-700',
-    numColor: 'text-purple-600',
-    badge: 'border-purple-300 text-purple-700 bg-purple-500/10',
+    tagBg: 'bg-purple-100 border-purple-300 text-purple-800',
+    numColor: 'text-purple-700',
+    badge: 'border-purple-400 text-purple-800 bg-purple-100',
     insideWash: 'rgba(147, 51, 234, 0.08)',
     shimmer: 'rgba(147, 51, 234, 0.18)',
   },
   rose: {
     name: 'Ruby Rose',
     dotClass: 'bg-rose-500 hover:ring-rose-300',
-    coverBg: 'bg-gradient-to-br from-rose-500/25 via-rose-50/80 to-pink-100/50',
-    coverBorder: 'border-rose-300/80',
-    spine: 'bg-gradient-to-r from-rose-600/70 via-rose-400/40 to-transparent border-r border-rose-300/50',
+    coverBg: 'bg-[#ffe4e6]',
+    coverBorder: 'border-rose-300',
+    insideCoverBg: 'bg-[#fff1f2]',
+    spine: 'bg-gradient-to-r from-rose-600 via-rose-400 to-rose-200 border-r border-rose-400',
     ribbon: 'bg-rose-500 shadow-rose-500/40',
     glow: 'hover:shadow-[0_24px_55px_rgba(244,63,94,0.26)]',
-    tagBg: 'bg-rose-50 border-rose-200 text-rose-700',
-    numColor: 'text-rose-600',
-    badge: 'border-rose-300 text-rose-700 bg-rose-500/10',
+    tagBg: 'bg-rose-100 border-rose-300 text-rose-800',
+    numColor: 'text-rose-700',
+    badge: 'border-rose-400 text-rose-800 bg-rose-100',
     insideWash: 'rgba(244, 63, 94, 0.08)',
     shimmer: 'rgba(244, 63, 94, 0.18)',
   },
@@ -859,9 +865,9 @@ export function LandingPage() {
                       title="Bookmark ribbon"
                     />
 
-                    {/* Inside Book Page (Revealed when cover rotates open) */}
+                    {/* Inside Book Page (Revealed when cover rotates open, 100% clear with zero cover overlap) */}
                     <div
-                      className="paper-card relative flex h-full flex-col justify-between rounded-[2rem] p-8 shadow-[0_12px_32px_rgba(15,23,42,0.06)] border border-slate-200/80 [transform-style:preserve-3d] transition-all duration-500 overflow-hidden"
+                      className="paper-card relative flex h-full flex-col justify-between rounded-[2rem] bg-white pl-10 pr-8 py-8 shadow-[0_12px_32px_rgba(15,23,42,0.06)] border border-slate-200/80 [transform-style:preserve-3d] transition-all duration-500 overflow-hidden"
                       style={{
                         backgroundColor: '#ffffff',
                         backgroundImage: `radial-gradient(circle at top right, ${palette.insideWash}, transparent 70%)`,
@@ -900,56 +906,91 @@ export function LandingPage() {
                       </div>
                     </div>
 
-                    {/* The Book Cover (Swings open to -80deg on hover/click, interactive with colors) */}
+                    {/* 3D Double-Sided Book Cover Wrapper (Swings open to -120deg to completely clear the book's text) */}
                     <div
-                      className={`absolute inset-0 z-20 flex flex-col justify-between rounded-[2rem] border ${palette.coverBorder} ${palette.coverBg} p-8 shadow-[1px_1px_16px_rgba(15,23,42,0.08)] cursor-pointer origin-left transition-all duration-500 ease-out [transform-style:preserve-3d] group-hover:[transform:rotateY(-80deg)] group-hover:shadow-[-14px_22px_42px_rgba(15,23,42,0.22)] ${
-                        isOpen ? '[transform:rotateY(-80deg)] shadow-[-14px_22px_42px_rgba(15,23,42,0.22)]' : ''
+                      className={`absolute inset-0 z-20 origin-left transition-all duration-500 ease-out [transform-style:preserve-3d] group-hover:[transform:rotateY(-120deg)] group-hover:shadow-[-14px_22px_42px_rgba(15,23,42,0.20)] ${
+                        isOpen ? '[transform:rotateY(-120deg)] shadow-[-14px_22px_42px_rgba(15,23,42,0.20)]' : ''
                       }`}
                     >
-                      {/* Left book spine crease & hinge */}
-                      <div className={`absolute left-0 top-0 bottom-0 w-4 rounded-l-[2rem] ${palette.spine} transition-colors duration-500`} />
+                      {/* FRONT COVER (100% Solid, Zero Transparency, [backface-visibility:hidden]) */}
+                      <div
+                        className={`absolute inset-0 flex flex-col justify-between rounded-[2rem] border ${palette.coverBorder} ${palette.coverBg} p-8 shadow-[1px_1px_16px_rgba(15,23,42,0.08)] cursor-pointer [backface-visibility:hidden]`}
+                      >
+                        {/* Left book spine crease & hinge */}
+                        <div className={`absolute left-0 top-0 bottom-0 w-4 rounded-l-[2rem] ${palette.spine} transition-colors duration-500`} />
 
-                      {/* Top Bar: Volume Label & Interactive Color Swatches */}
-                      <div className="flex items-center justify-between relative z-10 pl-2">
-                        <span className={`font-mono text-xs font-black uppercase tracking-widest ${palette.numColor} transition-colors duration-500`}>
-                          Vol. {step.step}
-                        </span>
+                        {/* Top Bar: Volume Label & Interactive Color Swatches */}
+                        <div className="flex items-center justify-between relative z-10 pl-2">
+                          <span className={`font-mono text-xs font-black uppercase tracking-widest ${palette.numColor} transition-colors duration-500`}>
+                            Vol. {step.step}
+                          </span>
 
-                        {/* Interactive Color Dots */}
-                        <div
-                          onClick={(e) => e.stopPropagation()}
-                          className="flex items-center gap-1.5 rounded-full bg-white/80 backdrop-blur-sm border border-slate-200/70 px-2 py-1 shadow-sm"
-                          title="Pick book cover color"
-                        >
-                          {(Object.keys(BOOK_COLOR_PALETTES) as BookColorKey[]).map((c) => (
-                            <button
-                              key={c}
-                              type="button"
-                              onClick={() => setBookColors((prev) => ({ ...prev, [step.step]: c }))}
-                              className={`h-3 w-3 rounded-full transition-all duration-200 ${BOOK_COLOR_PALETTES[c].dotClass} ${
-                                colorKey === c
-                                  ? 'scale-125 ring-2 ring-offset-1 ring-slate-400'
-                                  : 'opacity-70 hover:opacity-100 hover:scale-110'
-                              }`}
-                              aria-label={`Select ${BOOK_COLOR_PALETTES[c].name} color`}
-                            />
-                          ))}
+                          {/* Interactive Color Dots */}
+                          <div
+                            onClick={(e) => e.stopPropagation()}
+                            className="flex items-center gap-1.5 rounded-full bg-white border border-slate-200/90 px-2 py-1 shadow-sm"
+                            title="Pick book cover color"
+                          >
+                            {(Object.keys(BOOK_COLOR_PALETTES) as BookColorKey[]).map((c) => (
+                              <button
+                                key={c}
+                                type="button"
+                                onClick={() => setBookColors((prev) => ({ ...prev, [step.step]: c }))}
+                                className={`h-3 w-3 rounded-full transition-all duration-200 ${BOOK_COLOR_PALETTES[c].dotClass} ${
+                                  colorKey === c
+                                    ? 'scale-125 ring-2 ring-offset-1 ring-slate-400'
+                                    : 'opacity-70 hover:opacity-100 hover:scale-110'
+                                }`}
+                                aria-label={`Select ${BOOK_COLOR_PALETTES[c].name} color`}
+                              />
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Center: Book Cover Title (Clean, 100% opaque, zero bleed-through) */}
+                        <div className="my-auto py-4 pl-2 text-center">
+                          <p className="text-[20px] sm:text-2xl font-black tracking-tight text-slate-900 leading-snug">
+                            {step.title}
+                          </p>
+                        </div>
+
+                        {/* Bottom Bar: Color theme name & interactive prompt */}
+                        <div className="flex items-center justify-between pl-2 pt-2 border-t border-slate-300/60 text-[11px] font-semibold text-slate-600">
+                          <span className="uppercase tracking-wider font-bold">{palette.name}</span>
+                          <span className="flex items-center gap-1 group-hover:translate-x-1 transition-transform text-slate-800">
+                            Flip open &rarr;
+                          </span>
                         </div>
                       </div>
 
-                      {/* Center: Book Cover Title */}
-                      <div className="my-auto py-4 pl-2 text-center">
-                        <p className="text-[20px] sm:text-2xl font-black tracking-tight text-slate-900 leading-snug">
-                          {step.title}
-                        </p>
-                      </div>
+                      {/* INSIDE OF FRONT COVER (Lining visible when flipped past 90deg, [transform:rotateY(180deg)] [backface-visibility:hidden]) */}
+                      <div
+                        className={`absolute inset-0 flex flex-col justify-between rounded-[2rem] border ${palette.coverBorder} ${palette.insideCoverBg} p-8 [transform:rotateY(180deg)] [backface-visibility:hidden] cursor-pointer shadow-inner`}
+                      >
+                        {/* Inside Spine binding on right edge of flipped cover */}
+                        <div className="absolute right-0 top-0 bottom-0 w-4 rounded-r-[2rem] bg-gradient-to-l from-slate-300/40 via-transparent to-transparent border-l border-slate-200/50" />
 
-                      {/* Bottom Bar: Color theme name & interactive prompt */}
-                      <div className="flex items-center justify-between pl-2 pt-2 border-t border-slate-200/50 text-[11px] font-semibold text-slate-500">
-                        <span className="uppercase tracking-wider opacity-80">{palette.name}</span>
-                        <span className="flex items-center gap-1 group-hover:translate-x-1 transition-transform text-slate-700">
-                          Flip open &rarr;
-                        </span>
+                        <div className="flex items-center justify-between text-xs font-mono font-bold text-slate-400 uppercase tracking-widest pr-2">
+                          <span>Vol. {step.step}</span>
+                          <span>{palette.name}</span>
+                        </div>
+
+                        {/* Bookplate emblem */}
+                        <div className="my-auto flex flex-col items-center justify-center text-center p-4 rounded-xl border border-dashed border-slate-300/80 bg-white/70">
+                          <div className={`h-8 w-8 rounded-full ${palette.dotClass.split(' ')[0]} flex items-center justify-center text-white text-xs font-mono font-bold mb-1.5 shadow-sm`}>
+                            {step.step}
+                          </div>
+                          <p className="font-serif italic text-xs text-slate-700 font-medium">
+                            SyncBoard Architecture
+                          </p>
+                          <span className="text-[10px] uppercase font-bold tracking-wider text-slate-500 mt-0.5">
+                            {step.kicker}
+                          </span>
+                        </div>
+
+                        <div className="text-[11px] font-semibold text-slate-400 text-center pr-2">
+                          &larr; Click or hover away to close
+                        </div>
                       </div>
                     </div>
                   </div>
