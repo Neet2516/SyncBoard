@@ -35,11 +35,17 @@ export function FaqSection() {
   return (
     <section className="relative z-10 py-20 sm:py-24">
       <div className="mx-auto max-w-6xl xl:max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="text-center">
+        <motion.div
+          className="text-center"
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.3 }}
+          transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
+        >
           <h2 className="section-title text-3xl font-extrabold tracking-tight text-slate-950 sm:text-4xl md:text-5xl">
             Frequently Asked Questions
           </h2>
-        </div>
+        </motion.div>
 
         <div className="mt-12 space-y-4">
           {FAQS.map((faq, index) => {
@@ -47,8 +53,16 @@ export function FaqSection() {
             const num = String(index + 1).padStart(2, '0')
 
             return (
-              <div
+              <motion.div
                 key={faq.q}
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.15 }}
+                transition={{
+                  duration: 0.5,
+                  delay: index * 0.08,
+                  ease: [0.22, 1, 0.36, 1],
+                }}
                 className={`group relative overflow-hidden rounded-[1.6rem] border transition-all duration-300 ${
                   isOpen
                     ? 'border-blue-400/80 bg-white shadow-[0_16px_40px_rgba(37,99,235,0.12)] ring-1 ring-blue-500/15'
@@ -155,7 +169,7 @@ export function FaqSection() {
                     </motion.div>
                   )}
                 </AnimatePresence>
-              </div>
+              </motion.div>
             )
           })}
         </div>

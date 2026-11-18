@@ -119,14 +119,26 @@ export function CompassFeaturesSection() {
     <section className="relative z-10 py-16 sm:py-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="mx-auto max-w-3xl text-center">
+        <motion.div
+          className="mx-auto max-w-3xl text-center"
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.3 }}
+          transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
+        >
           <h2 className="section-title text-3xl font-extrabold tracking-tight text-slate-950 sm:text-4xl md:text-5xl">
             Everything you need to map thoughts
           </h2>
-        </div>
+        </motion.div>
 
         {/* Spatial Feature Grid Surrounding Central Compass */}
-        <div className="relative mt-12 sm:mt-16 rounded-[2.8rem] border border-white/80 bg-transparent p-6 sm:p-10 lg:p-12 shadow-[0_24px_70px_rgba(15,23,42,0.08),inset_0_2px_4px_rgba(255,255,255,0.95)] overflow-hidden">
+        <motion.div
+          className="relative mt-12 sm:mt-16 rounded-[2.8rem] border border-white/80 bg-transparent p-6 sm:p-10 lg:p-12 shadow-[0_24px_70px_rgba(15,23,42,0.08),inset_0_2px_4px_rgba(255,255,255,0.95)] overflow-hidden"
+          initial={{ opacity: 0, y: 44, scale: 0.98 }}
+          whileInView={{ opacity: 1, y: 0, scale: 1 }}
+          viewport={{ once: true, amount: 0.08 }}
+          transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
+        >
           {/* Dot-Grid Canvas Background Texture */}
           <div
             className="pointer-events-none absolute inset-0 opacity-70"
@@ -205,8 +217,16 @@ export function CompassFeaturesSection() {
               const isActive = activeCompassIndex === index
 
               return (
-                <div
+                <motion.div
                   key={feat.title}
+                  initial={{ opacity: 0, y: -28, scale: 0.94 }}
+                  whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                  viewport={{ once: true, amount: 0.2 }}
+                  transition={{
+                    duration: 0.6,
+                    delay: sliceIdx * 0.12,
+                    ease: [0.22, 1, 0.36, 1],
+                  }}
                   onMouseEnter={() => setActiveCompassIndex(index)}
                   onClick={() => setActiveCompassIndex(index)}
                   className={`group relative flex flex-col justify-between rounded-[28px] border p-6 transition-all duration-300 cursor-pointer select-none ${feat.rotation} hover:rotate-0 hover:scale-[1.03] hover:-translate-y-2 hover:z-30 ${
@@ -313,13 +333,24 @@ export function CompassFeaturesSection() {
                   >
                     <span className="h-1.5 w-1.5 rounded-full bg-white" />
                   </div>
-                </div>
+                </motion.div>
               )
             })}
           </div>
 
           {/* CENTER HUB: Compass Instrument with Flowing Animated Radial Vector Lines */}
-          <div className="relative my-8 sm:my-10 flex flex-col items-center justify-center">
+          <motion.div
+            className="relative my-8 sm:my-10 flex flex-col items-center justify-center"
+            initial={{ opacity: 0, scale: 0.88 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true, amount: 0.2 }}
+            transition={{
+              type: 'spring',
+              stiffness: 110,
+              damping: 15,
+              delay: 0.2,
+            }}
+          >
             {/* SVG Vector Connecting Lines radiating from Compass Hub to all 6 surrounding cards */}
             <div className="pointer-events-none absolute inset-0 hidden lg:block overflow-visible">
               <svg className="h-full w-full overflow-visible" viewBox="0 0 1000 200" preserveAspectRatio="none">
@@ -493,7 +524,7 @@ export function CompassFeaturesSection() {
                 {GRID_FEATURES[activeCompassIndex].coords}
               </span>
             </div>
-          </div>
+          </motion.div>
 
           {/* BOTTOM ROW: 3 Pinned Sticky Notes (SW, S, SE) */}
           <div className="relative z-10 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
@@ -502,8 +533,16 @@ export function CompassFeaturesSection() {
               const isActive = activeCompassIndex === index
 
               return (
-                <div
+                <motion.div
                   key={feat.title}
+                  initial={{ opacity: 0, y: 28, scale: 0.94 }}
+                  whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                  viewport={{ once: true, amount: 0.2 }}
+                  transition={{
+                    duration: 0.6,
+                    delay: sliceIdx * 0.12 + 0.15,
+                    ease: [0.22, 1, 0.36, 1],
+                  }}
                   onMouseEnter={() => setActiveCompassIndex(index)}
                   onClick={() => setActiveCompassIndex(index)}
                   className={`group relative flex flex-col justify-between rounded-[28px] border p-6 transition-all duration-300 cursor-pointer select-none ${feat.rotation} hover:rotate-0 hover:scale-[1.03] hover:-translate-y-2 hover:z-30 ${
@@ -608,11 +647,11 @@ export function CompassFeaturesSection() {
                       </span>
                     )}
                   </div>
-                </div>
+                </motion.div>
               )
             })}
           </div>
-        </div>
+        </motion.div>
       </div>
     </section>
   )

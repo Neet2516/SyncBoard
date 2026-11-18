@@ -313,7 +313,13 @@ export function DirectionAwareFooter() {
 
   return (
     <footer className="relative z-10 bg-transparent py-12 ">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <motion.div
+        className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8"
+        initial={{ opacity: 0, y: 36 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.15 }}
+        transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+      >
         {/* Main Glassmorphic Container with Direction-Aware Selection */}
         <div
           ref={containerRef}
@@ -512,7 +518,7 @@ export function DirectionAwareFooter() {
             </span>
           </div>
         </div>
-      </div>
+      </motion.div>
     </footer>
   )
 }

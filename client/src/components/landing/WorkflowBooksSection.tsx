@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { motion } from 'framer-motion'
 
 export const WORKFLOW_STEPS = [
   {
@@ -181,14 +182,20 @@ export function WorkflowBooksSection() {
   return (
     <section className="relative z-10 py-16">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-3xl text-center">
+        <motion.div
+          className="mx-auto max-w-3xl text-center"
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.3 }}
+          transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
+        >
           <h2 className="section-title text-3xl font-extrabold tracking-tight text-slate-950 sm:text-4xl md:text-5xl">
             How SyncBoard Works
           </h2>
-        </div>
+        </motion.div>
 
         <div className="mt-14 grid grid-cols-1 gap-8 lg:grid-cols-3">
-          {WORKFLOW_STEPS.map((step) => {
+          {WORKFLOW_STEPS.map((step, index) => {
             const isOpen = openWorkflowCard === step.step
             const colorKey: BookColorKey =
               bookColors[step.step] ||
@@ -196,8 +203,16 @@ export function WorkflowBooksSection() {
             const palette = BOOK_COLOR_PALETTES[colorKey]
 
             return (
-              <div
+              <motion.div
                 key={step.step}
+                initial={{ opacity: 0, y: 48, scale: 0.95 }}
+                whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                viewport={{ once: true, amount: 0.15 }}
+                transition={{
+                  duration: 0.7,
+                  delay: index * 0.15,
+                  ease: [0.22, 1, 0.36, 1],
+                }}
                 onClick={() => setOpenWorkflowCard(isOpen ? null : step.step)}
                 className={`group relative h-full min-h-[400px] sm:min-h-[430px] rounded-[2rem] [perspective:2000px] [transform-style:preserve-3d] transition-all duration-500 hover:z-30 cursor-pointer ${palette.glow}`}
               >
@@ -360,7 +375,7 @@ export function WorkflowBooksSection() {
                     </div>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             )
           })}
         </div>
