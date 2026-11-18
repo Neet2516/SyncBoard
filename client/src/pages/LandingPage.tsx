@@ -1315,7 +1315,7 @@ export function LandingPage() {
 
         {/* SECTION 5: FREQUENTLY ASKED QUESTIONS */}
         <section className="relative z-10 py-20 sm:py-24">
-          <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-6xl xl:max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="text-center">
               <span className="inline-flex items-center gap-1.5 rounded-full border border-blue-200/80 bg-blue-50/80 px-3.5 py-1 text-xs font-bold uppercase tracking-wider text-blue-700 shadow-sm backdrop-blur-md">
                 <span className="h-1.5 w-1.5 rounded-full bg-blue-600 animate-pulse" />
