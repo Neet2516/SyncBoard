@@ -1352,61 +1352,6 @@ export function LandingPage() {
             </div>
           </div>
         </section>
-
-        {/* SECTION 6: HIGH-CONVERTING BOTTOM CTA BANNER */}
-        <section className="relative z-10 pb-20 pt-8">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="relative overflow-hidden rounded-[2.5rem] border border-blue-200/80 bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 px-6 py-14 shadow-[0_28px_70px_rgba(37,99,235,0.32)] sm:px-12 sm:py-18 lg:px-20 text-white">
-              {/* Background ambient accents */}
-              <div className="pointer-events-none absolute -left-20 -top-20 h-72 w-72 rounded-full bg-white/10 blur-3xl" />
-              <div className="pointer-events-none absolute -bottom-20 -right-20 h-72 w-72 rounded-full bg-cyan-400/20 blur-3xl" />
-
-              <div className="relative z-10 mx-auto max-w-3xl text-center">
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-4 py-1 text-xs font-bold uppercase tracking-widest text-blue-100 backdrop-blur-md">
-                  ⚡ Ready to collaborate?
-                </span>
-                <h2 className="mt-4 text-3xl font-black tracking-tight sm:text-4xl md:text-5xl">
-                  Start mapping your next idea right now
-                </h2>
-                <p className="mt-4 text-base font-medium text-blue-100 sm:text-lg">
-                  No sign-up or password required to test. Click below to jump straight in as a Demo User, or create a free account to save your boards forever.
-                </p>
-
-                <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
-                  {isAuthenticated ? (
-                    <Link
-                      to="/boards"
-                      className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-white px-8 py-4 text-base font-bold text-blue-600 shadow-lg transition hover:-translate-y-1 hover:bg-slate-50 active:translate-y-0 sm:w-auto"
-                    >
-                      Go to Your Dashboard &rarr;
-                    </Link>
-                  ) : (
-                    <>
-                      <button
-                        type="button"
-                        onClick={handleDemoLogin}
-                        disabled={demoLoading}
-                        className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-white px-8 py-4 text-base font-bold text-blue-600 shadow-lg transition hover:-translate-y-1 hover:bg-slate-50 active:translate-y-0 sm:w-auto"
-                      >
-                        <svg className="h-5 w-5 text-amber-500" viewBox="0 0 20 20" fill="currentColor">
-                          <path fillRule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clipRule="evenodd" />
-                        </svg>
-                        {demoLoading ? 'Starting Instant Demo...' : 'Instant Demo User (1-Click)'}
-                      </button>
-
-                      <Link
-                        to="/register"
-                        className="inline-flex min-h-12 w-full items-center justify-center rounded-full border border-white/40 bg-white/10 px-8 py-4 text-base font-bold text-white backdrop-blur-md transition hover:-translate-y-1 hover:bg-white/20 active:translate-y-0 sm:w-auto"
-                      >
-                        Create Free Account
-                      </Link>
-                    </>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
       </main>
 
       <DirectionAwareFooter />
