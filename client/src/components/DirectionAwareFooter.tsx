@@ -89,7 +89,7 @@ interface InlineBadgeProps {
 }
 
 /**
- * Aceternity UI style inline selectable badge token
+ * Aceternity UI style inline selectable badge token with Direction-Aware Hover Fill
  */
 function InlineSelectable({
   href,
@@ -184,7 +184,7 @@ function InlineSelectable({
       <a
         ref={itemRef}
         href={href}
-        target={href.startsWith('http') ? '_blank' : undefined}
+        target={href.startsWith('http') || href.startsWith('mailto:') ? '_blank' : undefined}
         rel={href.startsWith('http') ? 'noreferrer' : undefined}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
@@ -211,119 +211,6 @@ function InlineSelectable({
     >
       {Content}
     </span>
-  )
-}
-
-interface DirectionAwareContactCardProps {
-  href: string
-  label: string
-  value: string
-  icon: React.ReactNode
-  onHoverTarget: (el: HTMLElement | null) => void
-  reducedMotion: boolean
-}
-
-function DirectionAwareContactCard({
-  href,
-  label,
-  value,
-  icon,
-  onHoverTarget,
-  reducedMotion,
-}: DirectionAwareContactCardProps) {
-  const cardRef = useRef<HTMLAnchorElement>(null)
-  const iconRef = useRef<HTMLDivElement>(null)
-  const [direction, setDirection] = useState<Direction>('left')
-  const [isHovered, setIsHovered] = useState(false)
-
-  const handleMouseEnter = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    const dir = getEntryDirection(e, iconRef.current || e.currentTarget)
-    setDirection(dir)
-    setIsHovered(true)
-    if (cardRef.current) {
-      onHoverTarget(cardRef.current)
-    }
-  }
-
-  const handleMouseLeave = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    const dir = getEntryDirection(e, iconRef.current || e.currentTarget)
-    setDirection(dir)
-    setIsHovered(false)
-  }
-
-  const handleFocus = () => {
-    if (cardRef.current) {
-      setIsHovered(true)
-      onHoverTarget(cardRef.current)
-    }
-  }
-
-  const handleBlur = () => {
-    setIsHovered(false)
-  }
-
-  return (
-    <a
-      ref={cardRef}
-      href={href}
-      target={href.startsWith('mailto:') ? undefined : '_blank'}
-      rel={href.startsWith('mailto:') ? undefined : 'noreferrer'}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-      onFocus={handleFocus}
-      onBlur={handleBlur}
-      data-card="true"
-      className="group relative flex min-w-[220px] flex-1 items-center gap-4 rounded-[1.4rem] border border-white/70 bg-white/58 px-4 py-4 shadow-[0_14px_32px_rgba(15,23,42,0.08)] backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:border-blue-300/80 hover:bg-white/80 hover:shadow-[0_20px_45px_rgba(37,99,235,0.14)] focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 lg:max-w-[260px]"
-    >
-      {/* Direction-Aware Icon Badge Container */}
-      <div
-        ref={iconRef}
-        onMouseEnter={(e) => {
-          e.stopPropagation()
-          const dir = getEntryDirection(e, e.currentTarget)
-          setDirection(dir)
-          setIsHovered(true)
-        }}
-        onMouseLeave={(e) => {
-          e.stopPropagation()
-          const dir = getEntryDirection(e, e.currentTarget)
-          setDirection(dir)
-        }}
-        className="relative flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-blue-200/70 bg-blue-50/90 text-blue-600 shadow-[0_8px_18px_rgba(37,99,235,0.12)] transition-all duration-300 group-hover:border-blue-400/80 group-hover:shadow-[0_12px_24px_rgba(37,99,235,0.24)]"
-      >
-        {/* Base Icon */}
-        <span className="relative z-10 transition-transform duration-300 group-hover:scale-105">
-          {icon}
-        </span>
-
-        {/* Directional Color-Fill Overlay (Royal Blue) */}
-        <AnimatePresence mode="wait">
-          {isHovered && (
-            <motion.div
-              key="fill-overlay"
-              custom={direction}
-              variants={reducedMotion ? undefined : iconFillVariants}
-              initial={reducedMotion ? { opacity: 0 } : 'initial'}
-              animate={reducedMotion ? { opacity: 1 } : 'animate'}
-              exit={reducedMotion ? { opacity: 0 } : 'exit'}
-              className="absolute inset-0 z-20 flex items-center justify-center rounded-2xl bg-blue-600 text-white shadow-[0_10px_25px_rgba(37,99,235,0.35)]"
-            >
-              <span className="scale-105">{icon}</span>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-
-      {/* Label and Value */}
-      <span className="min-w-0">
-        <span className="block text-sm font-bold text-slate-900 transition-colors duration-200 group-hover:text-blue-600">
-          {label}
-        </span>
-        <span className="block truncate text-sm text-slate-500 transition-colors duration-200 group-hover:text-slate-700">
-          {value}
-        </span>
-      </span>
-    </a>
   )
 }
 
@@ -365,13 +252,12 @@ export function DirectionAwareFooter() {
     const cRect = containerRef.current.getBoundingClientRect()
     const eRect = activeElement.getBoundingClientRect()
 
-    const isCard = activeElement.hasAttribute('data-card')
     const isInline = activeElement.hasAttribute('data-inline-target')
 
-    const padX = isCard ? 0 : isInline ? 4 : 8
-    const padY = isCard ? 0 : isInline ? 2 : 4
+    const padX = isInline ? 4 : 8
+    const padY = isInline ? 2 : 4
 
-    const borderRadius = isCard ? '1.4rem' : isInline ? '0.75rem' : '0.5rem'
+    const borderRadius = isInline ? '0.75rem' : '0.5rem'
 
     setRect({
       top: eRect.top - cRect.top - padY,
@@ -432,7 +318,7 @@ export function DirectionAwareFooter() {
         <div
           ref={containerRef}
           onMouseLeave={handleContainerMouseLeave}
-          className="relative rounded-[2rem] border border-white/60 bg-white/42 p-8 sm:p-10 shadow-[0_20px_50px_rgba(15,23,42,0.08)] backdrop-blur-xl"
+          className="relative rounded-[2rem] border border-white/60 bg-white/42 p-8 sm:p-12 shadow-[0_20px_50px_rgba(15,23,42,0.08)] backdrop-blur-xl"
         >
           {/* Shared Figma-Style Selection Frame */}
           <AnimatePresence>
@@ -521,8 +407,8 @@ export function DirectionAwareFooter() {
             {/* Eyebrow Header */}
             <p className="brand-kicker mb-6">About the developer</p>
 
-            {/* Aceternity UI Inspired Headline Section with Doodle Arrow */}
-            <div className="relative mb-8 max-w-4xl">
+            {/* Aceternity UI Flowing Paragraph with all Navigation Links Inline */}
+            <div className="relative max-w-5xl">
               {/* "hover here" doodle with hand-drawn curved arrow pointing to Navneet Sinha */}
               <div className="absolute -top-10 left-16 sm:-top-11 sm:left-24 hidden sm:flex flex-col items-center pointer-events-none select-none z-10">
                 <span className="font-serif italic text-xs sm:text-sm text-slate-500 font-medium tracking-wide transform -rotate-6">
@@ -548,10 +434,10 @@ export function DirectionAwareFooter() {
                 </svg>
               </div>
 
-              {/* Iconic Flowing Sentence matching uploaded reference screenshot */}
-              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-normal text-slate-600 leading-snug sm:leading-relaxed">
+              {/* All Navigation & Social Links in the Same Paragraph */}
+              <h2 className="text-2xl sm:text-3xl lg:text-[2.2rem] font-normal text-slate-600 leading-relaxed sm:leading-[1.85]">
                 <span>Hi, I'm</span>{' '}
-                {/* 1. Navneet Sinha with Avatar */}
+                {/* 1. Navneet Sinha with Avatar Badge */}
                 <InlineSelectable
                   href={DEVELOPER_PROFILE.portfolio}
                   label={DEVELOPER_PROFILE.name}
@@ -576,6 +462,7 @@ export function DirectionAwareFooter() {
                 <span>. I build</span>{' '}
                 {/* 2. SyncBoard with App Logo */}
                 <InlineSelectable
+                  href="/boards"
                   label="SyncBoard"
                   icon={<SyncBoardIcon />}
                   onHoverTarget={handleElementHover}
@@ -590,84 +477,50 @@ export function DirectionAwareFooter() {
                   onHoverTarget={handleElementHover}
                   reducedMotion={reducedMotion}
                 />
-                <span>for the web.</span>
-              </h2>
-            </div>
-
-            {/* Split Row: Details and Contact Cards */}
-            <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-              <div className="max-w-2xl">
-                {/* Designation: FULL-STACK DEVELOPER */}
-                <div>
-                  <p
-                    onMouseEnter={(e) => handleElementHover(e.currentTarget)}
-                    onFocus={(e) => handleElementHover(e.currentTarget)}
-                    tabIndex={0}
-                    className="text-sm font-semibold uppercase tracking-[0.18em] text-blue-600/90 inline-block w-fit cursor-default rounded focus:outline-none"
-                  >
-                    {DEVELOPER_PROFILE.role}
-                  </p>
-                </div>
-
-                {/* Developer Description */}
-                <p
-                  onMouseEnter={(e) => handleElementHover(e.currentTarget)}
-                  onFocus={(e) => handleElementHover(e.currentTarget)}
-                  tabIndex={0}
-                  className="section-copy mt-3 text-base cursor-default rounded focus:outline-none"
-                >
-                  {DEVELOPER_PROFILE.blurb} It blends shared presence, sticky-note thinking, and a board-first workflow into one polished canvas.
-                </p>
-              </div>
-
-              {/* 4 Contact Cards (Email, LinkedIn, GitHub, Discord) */}
-              <div className="flex flex-wrap gap-3 lg:max-w-[38rem] lg:justify-end">
-                {/* 4. Email Contact Card */}
-                <DirectionAwareContactCard
-                  href={`mailto:${DEVELOPER_PROFILE.email}`}
-                  label="Email"
-                  value={DEVELOPER_PROFILE.email}
-                  icon={<MailIcon />}
-                  onHoverTarget={handleElementHover}
-                  reducedMotion={reducedMotion}
-                />
-
-                {/* 5. LinkedIn Contact Card */}
-                <DirectionAwareContactCard
-                  href={DEVELOPER_PROFILE.linkedin}
-                  label="LinkedIn"
-                  value="in/sinha-navneet"
-                  icon={<LinkedInIcon />}
-                  onHoverTarget={handleElementHover}
-                  reducedMotion={reducedMotion}
-                />
-
-                {/* 6. GitHub Contact Card */}
-                <DirectionAwareContactCard
+                <span>for the web. Reach out on</span>{' '}
+                {/* 4. GitHub */}
+                <InlineSelectable
                   href={DEVELOPER_PROFILE.github}
                   label="GitHub"
-                  value="@Neet2516"
                   icon={<GitHubIcon />}
                   onHoverTarget={handleElementHover}
                   reducedMotion={reducedMotion}
                 />
-
-                {/* 7. Discord Contact Card */}
-                <DirectionAwareContactCard
+                <span>,</span>{' '}
+                {/* 5. LinkedIn */}
+                <InlineSelectable
+                  href={DEVELOPER_PROFILE.linkedin}
+                  label="LinkedIn"
+                  icon={<LinkedInIcon />}
+                  onHoverTarget={handleElementHover}
+                  reducedMotion={reducedMotion}
+                />
+                <span>,</span>{' '}
+                {/* 6. Discord */}
+                <InlineSelectable
                   href={DEVELOPER_PROFILE.discord}
                   label="Discord"
-                  value="Direct message"
                   icon={<DiscordIcon />}
                   onHoverTarget={handleElementHover}
                   reducedMotion={reducedMotion}
                 />
-              </div>
+                <span>, or say hello via</span>{' '}
+                {/* 7. Email */}
+                <InlineSelectable
+                  href={`mailto:${DEVELOPER_PROFILE.email}`}
+                  label="Email"
+                  icon={<MailIcon />}
+                  onHoverTarget={handleElementHover}
+                  reducedMotion={reducedMotion}
+                />
+                <span>.</span>
+              </h2>
             </div>
           </div>
 
-          {/* Divider */}
-          <div className="mt-8 border-t border-white/55 pt-5">
-            {/* 8. Closing Footer Statement */}
+          {/* Clean Bottom Divider with Closing Statement & Copyright */}
+          <div className="mt-10 border-t border-white/55 pt-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            {/* Closing Footer Statement */}
             <p
               onMouseEnter={(e) => handleElementHover(e.currentTarget)}
               onFocus={(e) => handleElementHover(e.currentTarget)}
@@ -676,14 +529,12 @@ export function DirectionAwareFooter() {
             >
               Designed for collaborative thinking, persistent notes, and a smoother team flow.
             </p>
-          </div>
-        </div>
 
-        {/* Copyright */}
-        <div className="mt-6 text-center">
-          <span className="stat-label text-sm text-slate-500">
-            &copy; 2026 SyncBoard. All rights reserved.
-          </span>
+            {/* Copyright */}
+            <span className="stat-label text-xs sm:text-sm text-slate-500 whitespace-nowrap">
+              &copy; 2026 SyncBoard. All rights reserved.
+            </span>
+          </div>
         </div>
       </div>
     </footer>
@@ -708,35 +559,35 @@ function PortfolioIcon() {
   )
 }
 
-function MailIcon() {
+function GitHubIcon() {
   return (
-    <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16v12H4z" />
-      <path strokeLinecap="round" strokeLinejoin="round" d="m4 7 8 6 8-6" />
+    <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M12 .5a12 12 0 0 0-3.8 23.39c.6.11.82-.26.82-.58v-2.03c-3.34.73-4.04-1.42-4.04-1.42-.55-1.38-1.33-1.75-1.33-1.75-1.09-.74.08-.73.08-.73 1.2.08 1.84 1.24 1.84 1.24 1.08 1.84 2.84 1.31 3.54 1 .11-.79.42-1.31.76-1.61-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.39 1.24-3.23-.13-.3-.54-1.53.11-3.19 0 0 1.01-.32 3.3 1.23a11.4 11.4 0 0 1 6 0c2.29-1.55 3.3-1.23 3.3-1.23.65 1.66.24 2.89.12 3.19.77.84 1.24 1.92 1.24 3.23 0 4.61-2.81 5.62-5.49 5.92.43.37.82 1.11.82 2.23v3.31c0 .32.22.7.83.58A12 12 0 0 0 12 .5Z" />
     </svg>
   )
 }
 
 function LinkedInIcon() {
   return (
-    <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
       <path d="M6.94 8.5a1.44 1.44 0 1 1 0-2.88 1.44 1.44 0 0 1 0 2.88ZM5.7 9.74h2.5V18H5.7V9.74Zm4.07 0h2.4v1.13h.03c.33-.63 1.15-1.29 2.37-1.29 2.54 0 3.01 1.67 3.01 3.83V18h-2.5v-4.04c0-.97-.02-2.22-1.35-2.22-1.36 0-1.57 1.06-1.57 2.15V18h-2.4V9.74Z" />
-    </svg>
-  )
-}
-
-function GitHubIcon() {
-  return (
-    <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-      <path d="M12 .5a12 12 0 0 0-3.8 23.39c.6.11.82-.26.82-.58v-2.03c-3.34.73-4.04-1.42-4.04-1.42-.55-1.38-1.33-1.75-1.33-1.75-1.09-.74.08-.73.08-.73 1.2.08 1.84 1.24 1.84 1.24 1.08 1.84 2.84 1.31 3.54 1 .11-.79.42-1.31.76-1.61-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.39 1.24-3.23-.13-.3-.54-1.53.11-3.19 0 0 1.01-.32 3.3 1.23a11.4 11.4 0 0 1 6 0c2.29-1.55 3.3-1.23 3.3-1.23.65 1.66.24 2.89.12 3.19.77.84 1.24 1.92 1.24 3.23 0 4.61-2.81 5.62-5.49 5.92.43.37.82 1.11.82 2.23v3.31c0 .32.22.7.83.58A12 12 0 0 0 12 .5Z" />
     </svg>
   )
 }
 
 function DiscordIcon() {
   return (
-    <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
       <path d="M20.32 4.37a16.7 16.7 0 0 0-4.1-1.28.06.06 0 0 0-.07.03c-.18.32-.38.74-.52 1.07a15.48 15.48 0 0 0-4.67 0 10.7 10.7 0 0 0-.53-1.07.06.06 0 0 0-.07-.03 16.62 16.62 0 0 0-4.1 1.28.05.05 0 0 0-.03.02C3.63 8.18 2.9 11.87 3.26 15.52a.07.07 0 0 0 .03.05 16.8 16.8 0 0 0 4.94 2.5.06.06 0 0 0 .07-.02c.38-.52.73-1.07 1.03-1.64a.06.06 0 0 0-.03-.08 10.9 10.9 0 0 1-1.57-.75.06.06 0 0 1-.01-.1c.1-.08.2-.16.29-.24a.06.06 0 0 1 .07-.01c3.3 1.5 6.87 1.5 10.13 0a.06.06 0 0 1 .07 0c.1.08.2.16.3.24a.06.06 0 0 1-.01.1c-.5.3-1.03.56-1.57.75a.06.06 0 0 0-.03.08c.3.57.65 1.12 1.03 1.64a.06.06 0 0 0 .07.02 16.74 16.74 0 0 0 4.94-2.5.06.06 0 0 0 .03-.05c.43-4.22-.72-7.88-2.97-11.13a.05.05 0 0 0-.03-.02ZM9.85 13.3c-.99 0-1.8-.91-1.8-2.03 0-1.12.8-2.03 1.8-2.03 1 0 1.81.92 1.8 2.03 0 1.12-.8 2.03-1.8 2.03Zm4.3 0c-.99 0-1.8-.91-1.8-2.03 0-1.12.8-2.03 1.8-2.03 1 0 1.81.92 1.8 2.03 0 1.12-.8 2.03-1.8 2.03Z" />
+    </svg>
+  )
+}
+
+function MailIcon() {
+  return (
+    <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16v12H4z" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="m4 7 8 6 8-6" />
     </svg>
   )
 }
