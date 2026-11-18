@@ -25,11 +25,14 @@ export function LandingNavbar({
           title="SyncBoard Home"
         >
           <img
-            src="/favicon.svg"
+            src="/favicon.png"
             alt="SyncBoard Logo"
-            className="h-8 w-8 transition-transform duration-200 group-hover:scale-110 sm:h-9 sm:w-9"
+            className="h-8 w-8 object-contain transition-transform duration-200 group-hover:scale-110 sm:h-9 sm:w-9"
           />
-          <span className="brand-mark text-xl text-blue-600 transition-colors group-hover:text-blue-700 sm:text-3xl">
+          <span
+            className="navbar-brand text-2xl font-bold tracking-tight text-blue-600 transition-colors group-hover:text-blue-700 sm:text-3xl"
+            style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+          >
             SyncBoard
           </span>
         </button>

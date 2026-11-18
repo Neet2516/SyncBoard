@@ -518,11 +518,7 @@ export function DirectionAwareFooter() {
 }
 
 function SyncBoardIcon() {
-  return (
-    <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M4 5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5zm3 2v4h4V7H7zm6 0v2h4V7h-4zm0 4v6h4v-6h-4zm-6 2v4h4v-4H7z" />
-    </svg>
-  )
+  return <img src="/favicon.png" alt="SyncBoard" className="h-4 w-4 object-contain" />
 }
 
 function PortfolioIcon() {

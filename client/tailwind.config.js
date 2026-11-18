@@ -8,6 +8,7 @@ export default {
     extend: {
       fontFamily: {
         syncboard: ['HollyBerryPop', 'sans-serif'],
+        'space-grotesk': ["'Space Grotesk'", 'sans-serif'],
       },
     },
   },

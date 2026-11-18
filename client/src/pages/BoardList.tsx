@@ -172,8 +172,13 @@ export function BoardList() {
             className="group flex items-center gap-3 text-left transition hover:opacity-90 focus:outline-none"
             title="Go to Landing Page"
           >
-            <img src="/favicon.svg" alt="SyncBoard Logo" className="h-8 w-8 transition-transform duration-200 group-hover:scale-110" />
-            <h1 className="brand-mark text-2xl text-blue-600 transition-colors group-hover:text-blue-700">SyncBoard</h1>
+            <img src="/favicon.png" alt="SyncBoard Logo" className="h-8 w-8 object-contain transition-transform duration-200 group-hover:scale-110" />
+            <h1
+              className="navbar-brand text-2xl font-bold tracking-tight text-blue-600 transition-colors group-hover:text-blue-700"
+              style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+            >
+              SyncBoard
+            </h1>
           </button>
           <div className="flex flex-wrap items-center gap-3 md:justify-end">
           {user && (

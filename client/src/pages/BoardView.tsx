@@ -144,8 +144,13 @@ export function BoardView() {
               className="group hidden items-center gap-2 rounded-full border border-slate-200/80 bg-white px-3 py-1.5 shadow-sm transition hover:border-slate-300 hover:bg-slate-50 md:inline-flex"
               title="Go to Landing Page"
             >
-              <img src="/favicon.svg" alt="SyncBoard Logo" className="h-5 w-5 transition-transform duration-200 group-hover:scale-110" />
-              <span className="brand-mark text-base text-blue-600 transition-colors group-hover:text-blue-700">SyncBoard</span>
+              <img src="/favicon.png" alt="SyncBoard Logo" className="h-5 w-5 object-contain transition-transform duration-200 group-hover:scale-110" />
+              <span
+                className="navbar-brand text-base font-bold tracking-tight text-blue-600 transition-colors group-hover:text-blue-700"
+                style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+              >
+                SyncBoard
+              </span>
             </button>
 
             <Link
