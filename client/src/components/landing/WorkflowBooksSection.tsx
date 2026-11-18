@@ -6,22 +6,37 @@ export const WORKFLOW_STEPS = [
     kicker: 'Free-form Ideation',
     title: 'Pin, color-code, and organize without boundaries',
     desc: 'Break out of linear docs. Drop sticky notes anywhere on an infinite zoomable canvas, choose from 5 vibrant paper themes, and format thoughts with Quill rich text.',
+    capability: {
+      name: 'Persistent Notes',
+      desc: 'Your ideas stay safe. Every stroke and note is carried forward with durable persistence.',
+      icon: 'note',
+    },
     accent: 'border-amber-300 text-amber-700 bg-amber-500/10',
-    tag: '5 Color Themes • Quill Rich Text',
+    tag: 'Persistent Notes • Quill Rich Text',
   },
   {
     step: '02',
     kicker: 'Multiplayer Engine',
     title: 'See teammates move and edit in sub-millisecond sync',
     desc: 'Collaborate live with zero conflict locks. Yjs CRDTs and WebSockets synchronize every stroke, cursor motion, and text modification instantly across peers.',
+    capability: {
+      name: 'Instant Sync & Team Presence',
+      desc: 'Powered by Y.js for sub-millisecond sync. See who is working with real-time cursors and status indicators.',
+      icon: 'sync',
+    },
     accent: 'border-blue-300 text-blue-700 bg-blue-500/10',
-    tag: 'Live Cursors • Conflict-Free CRDTs',
+    tag: 'Instant Sync • Live Cursors',
   },
   {
     step: '03',
     kicker: 'Connect & Export',
     title: 'Draw smart vector connectors and export high-DPI PDFs',
     desc: 'Link cards to build flowcharts and idea maps. When your brainstorm is complete, generate publication-ready high-DPI PDFs with pristine vector lines in one click.',
+    capability: {
+      name: 'Vector Routing & High-DPI PDF',
+      desc: 'Smart orthogonal routes adapt dynamically, preserving pins and connections into crystal-clear vector documents.',
+      icon: 'export',
+    },
     accent: 'border-emerald-300 text-emerald-700 bg-emerald-500/10',
     tag: 'Smart Orthogonal Lines • 1-Click PDF',
   },
@@ -123,6 +138,38 @@ export const BOOK_COLOR_PALETTES: Record<BookColorKey, BookPalette> = {
   },
 }
 
+function CapabilityIcon({ icon }: { icon: string }) {
+  if (icon === 'note') {
+    return (
+      <svg className="h-4 w-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="2"
+          d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+        />
+      </svg>
+    )
+  }
+  if (icon === 'sync') {
+    return (
+      <svg className="h-4 w-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+      </svg>
+    )
+  }
+  return (
+    <svg className="h-4 w-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="2"
+        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+      />
+    </svg>
+  )
+}
+
 export function WorkflowBooksSection() {
   const [openWorkflowCard, setOpenWorkflowCard] = useState<string | null>(null)
   const [bookColors, setBookColors] = useState<Record<string, BookColorKey>>({
@@ -135,7 +182,7 @@ export function WorkflowBooksSection() {
     <section className="relative z-10 py-16">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-3xl text-center">
-          <p className="brand-kicker">Workflow Architecture</p>
+          <p className="brand-kicker">Core Capabilities & Workflow</p>
           <h2 className="section-title mt-2 text-3xl font-extrabold tracking-tight text-slate-950 sm:text-4xl md:text-5xl">
             How SyncBoard Works
           </h2>
@@ -156,7 +203,7 @@ export function WorkflowBooksSection() {
               <div
                 key={step.step}
                 onClick={() => setOpenWorkflowCard(isOpen ? null : step.step)}
-                className={`group relative h-full min-h-[350px] sm:min-h-[380px] rounded-[2rem] [perspective:2000px] [transform-style:preserve-3d] transition-all duration-500 hover:z-30 cursor-pointer ${palette.glow}`}
+                className={`group relative h-full min-h-[400px] sm:min-h-[430px] rounded-[2rem] [perspective:2000px] [transform-style:preserve-3d] transition-all duration-500 hover:z-30 cursor-pointer ${palette.glow}`}
               >
                 {/* Hanging Silk Ribbon Bookmark */}
                 <div
@@ -192,15 +239,30 @@ export function WorkflowBooksSection() {
                       </span>
                     </div>
 
-                    <h3 className="mt-6 text-xl font-bold tracking-tight text-slate-900">
+                    <h3 className="mt-5 text-lg sm:text-xl font-bold tracking-tight text-slate-900 leading-snug">
                       {step.title}
                     </h3>
-                    <p className="section-copy mt-3 text-sm leading-relaxed sm:text-base text-slate-600">
+                    <p className="section-copy mt-2.5 text-xs sm:text-sm leading-relaxed text-slate-600">
                       {step.desc}
                     </p>
+
+                    {/* Core Capability Detail Box from CoreCapabilitiesSection */}
+                    <div className="mt-4 flex items-start gap-2.5 rounded-xl border border-slate-200/80 bg-slate-50/80 p-2.5 backdrop-blur-xs">
+                      <div className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-white shadow-xs border border-slate-200/60">
+                        <CapabilityIcon icon={step.capability.icon} />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="text-xs font-extrabold text-slate-800">
+                          {step.capability.name}
+                        </div>
+                        <div className="mt-0.5 text-[11px] leading-relaxed text-slate-500 font-normal">
+                          {step.capability.desc}
+                        </div>
+                      </div>
+                    </div>
                   </div>
 
-                  <div className="mt-6 border-t border-slate-100 pt-4 flex items-center justify-between">
+                  <div className="mt-5 border-t border-slate-100 pt-3.5 flex items-center justify-between">
                     <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">
                       {step.tag}
                     </span>
@@ -253,8 +315,11 @@ export function WorkflowBooksSection() {
                       </div>
                     </div>
 
-                    {/* Center: Book Cover Title (Clean, 100% opaque, zero bleed-through) */}
+                    {/* Center: Book Cover Title + Core Capability badge */}
                     <div className="my-auto py-4 pl-2 text-center">
+                      <span className={`inline-block mb-2 rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${palette.badge}`}>
+                        {step.capability.name}
+                      </span>
                       <p className="text-[20px] sm:text-2xl font-black tracking-tight text-slate-900 leading-snug">
                         {step.title}
                       </p>
@@ -287,7 +352,7 @@ export function WorkflowBooksSection() {
                         {step.step}
                       </div>
                       <p className="font-serif italic text-xs text-slate-700 font-medium">
-                        SyncBoard Architecture
+                        {step.capability.name}
                       </p>
                       <span className="text-[10px] uppercase font-bold tracking-wider text-slate-500 mt-0.5">
                         {step.kicker}

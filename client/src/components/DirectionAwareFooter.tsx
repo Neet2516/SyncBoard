@@ -312,13 +312,13 @@ export function DirectionAwareFooter() {
   }
 
   return (
-    <footer className="relative z-10 border-t border-white/60 bg-white/42 py-12 backdrop-blur-xl">
+    <footer className="relative z-10 bg-transparent py-12 ">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Main Glassmorphic Container with Direction-Aware Selection */}
         <div
           ref={containerRef}
           onMouseLeave={handleContainerMouseLeave}
-          className="relative rounded-[2rem] border border-white/60 bg-white/42 p-8 sm:p-12 shadow-[0_20px_50px_rgba(15,23,42,0.08)] backdrop-blur-xl"
+          className="relative rounded-[2rem] border border-white/60 bg-transparent p-8 sm:p-12 shadow-[0_20px_50px_rgba(15,23,42,0.08)] backdrop-blur-xl"
         >
           {/* Shared Figma-Style Selection Frame */}
           <AnimatePresence>

@@ -10,7 +10,6 @@ import { DirectionAwareFooter } from '../components/DirectionAwareFooter'
 import {
   LandingNavbar,
   LandingHero,
-  CoreCapabilitiesSection,
   WorkflowBooksSection,
   CompassFeaturesSection,
   FaqSection,
@@ -247,10 +246,7 @@ export function LandingPage() {
           onExploreFeatures={handleExploreFeatures}
         />
 
-        {/* Modular Section 2: Core Overview Pillars */}
-        <CoreCapabilitiesSection />
-
-        {/* Modular Section 3: 3D Interactive Workflow Books */}
+        {/* Modular Section 2: 3D Interactive Workflow Books & Core Capabilities */}
         <WorkflowBooksSection />
 
         {/* Modular Section 4: Authentic Pinned Canvas Board with Compass Hub */}
