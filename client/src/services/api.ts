@@ -11,7 +11,10 @@ interface RequestOptions extends RequestInit {
 async function request<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
   const { params, ...init } = options
 
-  const url = new URL(`${API_BASE_URL}${endpoint}`)
+  const base =
+    API_BASE_URL ||
+    (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:4000')
+  const url = new URL(endpoint.startsWith('/') ? endpoint : `/${endpoint}`, base)
   if (params) {
     Object.keys(params).forEach((key) => url.searchParams.append(key, params[key]))
   }

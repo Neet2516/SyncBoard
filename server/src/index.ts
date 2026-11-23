@@ -1,4 +1,6 @@
 import http from 'http'
+import path from 'path'
+import fs from 'fs'
 import express from 'express'
 import cors from 'cors'
 import type { CorsOptions } from 'cors'
@@ -50,6 +52,24 @@ app.use(async (_req, _res, next) => {
 app.use('/health', healthRouter)
 app.use('/auth', authRouter)
 app.use('/boards', boardsRouter)
+
+// In production or fullstack container, serve built client SPA if present
+const clientDistPath = process.env.CLIENT_DIST_PATH || path.resolve(__dirname, '../../client/dist')
+if (fs.existsSync(clientDistPath)) {
+  console.log(`[server] Serving static client from: ${clientDistPath}`)
+  app.use(express.static(clientDistPath))
+  app.get('*', (req, res, next) => {
+    if (
+      req.path.startsWith('/health') ||
+      req.path.startsWith('/auth') ||
+      req.path.startsWith('/boards') ||
+      req.path.startsWith('/yjs')
+    ) {
+      return next()
+    }
+    res.sendFile(path.join(clientDistPath, 'index.html'))
+  })
+}
 
 const server = http.createServer(app)
 

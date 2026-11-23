@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import * as Y from 'yjs'
 import { WebsocketProvider } from 'y-websocket'
 import { createBoardDoc, NodeData, EdgeData } from '../types/yjsSchema'
+import { WS_BASE_URL } from '../constants'
 
 /**
  * useYjsDoc hook
@@ -29,7 +30,7 @@ export function useYjsDoc(boardId: string) {
   useEffect(() => {
     if (!boardId || !docRef.current) return
 
-    const wsBase = import.meta.env.VITE_WS_URL || 'ws://localhost:4000'
+    const wsBase = WS_BASE_URL
     const fullWsUrl = `${wsBase}/yjs/${boardId}`
 
     console.log(`[useYjsDoc] Connecting to ${fullWsUrl}`)
